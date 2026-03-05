@@ -2,14 +2,14 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-var React3 = require('react');
+var React6 = require('react');
 var lucideReact = require('lucide-react');
 var jsxRuntime = require('react/jsx-runtime');
 var reactDom = require('react-dom');
 
 function _interopDefault (e) { return e && e.__esModule ? e : { default: e }; }
 
-var React3__default = /*#__PURE__*/_interopDefault(React3);
+var React6__default = /*#__PURE__*/_interopDefault(React6);
 
 // src/index.tsx
 
@@ -19,11 +19,19 @@ var T = {
   headerTitle: "font-normal text-xs truncate",
   headerStat: "font-normal text-xs",
   headerStatLabel: "font-normal text-xs uppercase",
+  headerCount: "font-medium text-xs",
+  th: "text-gray-500 font-medium text-xs uppercase",
   cellLabel: "overflow-hidden",
   input: "bg-transparent border-none outline-none text-xs truncate",
+  inputLabel: "bg-transparent border-none outline-none text-xs font-medium truncate",
+  inputPlaceholder: "bg-transparent border-none outline-none text-xs text-gray-500 placeholder-gray-400 truncate",
   rowLabel: "bg-transparent border-none outline-none text-xs font-medium text-gray-600 truncate",
   totalLabel: "font-medium text-xs",
-  totalValue: "font-medium text-xs"};
+  totalValue: "font-medium text-xs",
+  footerLabel: "font-bold",
+  footerValue: "font-bold",
+  muted: "text-xs text-gray-600",
+  empty: "text-xs text-gray-400 italic"};
 
 // src/utils.ts
 var displayCurrency = (value) => {
@@ -162,8 +170,8 @@ var autoUngroup = (rows) => {
   return result;
 };
 var useIsMobile = () => {
-  const [isMobile, setIsMobile] = React3.useState(false);
-  React3.useEffect(() => {
+  const [isMobile, setIsMobile] = React6.useState(false);
+  React6.useEffect(() => {
     const mql = window.matchMedia("(max-width: 639px)");
     setIsMobile(mql.matches);
     const handler = (e) => setIsMobile(e.matches);
@@ -195,15 +203,15 @@ var EditableCell = ({
   requestEdit = 0
 }) => {
   const isMobile = useIsMobile();
-  const [isEditing, setIsEditing] = React3.useState(false);
-  const [editValue, setEditValue] = React3.useState("");
-  const [isHovered, setIsHovered] = React3.useState(false);
-  const inputRef = React3.useRef(null);
+  const [isEditing, setIsEditing] = React6.useState(false);
+  const [editValue, setEditValue] = React6.useState("");
+  const [isHovered, setIsHovered] = React6.useState(false);
+  const inputRef = React6.useRef(null);
   const startEdit = () => {
     setEditValue(value?.toString() || "");
     setIsEditing(true);
   };
-  React3.useEffect(() => {
+  React6.useEffect(() => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
       inputRef.current.select();
@@ -259,7 +267,7 @@ var EditableCell = ({
   const alignClass = align === "left" ? "text-left justify-start" : align === "center" ? "text-center justify-center" : "text-right justify-end";
   const inputAlignClass = align === "left" ? "text-left" : align === "center" ? "text-center" : "text-right";
   const Wrapper = asDiv ? "div" : "td";
-  React3.useEffect(() => {
+  React6.useEffect(() => {
     if (requestEdit > 0 && !isEditing) {
       startEdit();
     }
@@ -498,7 +506,7 @@ var GroupRow = ({
   onDrop,
   onDragEnd
 }) => {
-  const groupValues = React3.useMemo(() => computeGroupValues(childRows, months), [childRows, months]);
+  const groupValues = React6.useMemo(() => computeGroupValues(childRows, months), [childRows, months]);
   const subtract = isSubtractType(group.type);
   const isExpanded = forceExpanded || !group.collapsed;
   const dropBorder = dropIndicator === "above" ? "border-t-2 border-t-blue-400" : dropIndicator === "below" ? "border-b-2 border-b-blue-400" : "";
@@ -573,8 +581,8 @@ var GroupRow = ({
 };
 var grouprow_default = GroupRow;
 var ContextMenu = ({ x, y, canGroup, selectedCount, onGroup, onCancel, onClose }) => {
-  const ref = React3.useRef(null);
-  React3.useEffect(() => {
+  const ref = React6.useRef(null);
+  React6.useEffect(() => {
     const handle = (e) => {
       if (ref.current && !ref.current.contains(e.target)) onClose();
     };
@@ -588,7 +596,7 @@ var ContextMenu = ({ x, y, canGroup, selectedCount, onGroup, onCancel, onClose }
       document.removeEventListener("keydown", handleKey);
     };
   }, [onClose]);
-  React3.useEffect(() => {
+  React6.useEffect(() => {
     if (!ref.current) return;
     const rect = ref.current.getBoundingClientRect();
     if (rect.right > window.innerWidth) {
@@ -645,14 +653,14 @@ var ContextMenu = ({ x, y, canGroup, selectedCount, onGroup, onCancel, onClose }
   return menu;
 };
 var HeaderSelectionBar = ({ selectedCount, canGroup, monthCount, naming, onNamingChange, onGroup, onCancel }) => {
-  const [groupName, setGroupName] = React3.useState("");
-  const inputRef = React3.useRef(null);
-  React3.useEffect(() => {
+  const [groupName, setGroupName] = React6.useState("");
+  const inputRef = React6.useRef(null);
+  React6.useEffect(() => {
     if (naming && inputRef.current) {
       inputRef.current.focus();
     }
   }, [naming]);
-  React3.useEffect(() => {
+  React6.useEffect(() => {
     if (selectedCount === 0) {
       setGroupName("");
     }
@@ -744,16 +752,16 @@ var HeaderSelectionBar = ({ selectedCount, canGroup, monthCount, naming, onNamin
   ) });
 };
 var useKeyboard = ({ visibleRowIds, monthCount }) => {
-  const [focusedCell, setFocusedCell] = React3.useState(null);
-  const [editTrigger, setEditTrigger] = React3.useState(0);
-  const isFocused = React3.useCallback((rowId, monthIndex) => {
+  const [focusedCell, setFocusedCell] = React6.useState(null);
+  const [editTrigger, setEditTrigger] = React6.useState(0);
+  const isFocused = React6.useCallback((rowId, monthIndex) => {
     return focusedCell?.rowId === rowId && focusedCell?.monthIndex === monthIndex;
   }, [focusedCell]);
-  const focus = React3.useCallback((rowId, monthIndex) => {
+  const focus = React6.useCallback((rowId, monthIndex) => {
     setFocusedCell({ rowId, monthIndex });
   }, []);
-  const clearFocus = React3.useCallback(() => setFocusedCell(null), []);
-  const navigate = React3.useCallback((direction) => {
+  const clearFocus = React6.useCallback(() => setFocusedCell(null), []);
+  const navigate = React6.useCallback((direction) => {
     setFocusedCell((prev) => {
       if (!prev) return null;
       const rowIdx = visibleRowIds.indexOf(prev.rowId);
@@ -787,11 +795,11 @@ var useKeyboard = ({ visibleRowIds, monthCount }) => {
       return { rowId: visibleRowIds[newRow], monthIndex: newCol };
     });
   }, [visibleRowIds, monthCount]);
-  const navigateAndEdit = React3.useCallback((direction) => {
+  const navigateAndEdit = React6.useCallback((direction) => {
     navigate(direction);
     setTimeout(() => setEditTrigger((prev) => prev + 1), 0);
   }, [navigate]);
-  const handleContainerKeyDown = React3.useCallback((e) => {
+  const handleContainerKeyDown = React6.useCallback((e) => {
     if (!focusedCell) return;
     const target = e.target;
     if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") return;
@@ -838,15 +846,15 @@ var useKeyboard = ({ visibleRowIds, monthCount }) => {
   };
 };
 var useDragReorder = () => {
-  const [dragRowId, setDragRowId] = React3.useState(null);
-  const [dropTargetId, setDropTargetId] = React3.useState(null);
-  const [dropPosition, setDropPosition] = React3.useState(null);
-  const handleDragStart = React3.useCallback((rowId) => (e) => {
+  const [dragRowId, setDragRowId] = React6.useState(null);
+  const [dropTargetId, setDropTargetId] = React6.useState(null);
+  const [dropPosition, setDropPosition] = React6.useState(null);
+  const handleDragStart = React6.useCallback((rowId) => (e) => {
     setDragRowId(rowId);
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("text/plain", rowId);
   }, []);
-  const handleDragOver = React3.useCallback((rowId) => (e) => {
+  const handleDragOver = React6.useCallback((rowId) => (e) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
     if (rowId === dragRowId) return;
@@ -856,11 +864,11 @@ var useDragReorder = () => {
     setDropTargetId(rowId);
     setDropPosition(pos);
   }, [dragRowId]);
-  const handleDragLeave = React3.useCallback(() => {
+  const handleDragLeave = React6.useCallback(() => {
     setDropTargetId(null);
     setDropPosition(null);
   }, []);
-  const handleDrop = React3.useCallback((rows, onRowsChange) => (e) => {
+  const handleDrop = React6.useCallback((rows, onRowsChange) => (e) => {
     e.preventDefault();
     const sourceId = e.dataTransfer.getData("text/plain");
     if (!sourceId || !dropTargetId || sourceId === dropTargetId) {
@@ -904,7 +912,7 @@ var useDragReorder = () => {
     onRowsChange(result);
     resetState();
   }, [dropTargetId, dropPosition]);
-  const handleDragEnd = React3.useCallback(() => {
+  const handleDragEnd = React6.useCallback(() => {
     resetState();
   }, []);
   function resetState() {
@@ -927,6 +935,654 @@ function isSameFamily(a, b) {
   const isAdd = (t) => t === "add" || t === "income";
   return isAdd(a.type) === isAdd(b.type);
 }
+var defaultFormatCurrency = (value) => {
+  if (value === void 0 || value === null) return "\u2014";
+  return `$ ${value.toLocaleString("es-CL")}`;
+};
+var DebtsTable = ({
+  title,
+  entries,
+  onEntriesChange,
+  summary,
+  headerBg = "bg-rose-50",
+  headerText = "text-rose-700",
+  defaultCollapsed = true,
+  forceExpanded = false,
+  formatCurrency: formatCurrency3 = defaultFormatCurrency,
+  sourceFileIds,
+  onViewSource
+}) => {
+  const [hoveredRow, setHoveredRow] = React6.useState(null);
+  const [isCollapsed, setIsCollapsed] = React6.useState(defaultCollapsed);
+  const [newEntry, setNewEntry] = React6.useState({ entidad: "", tipo: "" });
+  const isExpanded = forceExpanded || !isCollapsed;
+  const updateEntry = (id, field, value) => {
+    onEntriesChange(entries.map((e) => e.id === id ? { ...e, [field]: value } : e));
+  };
+  const removeEntry = (id) => {
+    onEntriesChange(entries.filter((e) => e.id !== id));
+  };
+  const addEntry = () => {
+    if (!newEntry.entidad.trim()) return;
+    const entry = {
+      id: `debt_${Date.now()}`,
+      entidad: newEntry.entidad.trim(),
+      tipo: newEntry.tipo.trim() || "Consumo",
+      deuda_total: null,
+      vigente: null
+    };
+    setNewEntry({ entidad: "", tipo: "" });
+    onEntriesChange([...entries, entry]);
+  };
+  const addEntryWithValue = (field, value) => {
+    if (value === null) return;
+    const entry = {
+      id: `debt_${Date.now()}`,
+      entidad: newEntry.entidad.trim() || "Nueva deuda",
+      tipo: newEntry.tipo.trim() || "Consumo",
+      deuda_total: field === "deuda_total" ? value : null,
+      vigente: field === "vigente" ? value : null
+    };
+    setNewEntry({ entidad: "", tipo: "" });
+    onEntriesChange([...entries, entry]);
+  };
+  const totalDeuda = entries.reduce((sum, e) => sum + (e.deuda_total || 0), 0);
+  const totalVigente = entries.reduce((sum, e) => sum + (e.vigente || 0), 0);
+  const totalAtraso = entries.reduce((sum, e) => {
+    return sum + (e.atraso_30_59 || 0) + (e.atraso_60_89 || 0) + (e.atraso_90_mas || 0);
+  }, 0);
+  const hasLatePayments = entries.some(
+    (e) => e.atraso_30_59 && e.atraso_30_59 > 0 || e.atraso_60_89 && e.atraso_60_89 > 0 || e.atraso_90_mas && e.atraso_90_mas > 0
+  );
+  const renderDataRow = (entry) => {
+    const isHovered = hoveredRow === entry.id;
+    const hasAtraso = entry.atraso_30_59 && entry.atraso_30_59 > 0 || entry.atraso_60_89 && entry.atraso_60_89 > 0 || entry.atraso_90_mas && entry.atraso_90_mas > 0;
+    return /* @__PURE__ */ jsxRuntime.jsxs(
+      "tr",
+      {
+        className: `border-b border-gray-100 ${hasAtraso ? "bg-red-50/50 hover:bg-red-100/50" : "bg-rose-50/30 hover:bg-rose-100/50"} group`,
+        onMouseEnter: () => setHoveredRow(entry.id),
+        onMouseLeave: () => setHoveredRow(null),
+        children: [
+          /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-2 py-2.5 text-gray-700 ${T.cellLabel}`, style: { width: "180px" }, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-1 min-w-0", children: [
+            /* @__PURE__ */ jsxRuntime.jsx(
+              "button",
+              {
+                onClick: () => removeEntry(entry.id),
+                className: `p-1 rounded transition-all shrink-0 ${isHovered ? "opacity-100 text-red-400 hover:text-red-600 hover:bg-red-100" : "opacity-0"}`,
+                title: "Eliminar fila",
+                children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.X, { size: 16 })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntime.jsx(
+              "input",
+              {
+                type: "text",
+                value: entry.entidad,
+                onChange: (e) => updateEntry(entry.id, "entidad", e.target.value),
+                className: `flex-1 min-w-0 ${T.inputLabel} pl-1`,
+                placeholder: "Entidad",
+                title: entry.entidad
+              }
+            ),
+            entry.sourceFileId && onViewSource && /* @__PURE__ */ jsxRuntime.jsx(
+              "button",
+              {
+                onClick: () => onViewSource([entry.sourceFileId]),
+                className: `p-1 rounded transition-all shrink-0 ${isHovered ? "opacity-100 text-gray-400 hover:text-gray-600 hover:bg-gray-100" : "opacity-0"}`,
+                title: "Ver documento fuente",
+                children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Eye, { size: 14 })
+              }
+            )
+          ] }) }),
+          /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-2 py-2.5 text-gray-600", style: { width: "100px" }, children: /* @__PURE__ */ jsxRuntime.jsx(
+            "input",
+            {
+              type: "text",
+              value: entry.tipo,
+              onChange: (e) => updateEntry(entry.id, "tipo", e.target.value),
+              className: `w-full ${T.input} pl-1`,
+              placeholder: "Tipo"
+            }
+          ) }),
+          /* @__PURE__ */ jsxRuntime.jsx(
+            editablecell_default,
+            {
+              value: entry.deuda_total,
+              onChange: (v) => updateEntry(entry.id, "deuda_total", v),
+              isDeduction: true,
+              hasData: entry.deuda_total !== null,
+              width: "120px",
+              type: "currency"
+            }
+          ),
+          /* @__PURE__ */ jsxRuntime.jsx(
+            editablecell_default,
+            {
+              value: entry.vigente,
+              onChange: (v) => updateEntry(entry.id, "vigente", v),
+              isDeduction: false,
+              hasData: entry.vigente !== null,
+              width: "120px",
+              type: "currency"
+            }
+          ),
+          hasLatePayments && /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-3 py-2.5 text-right text-red-600 font-medium", style: { width: "100px" }, children: hasAtraso ? formatCurrency3(
+            (entry.atraso_30_59 || 0) + (entry.atraso_60_89 || 0) + (entry.atraso_90_mas || 0)
+          ) : "\u2014" }),
+          /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" } })
+        ]
+      },
+      entry.id
+    );
+  };
+  const renderAddRow = () => {
+    return /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-b border-dashed bg-rose-50/20 border-rose-100", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-4 py-2.5", style: { width: "180px" }, children: /* @__PURE__ */ jsxRuntime.jsx(
+        "input",
+        {
+          type: "text",
+          placeholder: "Agregar deuda...",
+          value: newEntry.entidad,
+          onChange: (e) => setNewEntry((prev) => ({ ...prev, entidad: e.target.value })),
+          className: `w-full ${T.inputPlaceholder}`,
+          onKeyDown: (e) => {
+            if (e.key === "Enter" && newEntry.entidad.trim()) {
+              addEntry();
+            }
+          }
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-2 py-2.5", style: { width: "100px" }, children: /* @__PURE__ */ jsxRuntime.jsx(
+        "input",
+        {
+          type: "text",
+          placeholder: "Tipo",
+          value: newEntry.tipo,
+          onChange: (e) => setNewEntry((prev) => ({ ...prev, tipo: e.target.value })),
+          className: `w-full ${T.inputPlaceholder}`
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntime.jsx(
+        editablecell_default,
+        {
+          value: null,
+          onChange: (v) => addEntryWithValue("deuda_total", v),
+          isDeduction: true,
+          hasData: false,
+          width: "120px",
+          type: "currency"
+        }
+      ),
+      /* @__PURE__ */ jsxRuntime.jsx(
+        editablecell_default,
+        {
+          value: null,
+          onChange: (v) => addEntryWithValue("vigente", v),
+          isDeduction: false,
+          hasData: false,
+          width: "120px",
+          type: "currency"
+        }
+      ),
+      hasLatePayments && /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "100px" } }),
+      /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" } })
+    ] });
+  };
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `rounded-xl overflow-hidden ${!isExpanded ? "" : "border border-gray-200"}`, children: [
+    /* @__PURE__ */ jsxRuntime.jsx(
+      "button",
+      {
+        onClick: () => !forceExpanded && setIsCollapsed(!isCollapsed),
+        className: `w-full ${headerBg} hover:brightness-95 transition-all ${forceExpanded ? "cursor-default" : "cursor-pointer"} ${!isExpanded ? "rounded-xl" : "rounded-t-xl"}`,
+        children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntime.jsx("table", { className: T.table, style: { tableLayout: "fixed" }, children: /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { children: [
+          /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-4 py-3 text-left", style: { width: "180px" }, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${headerText} ${T.headerTitle}`, children: title }),
+            sourceFileIds && sourceFileIds.length > 0 && onViewSource && /* @__PURE__ */ jsxRuntime.jsx(
+              "button",
+              {
+                onClick: (e) => {
+                  e.stopPropagation();
+                  onViewSource(sourceFileIds);
+                },
+                className: "p-1 rounded hover:bg-white/50 transition-colors",
+                title: "Ver documento fuente",
+                children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Eye, { size: 14, className: headerText })
+              }
+            )
+          ] }) }),
+          /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-3 py-3 text-right", style: { width: "100px" }, children: /* @__PURE__ */ jsxRuntime.jsxs("span", { className: `${headerText} ${T.headerCount}`, children: [
+            entries.length,
+            " ",
+            entries.length === 1 ? "deuda" : "deudas"
+          ] }) }),
+          /* @__PURE__ */ jsxRuntime.jsxs("td", { className: "px-3 py-3 text-right", style: { width: "120px" }, children: [
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${headerText} ${T.headerStatLabel}`, children: "Total: " }),
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.headerStat} ${totalDeuda > 0 ? headerText : "text-gray-400"}`, children: totalDeuda > 0 ? formatCurrency3(totalDeuda) : "\u2014" })
+          ] }),
+          /* @__PURE__ */ jsxRuntime.jsxs("td", { className: "px-3 py-3 text-right", style: { width: "120px" }, children: [
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${headerText} ${T.headerStatLabel}`, children: "Vigente: " }),
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.headerStat} ${totalVigente > 0 ? "text-emerald-600" : "text-gray-400"}`, children: totalVigente > 0 ? formatCurrency3(totalVigente) : "\u2014" })
+          ] }),
+          hasLatePayments && /* @__PURE__ */ jsxRuntime.jsxs("td", { className: "px-3 py-3 text-right", style: { width: "100px" }, children: [
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: `text-red-600 ${T.headerStatLabel}`, children: "Atraso: " }),
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.headerStat} text-red-600`, children: formatCurrency3(totalAtraso) })
+          ] }),
+          /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-2 py-3 text-right", style: { width: "40px" }, children: !forceExpanded && (isExpanded ? /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ChevronUp, { size: 20, className: headerText }) : /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ChevronDown, { size: 20, className: headerText })) })
+        ] }) }) }) })
+      }
+    ),
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: `bg-white ${!isExpanded ? "hidden print:block" : ""}`, children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntime.jsxs("table", { className: T.table, style: { tableLayout: "fixed" }, children: [
+      /* @__PURE__ */ jsxRuntime.jsx("thead", { children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-b border-gray-200 bg-gray-50/50", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-4 py-2 text-left ${T.th}`, style: { width: "180px" }, children: "Instituci\xF3n" }),
+        /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-2 py-2 text-left ${T.th}`, style: { width: "100px" }, children: "Tipo" }),
+        /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-3 py-2 text-right ${T.th}`, style: { width: "120px" }, children: "Total Cr\xE9dito" }),
+        /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-3 py-2 text-right ${T.th}`, style: { width: "120px" }, children: "Vigente" }),
+        hasLatePayments && /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-3 py-2 text-right text-red-500 font-medium text-xs uppercase`, style: { width: "100px" }, children: "Atraso" }),
+        /* @__PURE__ */ jsxRuntime.jsx("th", { style: { width: "40px" } })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntime.jsxs("tbody", { children: [
+        entries.map((entry) => renderDataRow(entry)),
+        renderAddRow()
+      ] })
+    ] }) }) })
+  ] });
+};
+var debtstable_default = DebtsTable;
+var formatCurrency = (value) => {
+  return displayCurrencyCompact(value);
+};
+var MONTH_LABELS = {
+  enero: "Enero",
+  febrero: "Febrero",
+  marzo: "Marzo",
+  abril: "Abril",
+  mayo: "Mayo",
+  junio: "Junio",
+  julio: "Julio",
+  agosto: "Agosto",
+  septiembre: "Septiembre",
+  octubre: "Octubre",
+  noviembre: "Noviembre",
+  diciembre: "Diciembre"
+};
+var BoletasTable = ({
+  title,
+  months,
+  totales,
+  headerBg = "bg-emerald-50",
+  headerText = "text-emerald-700",
+  defaultCollapsed = true,
+  forceExpanded = false,
+  sourceFileIds,
+  onViewSource
+}) => {
+  const [isCollapsed, setIsCollapsed] = React6.useState(defaultCollapsed);
+  const isExpanded = forceExpanded || !isCollapsed;
+  const monthsWithData = months.filter((m) => m.hasData);
+  const totalLiquido = totales?.total_liquido ?? monthsWithData.reduce((s, m) => s + (m.liquido || 0), 0);
+  const totalBoletas = totales?.boletas_vigentes ?? monthsWithData.reduce((s, m) => s + (m.boletas || 0), 0);
+  const promedioMensual = monthsWithData.length > 0 ? totalLiquido / monthsWithData.length : 0;
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `rounded-xl overflow-hidden ${!isExpanded ? "" : "border border-gray-200"}`, children: [
+    /* @__PURE__ */ jsxRuntime.jsx(
+      "button",
+      {
+        onClick: () => !forceExpanded && setIsCollapsed(!isCollapsed),
+        className: `w-full ${headerBg} hover:brightness-95 transition-all ${forceExpanded ? "cursor-default" : "cursor-pointer"} ${!isExpanded ? "rounded-xl" : "rounded-t-xl"}`,
+        children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center justify-between px-4 py-3", children: [
+          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${headerText} ${T.headerTitle}`, children: title }),
+            sourceFileIds && sourceFileIds.length > 0 && onViewSource && /* @__PURE__ */ jsxRuntime.jsx(
+              "button",
+              {
+                onClick: (e) => {
+                  e.stopPropagation();
+                  onViewSource(sourceFileIds);
+                },
+                className: "p-1 rounded hover:bg-white/50 transition-colors",
+                title: "Ver documento fuente",
+                children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Eye, { size: 14, className: headerText })
+              }
+            )
+          ] }),
+          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-4", children: [
+            /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-3 text-xs", children: [
+              /* @__PURE__ */ jsxRuntime.jsxs("span", { className: headerText, children: [
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.headerStatLabel}`, children: "Boletas: " }),
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.headerStat, children: totalBoletas })
+              ] }),
+              /* @__PURE__ */ jsxRuntime.jsxs("span", { className: headerText, children: [
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.headerStatLabel}`, children: "L\xEDquido: " }),
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.headerStat, children: formatCurrency(totalLiquido) })
+              ] }),
+              /* @__PURE__ */ jsxRuntime.jsxs("span", { className: headerText, children: [
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.headerStatLabel}`, children: "Promedio: " }),
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.headerStat, children: formatCurrency(Math.round(promedioMensual)) })
+              ] })
+            ] }),
+            !forceExpanded && (isExpanded ? /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ChevronUp, { size: 20, className: headerText }) : /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ChevronDown, { size: 20, className: headerText }))
+          ] })
+        ] })
+      }
+    ),
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: `bg-white ${!isExpanded ? "hidden print:block" : ""}`, children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntime.jsxs("table", { className: T.table, style: { tableLayout: "fixed" }, children: [
+      /* @__PURE__ */ jsxRuntime.jsx("thead", { children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-b border-gray-200 bg-gray-50/50", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-4 py-2 text-left ${T.th}`, style: { width: "140px" }, children: "Mes" }),
+        /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-3 py-2 text-center ${T.th}`, style: { width: "80px" }, children: "Boletas" }),
+        /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-3 py-2 text-right ${T.th}`, style: { width: "130px" }, children: "Bruto" }),
+        /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-3 py-2 text-right ${T.th}`, style: { width: "130px" }, children: "Retenci\xF3n" }),
+        /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-4 py-2 text-right ${T.th}`, style: { width: "130px" }, children: "L\xEDquido" })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: months.map((m, i) => /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: `border-b border-gray-100 ${m.hasData ? "hover:bg-emerald-50/30" : ""}`, children: [
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-4 py-2.5 font-medium ${T.cellLabel} ${m.hasData ? "text-gray-700" : "text-gray-300"}`, style: { width: "140px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: "truncate block", children: MONTH_LABELS[m.mes] || m.mes }) }),
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-3 py-2.5 text-center text-gray-800", style: { width: "80px" }, children: m.hasData ? m.boletas ?? "" : "" }),
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-3 py-2.5 text-right text-gray-800", style: { width: "130px" }, children: m.hasData ? formatCurrency(m.bruto) : "" }),
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-3 py-2.5 text-right text-red-700", style: { width: "130px" }, children: m.hasData ? formatCurrency(m.retencion) : "" }),
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-4 py-2.5 text-right font-medium text-emerald-700", style: { width: "130px" }, children: m.hasData ? formatCurrency(m.liquido) : "" })
+      ] }, i)) }),
+      /* @__PURE__ */ jsxRuntime.jsx("tfoot", { children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-t-2 border-emerald-200 bg-emerald-50/50", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-4 py-3 ${T.footerLabel} text-emerald-700`, style: { width: "140px" }, children: "TOTALES" }),
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-3 py-3 text-center ${T.footerValue} text-emerald-700`, style: { width: "80px" }, children: totalBoletas }),
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-3 py-3 text-right ${T.footerValue} text-emerald-700`, style: { width: "130px" }, children: formatCurrency(totales?.honorario_bruto ?? monthsWithData.reduce((s, m) => s + (m.bruto || 0), 0)) }),
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-3 py-3 text-right ${T.footerValue} text-red-700`, style: { width: "130px" }, children: formatCurrency(
+          (totales?.retencion_terceros ?? 0) + (totales?.retencion_contribuyente ?? 0) || monthsWithData.reduce((s, m) => s + (m.retencion || 0), 0)
+        ) }),
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-4 py-3 text-right ${T.footerValue} text-emerald-700`, style: { width: "130px" }, children: formatCurrency(totalLiquido) })
+      ] }) })
+    ] }) }) })
+  ] });
+};
+var boletastable_default = BoletasTable;
+var formatCurrency2 = (value) => {
+  return displayCurrencyCompact(value);
+};
+var TributarioTable = ({
+  title,
+  entries,
+  headerBg = "bg-amber-50",
+  headerText = "text-amber-700",
+  defaultCollapsed = true,
+  forceExpanded = false,
+  sourceFileIds,
+  onViewSource
+}) => {
+  const [isCollapsed, setIsCollapsed] = React6.useState(defaultCollapsed);
+  const [hoveredRow, setHoveredRow] = React6.useState(null);
+  const isExpanded = forceExpanded || !isCollapsed;
+  const balanceEntries = entries.filter((e) => e.source === "balance-anual");
+  const carpetaEntries = entries.filter((e) => e.source === "carpeta-tributaria");
+  const totalIngresos = balanceEntries.reduce((sum, e) => sum + (e.ingresos || 0), 0);
+  const totalEgresos = balanceEntries.reduce((sum, e) => sum + (e.egresos || 0), 0);
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `rounded-xl overflow-hidden ${!isExpanded ? "" : "border border-gray-200"}`, children: [
+    /* @__PURE__ */ jsxRuntime.jsx(
+      "button",
+      {
+        onClick: () => !forceExpanded && setIsCollapsed(!isCollapsed),
+        className: `w-full ${headerBg} hover:brightness-95 transition-all ${forceExpanded ? "cursor-default" : "cursor-pointer"} ${!isExpanded ? "rounded-xl" : "rounded-t-xl"}`,
+        children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntime.jsx("table", { className: T.table, style: { tableLayout: "fixed" }, children: /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { children: [
+          /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-4 py-3 text-left", style: { width: "200px" }, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${headerText} ${T.headerTitle}`, children: title }),
+            sourceFileIds && sourceFileIds.length > 0 && onViewSource && /* @__PURE__ */ jsxRuntime.jsx(
+              "button",
+              {
+                onClick: (e) => {
+                  e.stopPropagation();
+                  onViewSource(sourceFileIds);
+                },
+                className: "p-1 rounded hover:bg-white/50 transition-colors",
+                title: "Ver documento fuente",
+                children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Eye, { size: 14, className: headerText })
+              }
+            )
+          ] }) }),
+          /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-3 py-3 text-right", style: { width: "120px" }, children: /* @__PURE__ */ jsxRuntime.jsxs("span", { className: `${headerText} ${T.headerCount}`, children: [
+            entries.length,
+            " ",
+            entries.length === 1 ? "documento" : "documentos"
+          ] }) }),
+          balanceEntries.length > 0 && /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntime.jsxs("td", { className: "px-3 py-3 text-right", style: { width: "140px" }, children: [
+              /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${headerText} ${T.headerStatLabel}`, children: "Ingresos: " }),
+              /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.headerStat} ${totalIngresos > 0 ? "text-emerald-600" : "text-gray-400"}`, children: totalIngresos > 0 ? formatCurrency2(totalIngresos) : "\u2014" })
+            ] }),
+            /* @__PURE__ */ jsxRuntime.jsxs("td", { className: "px-3 py-3 text-right", style: { width: "140px" }, children: [
+              /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${headerText} ${T.headerStatLabel}`, children: "Egresos: " }),
+              /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.headerStat} ${totalEgresos > 0 ? headerText : "text-gray-400"}`, children: totalEgresos > 0 ? formatCurrency2(totalEgresos) : "\u2014" })
+            ] })
+          ] }),
+          balanceEntries.length === 0 && /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+            /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-3 py-3 text-right", style: { width: "140px" } }),
+            /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-3 py-3 text-right", style: { width: "140px" } })
+          ] }),
+          /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-2 py-3 text-right", style: { width: "40px" }, children: !forceExpanded && (isExpanded ? /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ChevronUp, { size: 20, className: headerText }) : /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ChevronDown, { size: 20, className: headerText })) })
+        ] }) }) }) })
+      }
+    ),
+    /* @__PURE__ */ jsxRuntime.jsx("div", { className: `bg-white ${!isExpanded ? "hidden print:block" : ""}`, children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntime.jsxs("table", { className: T.table, style: { tableLayout: "fixed" }, children: [
+      /* @__PURE__ */ jsxRuntime.jsx("thead", { children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-b border-gray-200 bg-gray-50/50", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-4 py-2 text-left ${T.th}`, style: { width: "200px" }, children: "Documento" }),
+        /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-2 py-2 text-left ${T.th}`, style: { width: "120px" }, children: "Detalle" }),
+        /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-3 py-2 text-right ${T.th}`, style: { width: "140px" }, children: "Ingresos" }),
+        /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-3 py-2 text-right ${T.th}`, style: { width: "140px" }, children: "Egresos" }),
+        /* @__PURE__ */ jsxRuntime.jsx("th", { style: { width: "40px" } })
+      ] }) }),
+      /* @__PURE__ */ jsxRuntime.jsxs("tbody", { children: [
+        balanceEntries.map((entry) => /* @__PURE__ */ jsxRuntime.jsxs(
+          "tr",
+          {
+            className: "border-b border-gray-100 bg-amber-50/30 hover:bg-amber-100/50 group",
+            onMouseEnter: () => setHoveredRow(entry.id),
+            onMouseLeave: () => setHoveredRow(null),
+            children: [
+              /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-4 py-2.5 text-gray-700 ${T.cellLabel}`, style: { width: "200px" }, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-1 min-w-0", children: [
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: "font-medium text-xs truncate", title: entry.empresa || entry.label, children: entry.empresa || entry.label }),
+                entry.sourceFileId && onViewSource && /* @__PURE__ */ jsxRuntime.jsx(
+                  "button",
+                  {
+                    onClick: () => onViewSource([entry.sourceFileId]),
+                    className: `p-1 rounded transition-all shrink-0 ${hoveredRow === entry.id ? "opacity-100 text-gray-400 hover:text-gray-600 hover:bg-gray-100" : "opacity-0"}`,
+                    title: "Ver documento fuente",
+                    children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Eye, { size: 14 })
+                  }
+                )
+              ] }) }),
+              /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-2 py-2.5 ${T.muted}`, style: { width: "120px" }, children: entry.year ? `A\xF1o ${entry.year}` : "\u2014" }),
+              /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-3 py-2.5 text-right text-emerald-700 font-medium", style: { width: "140px" }, children: formatCurrency2(entry.ingresos) }),
+              /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-3 py-2.5 text-right text-amber-700 font-medium", style: { width: "140px" }, children: formatCurrency2(entry.egresos) }),
+              /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" } })
+            ]
+          },
+          entry.id
+        )),
+        carpetaEntries.map((entry) => /* @__PURE__ */ jsxRuntime.jsxs(
+          "tr",
+          {
+            className: "border-b border-gray-100 bg-amber-50/30 hover:bg-amber-100/50 group",
+            onMouseEnter: () => setHoveredRow(entry.id),
+            onMouseLeave: () => setHoveredRow(null),
+            children: [
+              /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-4 py-2.5 text-gray-700 ${T.cellLabel}`, style: { width: "200px" }, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-1 min-w-0", children: [
+                /* @__PURE__ */ jsxRuntime.jsx("span", { className: "font-medium text-xs truncate", children: "Carpeta Tributaria" }),
+                entry.sourceFileId && onViewSource && /* @__PURE__ */ jsxRuntime.jsx(
+                  "button",
+                  {
+                    onClick: () => onViewSource([entry.sourceFileId]),
+                    className: `p-1 rounded transition-all shrink-0 ${hoveredRow === entry.id ? "opacity-100 text-gray-400 hover:text-gray-600 hover:bg-gray-100" : "opacity-0"}`,
+                    title: "Ver documento fuente",
+                    children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Eye, { size: 14 })
+                  }
+                )
+              ] }) }),
+              /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-2 py-2.5 ${T.muted}`, colSpan: 3, style: { width: "400px" }, children: entry.actividades && entry.actividades.length > 0 ? entry.actividades.join(", ") : "\u2014" }),
+              /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" } })
+            ]
+          },
+          entry.id
+        )),
+        entries.length === 0 && /* @__PURE__ */ jsxRuntime.jsx("tr", { className: "border-b border-gray-100", children: /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-4 py-3 ${T.empty}`, colSpan: 5, children: "Sin informaci\xF3n tributaria" }) })
+      ] })
+    ] }) }) })
+  ] });
+};
+var tributariotable_default = TributarioTable;
+var AssetTable = ({
+  rows,
+  onRowsChange,
+  formatCurrency: formatCurrency3,
+  placeholder = "Agregar activo...",
+  onViewSource
+}) => {
+  const [hoveredRow, setHoveredRow] = React6.useState(null);
+  const [newAssetLabel, setNewAssetLabel] = React6.useState("");
+  const updateRowLabel = (rowId, label) => {
+    onRowsChange(rows.map((r) => r.id === rowId ? { ...r, label } : r));
+  };
+  const updateRowValue = (rowId, value) => {
+    onRowsChange(rows.map((r) => r.id === rowId ? { ...r, value } : r));
+  };
+  const updateRowDescription = (rowId, description) => {
+    onRowsChange(rows.map((r) => r.id === rowId ? { ...r, description } : r));
+  };
+  const removeRow = (rowId) => {
+    onRowsChange(rows.filter((r) => r.id !== rowId));
+  };
+  const addRow = (label) => {
+    if (!label.trim()) return;
+    const newRow = {
+      id: `row_asset_${Date.now()}`,
+      label: label.trim(),
+      type: "asset",
+      value: null
+    };
+    setNewAssetLabel("");
+    onRowsChange([...rows, newRow]);
+  };
+  const addRowWithValue = (value) => {
+    if (value === null) return;
+    const pendingLabel = newAssetLabel.trim();
+    const defaultLabel = "Nuevo activo";
+    const newRow = {
+      id: `row_asset_${Date.now()}`,
+      label: pendingLabel || defaultLabel,
+      type: "asset",
+      value
+    };
+    setNewAssetLabel("");
+    onRowsChange([...rows, newRow]);
+  };
+  const calculateTotalAssets = () => {
+    return rows.reduce((sum, row) => sum + (row.value || 0), 0);
+  };
+  const totalAssets = calculateTotalAssets();
+  const renderRow = (row) => {
+    const isHovered = hoveredRow === row.id;
+    return /* @__PURE__ */ jsxRuntime.jsxs(
+      "tr",
+      {
+        className: "border-b border-gray-100 bg-blue-50/50 hover:bg-blue-100/50 group",
+        onMouseEnter: () => setHoveredRow(row.id),
+        onMouseLeave: () => setHoveredRow(null),
+        children: [
+          /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-2 py-2.5 text-gray-700 ${T.cellLabel}`, style: { width: "200px" }, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-1 min-w-0", children: [
+            /* @__PURE__ */ jsxRuntime.jsx(
+              "button",
+              {
+                onClick: () => removeRow(row.id),
+                className: `p-1 rounded transition-all shrink-0 ${isHovered ? "opacity-100 text-red-400 hover:text-red-600 hover:bg-red-100" : "opacity-0"}`,
+                title: "Eliminar fila",
+                children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.X, { size: 16 })
+              }
+            ),
+            /* @__PURE__ */ jsxRuntime.jsx(
+              "input",
+              {
+                type: "text",
+                value: row.label,
+                onChange: (e) => updateRowLabel(row.id, e.target.value),
+                className: `flex-1 min-w-0 ${T.inputLabel} pl-1`,
+                title: row.label
+              }
+            )
+          ] }) }),
+          /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-2 py-2.5 text-gray-600", style: { width: "200px" }, children: /* @__PURE__ */ jsxRuntime.jsx(
+            "input",
+            {
+              type: "text",
+              value: row.description || "",
+              onChange: (e) => updateRowDescription(row.id, e.target.value),
+              placeholder: "Descripci\xF3n...",
+              className: `w-full ${T.input} placeholder-gray-400`
+            }
+          ) }),
+          /* @__PURE__ */ jsxRuntime.jsx(
+            editablecell_default,
+            {
+              value: row.value,
+              onChange: (v) => updateRowValue(row.id, v),
+              isDeduction: false,
+              hasData: row.value !== null,
+              width: "140px",
+              type: "currency",
+              className: "text-blue-700 font-medium"
+            }
+          )
+        ]
+      },
+      row.id
+    );
+  };
+  const renderAddRow = () => {
+    return /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-b border-dashed bg-blue-50/30 border-blue-100", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-4 py-2.5", style: { width: "200px" }, children: /* @__PURE__ */ jsxRuntime.jsx(
+        "input",
+        {
+          type: "text",
+          placeholder,
+          value: newAssetLabel,
+          onChange: (e) => setNewAssetLabel(e.target.value),
+          className: `w-full ${T.inputPlaceholder}`,
+          onKeyDown: (e) => {
+            if (e.key === "Enter" && newAssetLabel.trim()) {
+              addRow(newAssetLabel);
+            }
+          }
+        }
+      ) }),
+      /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-2 py-2.5", style: { width: "200px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.empty, children: "\u2014" }) }),
+      /* @__PURE__ */ jsxRuntime.jsx(
+        editablecell_default,
+        {
+          value: null,
+          onChange: (v) => addRowWithValue(v),
+          isDeduction: false,
+          hasData: false,
+          width: "140px",
+          type: "currency"
+        }
+      )
+    ] });
+  };
+  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: "rounded-xl overflow-hidden border border-gray-200 bg-white", children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntime.jsxs("table", { className: T.table, style: { tableLayout: "fixed" }, children: [
+    /* @__PURE__ */ jsxRuntime.jsx("thead", { className: "sticky top-0 z-10", children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "bg-blue-50 border-b border-blue-100", children: [
+      /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-4 py-2 text-left text-blue-700 font-medium text-xs`, style: { width: "200px" }, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("svg", { className: "w-4 h-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsxRuntime.jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" }) }),
+        "Activo"
+      ] }) }),
+      /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-3 py-2 text-left font-medium text-blue-600 text-xs`, style: { width: "200px" }, children: "Descripci\xF3n" }),
+      /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-3 py-2 text-right font-medium text-blue-600 text-xs`, style: { width: "140px" }, children: "Valor Estimado" })
+    ] }) }),
+    /* @__PURE__ */ jsxRuntime.jsxs("tbody", { children: [
+      rows.map((row) => renderRow(row)),
+      renderAddRow(),
+      /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-t-2 border-blue-200 bg-blue-100/50", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-4 py-3 text-blue-800 ${T.footerLabel}`, style: { width: "200px" }, children: "TOTAL ACTIVOS" }),
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-3 py-3", style: { width: "200px" } }),
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-3 py-3 text-right ${T.footerValue} text-blue-800`, style: { width: "140px" }, children: totalAssets > 0 ? formatCurrency3(totalAssets) : "\u2014" })
+      ] })
+    ] })
+  ] }) }) });
+};
+var assettable_default = AssetTable;
 var MonthlyTable = ({
   title,
   months = 3,
@@ -942,17 +1598,17 @@ var MonthlyTable = ({
   sourceFileIds,
   onViewSource
 }) => {
-  const [hoveredRow, setHoveredRow] = React3.useState(null);
-  const [isCollapsed, setIsCollapsed] = React3.useState(defaultCollapsed);
-  const [newRowLabels, setNewRowLabels] = React3.useState({});
-  const [selectedRows, setSelectedRows] = React3.useState(/* @__PURE__ */ new Set());
-  const [contextMenu, setContextMenu] = React3.useState(null);
-  const [naming, setNaming] = React3.useState(false);
-  const monthsArray = React3.useMemo(() => {
+  const [hoveredRow, setHoveredRow] = React6.useState(null);
+  const [isCollapsed, setIsCollapsed] = React6.useState(defaultCollapsed);
+  const [newRowLabels, setNewRowLabels] = React6.useState({});
+  const [selectedRows, setSelectedRows] = React6.useState(/* @__PURE__ */ new Set());
+  const [contextMenu, setContextMenu] = React6.useState(null);
+  const [naming, setNaming] = React6.useState(false);
+  const monthsArray = React6.useMemo(() => {
     if (typeof months === "number") return generateLastNMonths(months);
     return months;
   }, [months]);
-  const effectiveSections = React3.useMemo(() => {
+  const effectiveSections = React6.useMemo(() => {
     if (sections) return sections;
     const hasIncome = rows.some((r) => r.type === "income");
     const hasDeduction = rows.some((r) => r.type === "deduction");
@@ -969,7 +1625,7 @@ var MonthlyTable = ({
   }, [sections, rows]);
   const isExpanded = forceExpanded || !isCollapsed;
   const anySelected = selectedRows.size > 0;
-  const visibleRowIds = React3.useMemo(() => {
+  const visibleRowIds = React6.useMemo(() => {
     const ids = [];
     for (const section of effectiveSections) {
       const items = getOrderedItems(rows, section.type);
@@ -988,8 +1644,8 @@ var MonthlyTable = ({
   }, [effectiveSections, rows, forceExpanded]);
   const keyboard = useKeyboard({ visibleRowIds, monthCount: monthsArray.length });
   const drag = useDragReorder();
-  const expandTimerRef = React3.useRef(null);
-  React3.useEffect(() => {
+  const expandTimerRef = React6.useRef(null);
+  React6.useEffect(() => {
     if (expandTimerRef.current) {
       clearTimeout(expandTimerRef.current);
       expandTimerRef.current = null;
@@ -1005,7 +1661,7 @@ var MonthlyTable = ({
       }
     };
   }, [drag.dropTargetId]);
-  const toggleSelect = React3.useCallback((rowId) => {
+  const toggleSelect = React6.useCallback((rowId) => {
     setSelectedRows((prev) => {
       const next = new Set(prev);
       if (next.has(rowId)) next.delete(rowId);
@@ -1013,39 +1669,39 @@ var MonthlyTable = ({
       return next;
     });
   }, []);
-  const clearSelection = React3.useCallback(() => setSelectedRows(/* @__PURE__ */ new Set()), []);
-  const canGroup = React3.useMemo(() => {
+  const clearSelection = React6.useCallback(() => setSelectedRows(/* @__PURE__ */ new Set()), []);
+  const canGroup = React6.useMemo(() => {
     if (selectedRows.size < 2) return false;
     const selected = rows.filter((r) => selectedRows.has(r.id));
     if (selected.some((r) => r.isGroup || r.groupId)) return false;
     const types = new Set(selected.map((r) => isAddType(r.type) ? "add" : "subtract"));
     return types.size === 1;
   }, [selectedRows, rows]);
-  const handleGroup = React3.useCallback((name) => {
+  const handleGroup = React6.useCallback((name) => {
     const newRows = createGroup(rows, selectedRows, name);
     onRowsChange(newRows);
     clearSelection();
     setNaming(false);
   }, [rows, selectedRows, onRowsChange, clearSelection]);
-  const handleContextMenu = React3.useCallback((e, rowId) => {
+  const handleContextMenu = React6.useCallback((e, rowId) => {
     if (!selectedRows.has(rowId) || selectedRows.size < 2) return;
     e.preventDefault();
     setContextMenu({ x: e.clientX, y: e.clientY });
   }, [selectedRows]);
-  const startGroupNaming = React3.useCallback(() => {
+  const startGroupNaming = React6.useCallback(() => {
     setContextMenu(null);
     setNaming(true);
   }, []);
-  const updateRowLabel = React3.useCallback((rowId, label) => {
+  const updateRowLabel = React6.useCallback((rowId, label) => {
     onRowsChange(rows.map((r) => r.id === rowId ? { ...r, label } : r));
   }, [rows, onRowsChange]);
-  const updateRowValue = React3.useCallback((rowId, monthId, value) => {
+  const updateRowValue = React6.useCallback((rowId, monthId, value) => {
     onRowsChange(rows.map((r) => {
       if (r.id !== rowId) return r;
       return { ...r, values: { ...r.values, [monthId]: value } };
     }));
   }, [rows, onRowsChange]);
-  const removeRow = React3.useCallback((rowId) => {
+  const removeRow = React6.useCallback((rowId) => {
     const row = rows.find((r) => r.id === rowId);
     if (!row) return;
     let newRows;
@@ -1063,13 +1719,13 @@ var MonthlyTable = ({
     });
     onRowsChange(newRows);
   }, [rows, onRowsChange]);
-  const toggleGroupCollapse = React3.useCallback((groupId) => {
+  const toggleGroupCollapse = React6.useCallback((groupId) => {
     onRowsChange(rows.map((r) => r.id === groupId ? { ...r, collapsed: !r.collapsed } : r));
   }, [rows, onRowsChange]);
-  const handleUngroup = React3.useCallback((groupId) => {
+  const handleUngroup = React6.useCallback((groupId) => {
     onRowsChange(ungroupRows(rows, groupId));
   }, [rows, onRowsChange]);
-  const addRow = React3.useCallback((type, label) => {
+  const addRow = React6.useCallback((type, label) => {
     if (!label.trim()) return;
     const newRow = { id: `row_${type}_${Date.now()}`, label: label.trim(), type, values: {} };
     setNewRowLabels((prev) => ({ ...prev, [type]: "" }));
@@ -1086,7 +1742,7 @@ var MonthlyTable = ({
       onRowsChange([...rows, newRow]);
     }
   }, [rows, onRowsChange]);
-  const addRowWithValue = React3.useCallback((type, monthId, value) => {
+  const addRowWithValue = React6.useCallback((type, monthId, value) => {
     if (value === null) return;
     const pendingLabel = (newRowLabels[type] || "").trim();
     const defaultLabel = isAddType(type) ? "Nuevo ingreso" : "Nuevo descuento";
@@ -1167,12 +1823,12 @@ var MonthlyTable = ({
         onKeyDown: keyboard.handleContainerKeyDown,
         children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntime.jsx("table", { className: T.table, style: { tableLayout: "fixed" }, children: /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: effectiveSections.map((section) => {
           const items = getOrderedItems(rows, section.type);
-          return /* @__PURE__ */ jsxRuntime.jsxs(React3__default.default.Fragment, { children: [
+          return /* @__PURE__ */ jsxRuntime.jsxs(React6__default.default.Fragment, { children: [
             items.map((item) => {
               if (item.kind === "group") {
                 const { group, children: groupChildren } = item;
                 const showChildren = forceExpanded || !group.collapsed;
-                return /* @__PURE__ */ jsxRuntime.jsxs(React3__default.default.Fragment, { children: [
+                return /* @__PURE__ */ jsxRuntime.jsxs(React6__default.default.Fragment, { children: [
                   /* @__PURE__ */ jsxRuntime.jsx(
                     grouprow_default,
                     {
@@ -1301,6 +1957,10 @@ var MonthlyTable = ({
 };
 var index_default = MonthlyTable;
 
+exports.AssetTable = assettable_default;
+exports.BoletasTable = boletastable_default;
+exports.DebtsTable = debtstable_default;
+exports.TributarioTable = tributariotable_default;
 exports.default = index_default;
 exports.generateLastNMonths = generateLastNMonths;
 //# sourceMappingURL=index.js.map

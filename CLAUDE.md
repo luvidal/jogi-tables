@@ -1,6 +1,6 @@
-# MonthlyReports
+# FinanceTables
 
-Standalone accounting table component extracted from [jogi](../jogi). Renders an editable monthly spreadsheet with CRUD, grouping, drag-reorder, and keyboard navigation.
+Financial table components extracted from [jogi](../jogi). Includes MonthlyTable (editable monthly spreadsheet with CRUD, grouping, drag-reorder, keyboard nav), DebtsTable, BoletasTable, TributarioTable, and AssetTable.
 
 ## Quick Reference
 
@@ -25,7 +25,7 @@ npm run test:watch   # Run tests in watch mode
 
 ```
 src/
-├── index.tsx           # Main MonthlyTable component + re-exports
+├── index.tsx           # Main MonthlyTable component + re-exports of all tables
 ├── types.ts            # RowData, Month, MonthlyTableProps, RowType, SectionDef
 ├── helpers.ts          # Month generation, row type checks, grouping, totals
 ├── datarow.tsx         # Single editable data row
@@ -37,7 +37,11 @@ src/
 ├── editablecell.tsx    # Inline-editable table cell (inlined from jogi)
 ├── styles.ts           # Tailwind class tokens (T object, inlined from jogi)
 ├── utils.ts            # Currency formatting (displayCurrencyCompact, displayCurrency)
-└── usemobile.ts        # useIsMobile media query hook
+├── usemobile.ts        # useIsMobile media query hook
+├── debtstable.tsx      # Debt entries table (accordion, editable, late payment tracking)
+├── boletastable.tsx    # Boletas de honorarios table (monthly breakdown, accordion)
+├── tributariotable.tsx # Tributario info table (carpeta tributaria + balance anual)
+└── assettable.tsx      # Asset table (editable rows, total calculation)
 
 dev/
 ├── index.html          # Visual test page entry point
@@ -84,24 +88,49 @@ Month, RowData, RowType, MonthlyTableProps
 
 // Named function exports
 generateLastNMonths
+
+// Table components (named exports)
+DebtsTable, BoletasTable, TributarioTable, AssetTable
+
+// Table type exports
+DebtEntry, DebtsTableProps
+BoletaMonth, BoletasTableProps
+TributarioEntry, TributarioTableProps
+AssetRowData, AssetTableProps
 ```
 
 ## Consumer Setup (jogi)
 
 ```ts
 // jogi/lib/reports/monthlytable.tsx
-export { default } from '@avd/monthlyreports'
-export type { Month, RowData, RowType, MonthlyTableProps } from '@avd/monthlyreports'
+export { default } from '@avd/financetables'
+export type { Month, RowData, RowType, MonthlyTableProps } from '@avd/financetables'
+
+// jogi/lib/reports/debtstable.tsx
+export { DebtsTable as default } from '@avd/financetables'
+export type { DebtEntry, DebtsTableProps } from '@avd/financetables'
+
+// jogi/lib/reports/boletastable.tsx
+export { BoletasTable as default } from '@avd/financetables'
+export type { BoletaMonth, BoletasTableProps } from '@avd/financetables'
+
+// jogi/lib/reports/tributariotable.tsx
+export { TributarioTable as default } from '@avd/financetables'
+export type { TributarioEntry, TributarioTableProps } from '@avd/financetables'
+
+// jogi/lib/reports/asset-table.tsx → assettable.tsx
+export { AssetTable as default } from '@avd/financetables'
+export type { AssetRowData, AssetTableProps } from '@avd/financetables'
 ```
 
 ```ts
 // jogi/tailwind.config.ts — content array
-'./node_modules/@avd/monthlyreports/dist/**/*.{js,mjs}'
+'./node_modules/@avd/financetables/dist/**/*.{js,mjs}'
 ```
 
 ```json
 // jogi/package.json — dependencies
-"@avd/monthlyreports": "file:../monthlyreports"
+"@avd/financetables": "github:luvidal/financetables"
 ```
 
 ## Inlined Dependencies

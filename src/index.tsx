@@ -467,3 +467,16 @@ const MonthlyTable = ({
 }
 
 export default MonthlyTable
+
+// Table components
+export { default as DebtsTable } from './debtstable'
+export type { DebtEntry, DebtsTableProps } from './debtstable'
+
+export { default as BoletasTable } from './boletastable'
+export type { BoletaMonth, BoletasTableProps } from './boletastable'
+
+export { default as TributarioTable } from './tributariotable'
+export type { TributarioEntry, TributarioTableProps } from './tributariotable'
+
+export { default as AssetTable } from './assettable'
+export type { AssetRowData, AssetTableProps } from './assettable'
