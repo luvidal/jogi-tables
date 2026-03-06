@@ -23,7 +23,7 @@ export interface PromptOptions {
     message: string
     title?: string
     defaultValue?: string
-    type?: string
+    type?: 'text' | 'number'
     icon?: string
 }
 
