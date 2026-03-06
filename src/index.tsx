@@ -18,3 +18,11 @@ export type { TributarioEntry, TributarioTableProps } from './tributario'
 // AssetTable
 export { default as AssetTable } from './assets'
 export type { AssetRowData, AssetTableProps } from './assets'
+
+// ReportTable
+export { default as ReportTable } from './reporttable'
+export type { ReportTableProps, Column } from './reporttable'
+
+// FinalResultsCompact
+export { default as FinalResultsCompact } from './finalresults'
+export type { FinalResultsCompactProps, FinalResultsValues, CodeudorIncomeInfo, PromptOptions } from './finalresults'

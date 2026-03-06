@@ -31,7 +31,9 @@ var T = {
   footerLabel: "font-bold",
   footerValue: "font-bold",
   muted: "text-xs text-gray-600",
-  empty: "text-xs text-gray-400 italic"};
+  empty: "text-xs text-gray-400 italic",
+  cardValue: "text-xs font-semibold"
+};
 
 // src/common/utils.ts
 var displayCurrency = (value) => {
@@ -1505,7 +1507,7 @@ var DebtsTable = ({
   headerText = "text-rose-700",
   defaultCollapsed = true,
   forceExpanded = false,
-  formatCurrency: formatCurrency3 = defaultFormatCurrency,
+  formatCurrency: formatCurrency4 = defaultFormatCurrency,
   sourceFileIds,
   onViewSource
 }) => {
@@ -1624,7 +1626,7 @@ var DebtsTable = ({
               type: "currency"
             }
           ),
-          hasLatePayments && /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-3 py-2.5 text-right text-red-600 font-medium", style: { width: "100px" }, children: hasAtraso ? formatCurrency3(
+          hasLatePayments && /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-3 py-2.5 text-right text-red-600 font-medium", style: { width: "100px" }, children: hasAtraso ? formatCurrency4(
             (entry.atraso_30_59 || 0) + (entry.atraso_60_89 || 0) + (entry.atraso_90_mas || 0)
           ) : "\u2014" }),
           /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" } })
@@ -1715,15 +1717,15 @@ var DebtsTable = ({
           ] }) }),
           /* @__PURE__ */ jsxRuntime.jsxs("td", { className: "px-3 py-3 text-right", style: { width: "120px" }, children: [
             /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${headerText} ${T.headerStatLabel}`, children: "Total: " }),
-            /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.headerStat} ${totalDeuda > 0 ? headerText : "text-gray-400"}`, children: totalDeuda > 0 ? formatCurrency3(totalDeuda) : "\u2014" })
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.headerStat} ${totalDeuda > 0 ? headerText : "text-gray-400"}`, children: totalDeuda > 0 ? formatCurrency4(totalDeuda) : "\u2014" })
           ] }),
           /* @__PURE__ */ jsxRuntime.jsxs("td", { className: "px-3 py-3 text-right", style: { width: "120px" }, children: [
             /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${headerText} ${T.headerStatLabel}`, children: "Vigente: " }),
-            /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.headerStat} ${totalVigente > 0 ? "text-emerald-600" : "text-gray-400"}`, children: totalVigente > 0 ? formatCurrency3(totalVigente) : "\u2014" })
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.headerStat} ${totalVigente > 0 ? "text-emerald-600" : "text-gray-400"}`, children: totalVigente > 0 ? formatCurrency4(totalVigente) : "\u2014" })
           ] }),
           hasLatePayments && /* @__PURE__ */ jsxRuntime.jsxs("td", { className: "px-3 py-3 text-right", style: { width: "100px" }, children: [
             /* @__PURE__ */ jsxRuntime.jsx("span", { className: `text-red-600 ${T.headerStatLabel}`, children: "Atraso: " }),
-            /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.headerStat} text-red-600`, children: formatCurrency3(totalAtraso) })
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.headerStat} text-red-600`, children: formatCurrency4(totalAtraso) })
           ] }),
           /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-2 py-3 text-right", style: { width: "40px" }, children: !forceExpanded && (isExpanded ? /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ChevronUp, { size: 20, className: headerText }) : /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ChevronDown, { size: 20, className: headerText })) })
         ] }) }) }) })
@@ -1985,7 +1987,7 @@ var tributario_default = TributarioTable;
 var AssetTable = ({
   rows,
   onRowsChange,
-  formatCurrency: formatCurrency3,
+  formatCurrency: formatCurrency4,
   placeholder = "Agregar activo...",
   onViewSource
 }) => {
@@ -2134,16 +2136,227 @@ var AssetTable = ({
       /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-t-2 border-blue-200 bg-blue-100/50", children: [
         /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-4 py-3 text-blue-800 ${T.footerLabel}`, style: { width: "200px" }, children: "TOTAL ACTIVOS" }),
         /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-3 py-3", style: { width: "200px" } }),
-        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-3 py-3 text-right ${T.footerValue} text-blue-800`, style: { width: "140px" }, children: totalAssets > 0 ? formatCurrency3(totalAssets) : "\u2014" })
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-3 py-3 text-right ${T.footerValue} text-blue-800`, style: { width: "140px" }, children: totalAssets > 0 ? formatCurrency4(totalAssets) : "\u2014" })
       ] })
     ] })
   ] }) }) });
 };
 var assets_default = AssetTable;
+function ReportTable({ columns, items, renderRow, emptyMessage, totalLabel, totalValue, totalBg, totalText }) {
+  return /* @__PURE__ */ jsxRuntime.jsxs("table", { className: "w-full text-sm", children: [
+    /* @__PURE__ */ jsxRuntime.jsx("thead", { children: /* @__PURE__ */ jsxRuntime.jsx("tr", { className: "bg-gray-50 text-xs", children: columns.map((col, i) => /* @__PURE__ */ jsxRuntime.jsx(
+      "th",
+      {
+        className: `py-2 px-3 font-semibold text-gray-600 ${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left"}`,
+        children: col.label
+      },
+      i
+    )) }) }),
+    /* @__PURE__ */ jsxRuntime.jsxs("tbody", { children: [
+      items.length > 0 ? items.map(renderRow) : /* @__PURE__ */ jsxRuntime.jsx("tr", { className: "border-b border-gray-100", children: /* @__PURE__ */ jsxRuntime.jsx("td", { colSpan: columns.length, className: "py-3 px-3 text-center text-gray-400 italic", children: emptyMessage }) }),
+      /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: totalBg, children: [
+        /* @__PURE__ */ jsxRuntime.jsx("td", { colSpan: columns.length - 1, className: `py-2 px-3 font-semibold ${totalText}`, children: totalLabel }),
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `py-2 px-3 text-right font-bold ${totalText}`, children: totalValue })
+      ] })
+    ] })
+  ] });
+}
+var reporttable_default = ReportTable;
+var formatCurrency3 = (value) => {
+  return displayCurrencyCompact(value);
+};
+var RiskBadge = ({ value, thresholds }) => {
+  if (value === null || value === void 0) return null;
+  let badgeClass = "bg-emerald-100 text-emerald-700";
+  let badgeText = "OK";
+  if (value >= thresholds.danger) {
+    badgeClass = "bg-red-100 text-red-700";
+    badgeText = "Alto";
+  } else if (value >= thresholds.warning) {
+    badgeClass = "bg-amber-100 text-amber-700";
+    badgeText = "Medio";
+  }
+  return /* @__PURE__ */ jsxRuntime.jsx("span", { className: `text-xs font-medium px-1.5 py-0.5 rounded ${badgeClass}`, children: badgeText });
+};
+var FinalResultsCompact = ({
+  values,
+  onChange,
+  calculatedDebtorIncome = 0,
+  calculatedCodebtorIncome = 0,
+  codeudorIncomes = [],
+  calculatedDebts = 0,
+  prompt
+}) => {
+  const debtorIncome = values.renta_liquida_ajustada_comprador ?? (calculatedDebtorIncome > 0 ? Math.round(calculatedDebtorIncome) : null);
+  const hasMultipleCodes = codeudorIncomes.length > 0;
+  const codeudorIncomesAdjusted = hasMultipleCodes ? codeudorIncomes.map((c, idx) => values.rentas_codeudores?.[idx] ?? (c.calculatedIncome > 0 ? Math.round(c.calculatedIncome) : null)) : [values.renta_liquida_ajustada_codeudor ?? (calculatedCodebtorIncome > 0 ? Math.round(calculatedCodebtorIncome) : null)];
+  const totalCodeudorIncome = codeudorIncomesAdjusted.reduce((sum, v) => sum + (v ?? 0), 0);
+  const calculatedTotal = (debtorIncome ?? 0) + totalCodeudorIncome;
+  const displayTotal = values.total_rentas ?? calculatedTotal;
+  const dividendo = values.dividendo_hipotecario ?? 0;
+  const totalDebts = calculatedDebts;
+  const autoCalculatedCH = displayTotal > 0 ? Math.round(dividendo / displayTotal * 1e4) / 100 : 0;
+  const autoCalculatedCF = displayTotal > 0 ? Math.round((dividendo + totalDebts) / displayTotal * 1e4) / 100 : 0;
+  const displayCH = values.indice_carga_hipotecaria ?? (autoCalculatedCH > 0 ? autoCalculatedCH : null);
+  const displayCF = values.indice_carga_financiera_conjunta ?? (autoCalculatedCF > 0 ? autoCalculatedCF : null);
+  const handleEditCH = prompt ? async () => {
+    const newVal = await prompt({ message: "Carga Hipotecaria (%)", title: "Editar \xEDndice", defaultValue: displayCH?.toString() || "", type: "number", icon: "Percent" });
+    if (newVal !== null) {
+      const parsed = parseFloat(newVal);
+      onChange("indice_carga_hipotecaria", isNaN(parsed) ? null : parsed);
+    }
+  } : void 0;
+  const handleEditCF = prompt ? async () => {
+    const newVal = await prompt({ message: "Carga Financiera Total (%)", title: "Editar \xEDndice", defaultValue: displayCF?.toString() || "", type: "number", icon: "Percent" });
+    if (newVal !== null) {
+      const parsed = parseFloat(newVal);
+      onChange("indice_carga_financiera_conjunta", isNaN(parsed) ? null : parsed);
+    }
+  } : void 0;
+  const clickableClass = prompt ? "cursor-pointer hover:underline" : "";
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "grid grid-cols-1 md:grid-cols-3 gap-4", children: [
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "bg-emerald-50 rounded-xl p-4 border border-emerald-200", children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "text-xs font-semibold text-emerald-700 uppercase tracking-wider mb-3 flex items-center gap-1.5", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("svg", { className: "w-4 h-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsxRuntime.jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" }) }),
+        "Rentas L\xEDquidas"
+      ] }),
+      /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center justify-between", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.muted, children: "Comprador" }),
+          /* @__PURE__ */ jsxRuntime.jsx(
+            editablecell_default,
+            {
+              value: debtorIncome,
+              onChange: (v) => {
+                onChange("renta_liquida_ajustada_comprador", v);
+                const newTotal = (v ?? 0) + totalCodeudorIncome;
+                onChange("total_rentas", newTotal > 0 ? newTotal : null);
+              },
+              type: "currency",
+              width: "120px",
+              className: `text-emerald-700 ${T.cardValue}`,
+              asDiv: true
+            }
+          )
+        ] }),
+        hasMultipleCodes ? codeudorIncomes.map((codeudor, idx) => /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center justify-between", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.muted} truncate max-w-[120px]`, title: codeudor.name, children: codeudorIncomes.length > 1 ? `Codeudor ${idx + 1}` : "Codeudor" }),
+          /* @__PURE__ */ jsxRuntime.jsx(
+            editablecell_default,
+            {
+              value: codeudorIncomesAdjusted[idx],
+              onChange: (v) => {
+                const newCodeudorIncomes = [...codeudorIncomesAdjusted];
+                newCodeudorIncomes[idx] = v;
+                onChange("rentas_codeudores", newCodeudorIncomes);
+                const newTotal = (debtorIncome ?? 0) + newCodeudorIncomes.reduce((sum, val) => sum + (val ?? 0), 0);
+                onChange("total_rentas", newTotal > 0 ? newTotal : null);
+              },
+              type: "currency",
+              width: "120px",
+              className: `text-emerald-700 ${T.cardValue}`,
+              asDiv: true
+            }
+          )
+        ] }, idx)) : /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center justify-between", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.muted, children: "Codeudor" }),
+          /* @__PURE__ */ jsxRuntime.jsx(
+            editablecell_default,
+            {
+              value: codeudorIncomesAdjusted[0],
+              onChange: (v) => {
+                onChange("renta_liquida_ajustada_codeudor", v);
+                const newTotal = (debtorIncome ?? 0) + (v ?? 0);
+                onChange("total_rentas", newTotal > 0 ? newTotal : null);
+              },
+              type: "currency",
+              width: "120px",
+              className: `text-emerald-700 ${T.cardValue}`,
+              asDiv: true
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "border-t border-emerald-300 pt-2 mt-2 flex items-center justify-between", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.footerLabel} text-emerald-800 text-xs`, children: "TOTAL" }),
+          /* @__PURE__ */ jsxRuntime.jsx("span", { className: `text-emerald-800 ${T.footerValue}`, children: formatCurrency3(displayTotal > 0 ? displayTotal : null) })
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "bg-sky-50 rounded-xl p-4 border border-sky-200", children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "text-xs font-semibold text-sky-700 uppercase tracking-wider mb-3 flex items-center gap-1.5", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("svg", { className: "w-4 h-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsxRuntime.jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" }) }),
+        "Obligaciones"
+      ] }),
+      /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center justify-between", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.muted, children: "Dividendo" }),
+          /* @__PURE__ */ jsxRuntime.jsx(
+            editablecell_default,
+            {
+              value: values.dividendo_hipotecario,
+              onChange: (v) => onChange("dividendo_hipotecario", v),
+              type: "currency",
+              width: "120px",
+              className: `text-sky-700 ${T.cardValue}`,
+              asDiv: true
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center justify-between", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.muted, children: "Deudas" }),
+          /* @__PURE__ */ jsxRuntime.jsx("span", { className: `text-orange-600 ${T.cardValue}`, children: formatCurrency3(totalDebts > 0 ? totalDebts : null) })
+        ] }),
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "border-t border-sky-300 pt-2 mt-2 flex items-center justify-between", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.footerLabel} text-sky-800 text-xs`, children: "TOTAL" }),
+          /* @__PURE__ */ jsxRuntime.jsx("span", { className: `text-sky-800 ${T.footerValue}`, children: formatCurrency3(dividendo + totalDebts > 0 ? dividendo + totalDebts : null) })
+        ] })
+      ] })
+    ] }),
+    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "bg-violet-50 rounded-xl p-4 border border-violet-200", children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "text-xs font-semibold text-violet-700 uppercase tracking-wider mb-3 flex items-center gap-1.5", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("svg", { className: "w-4 h-4", fill: "none", stroke: "currentColor", viewBox: "0 0 24 24", children: /* @__PURE__ */ jsxRuntime.jsx("path", { strokeLinecap: "round", strokeLinejoin: "round", strokeWidth: 2, d: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" }) }),
+        "\xCDndices de Carga"
+      ] }),
+      /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center justify-between", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.muted, children: "Hipotecaria" }),
+          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntime.jsx(
+              "span",
+              {
+                className: `text-violet-700 ${T.cardValue} ${clickableClass}`,
+                onClick: handleEditCH,
+                children: displayCH !== null && displayCH !== void 0 ? `${displayCH}%` : "\u2014"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntime.jsx(RiskBadge, { value: displayCH, thresholds: { warning: 25, danger: 35 } })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center justify-between", children: [
+          /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.muted, children: "Financiera" }),
+          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-2", children: [
+            /* @__PURE__ */ jsxRuntime.jsx(
+              "span",
+              {
+                className: `text-violet-700 ${T.cardValue} ${clickableClass}`,
+                onClick: handleEditCF,
+                children: displayCF !== null && displayCF !== void 0 ? `${displayCF}%` : "\u2014"
+              }
+            ),
+            /* @__PURE__ */ jsxRuntime.jsx(RiskBadge, { value: displayCF, thresholds: { warning: 40, danger: 50 } })
+          ] })
+        ] })
+      ] })
+    ] })
+  ] });
+};
+var finalresults_default = FinalResultsCompact;
 
 exports.AssetTable = assets_default;
 exports.BoletasTable = boletas_default;
 exports.DebtsTable = debts_default;
+exports.FinalResultsCompact = finalresults_default;
+exports.ReportTable = reporttable_default;
 exports.TributarioTable = tributario_default;
 exports.default = monthly_default;
 exports.generateLastNMonths = generateLastNMonths;
