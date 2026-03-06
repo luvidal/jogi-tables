@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Eye, ChevronUp, ChevronDown } from 'lucide-react'
-import { displayCurrencyCompact } from './utils'
-import { T } from './styles'
+import { displayCurrencyCompact } from '../common/utils'
+import { T } from '../common/styles'
 
 // ============================================================================
 // Types

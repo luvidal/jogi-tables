@@ -12,8 +12,8 @@ import {
     createGroup,
     ungroupRows,
     autoUngroup,
-} from '../src/helpers'
-import type { RowData, Month } from '../src/types'
+} from '../src/monthly/helpers'
+import type { RowData, Month } from '../src/monthly/types'
 
 // ============================================================================
 // Row type helpers

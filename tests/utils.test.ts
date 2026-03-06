@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { displayCurrency, displayCurrencyCompact } from '../src/utils'
+import { displayCurrency, displayCurrencyCompact } from '../src/common/utils'
 
 describe('displayCurrency', () => {
     it('returns empty string for null/undefined', () => {

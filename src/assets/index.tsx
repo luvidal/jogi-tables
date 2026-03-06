@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
-import EditableCell from './editablecell'
-import { T } from './styles'
+import EditableCell from '../common/editablecell'
+import { T } from '../common/styles'
 
 export type AssetRowData = {
     id: string

@@ -1,6 +1,6 @@
 import React from 'react'
-import EditableCell from './editablecell'
-import { T } from './styles'
+import EditableCell from '../common/editablecell'
+import { T } from '../common/styles'
 import { isSubtractType } from './helpers'
 import type { Month, SectionDef } from './types'
 

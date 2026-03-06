@@ -1,4 +1,4 @@
-import { displayCurrencyCompact } from './utils'
+import { displayCurrencyCompact } from '../common/utils'
 import type { RowData, RowType, Month } from './types'
 
 // ============================================================================

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import MonthlyTable from '../src/index'
-import type { RowData, Month } from '../src/types'
+import type { RowData, Month } from '../src'
 import './tailwind.css'
 
 // ============================================================================

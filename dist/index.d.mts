@@ -39,6 +39,8 @@ interface MonthlyTableProps {
     onViewSource?: (fileIds: string[]) => void;
 }
 
+declare const MonthlyTable: ({ title, months, rows, onRowsChange, sections, headerBg, headerText, defaultCollapsed, forceExpanded, formatValue, calculateTotal, sourceFileIds, onViewSource, }: MonthlyTableProps) => react_jsx_runtime.JSX.Element;
+
 declare const generateLastNMonths: (count: number) => Month[];
 
 type DebtEntry = {
@@ -140,7 +142,5 @@ interface AssetTableProps {
     onViewSource?: (fileIds: string[]) => void;
 }
 declare const AssetTable: ({ rows, onRowsChange, formatCurrency, placeholder, onViewSource }: AssetTableProps) => react_jsx_runtime.JSX.Element;
-
-declare const MonthlyTable: ({ title, months, rows, onRowsChange, sections, headerBg, headerText, defaultCollapsed, forceExpanded, formatValue, calculateTotal, sourceFileIds, onViewSource, }: MonthlyTableProps) => react_jsx_runtime.JSX.Element;
 
 export { type AssetRowData, AssetTable, type AssetTableProps, type BoletaMonth, BoletasTable, type BoletasTableProps, type DebtEntry, DebtsTable, type DebtsTableProps, type Month, type MonthlyTableProps, type RowData, type RowType, type TributarioEntry, TributarioTable, type TributarioTableProps, MonthlyTable as default, generateLastNMonths };

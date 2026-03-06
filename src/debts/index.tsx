@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { X, Eye, ChevronUp, ChevronDown } from 'lucide-react'
-import EditableCell from './editablecell'
-import { T } from './styles'
+import EditableCell from '../common/editablecell'
+import { T } from '../common/styles'
 
 // ============================================================================
 // Types
