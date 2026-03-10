@@ -114,6 +114,22 @@ export const computeSectionSubtotal = (rows: RowData[], sectionType: RowType, mo
     return result
 }
 
+/** Compute Renta Variable: sum of variable-flagged rows per month (add types add, subtract types subtract) */
+export const computeRentaVariable = (rows: RowData[], months: Month[]): Record<string, number> => {
+    const result: Record<string, number> = {}
+    for (const month of months) {
+        let sum = 0
+        for (const row of rows) {
+            if (row.isGroup || row.deletedAt || !row.isVariable) continue
+            const value = row.values[month.id] ?? 0
+            if (isAddType(row.type)) sum += value
+            else sum -= value
+        }
+        result[month.id] = sum
+    }
+    return result
+}
+
 /** Compute group header values (sum of children per month) */
 export const computeGroupValues = (children: RowData[], months: Month[]): Record<string, number> => {
     const result: Record<string, number> = {}

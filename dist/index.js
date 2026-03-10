@@ -116,6 +116,20 @@ var computeSectionSubtotal = (rows, sectionType, months) => {
   }
   return result;
 };
+var computeRentaVariable = (rows, months) => {
+  const result = {};
+  for (const month of months) {
+    let sum = 0;
+    for (const row of rows) {
+      if (row.isGroup || row.deletedAt || !row.isVariable) continue;
+      const value = row.values[month.id] ?? 0;
+      if (isAddType(row.type)) sum += value;
+      else sum -= value;
+    }
+    result[month.id] = sum;
+  }
+  return result;
+};
 var computeGroupValues = (children, months) => {
   const result = {};
   for (const month of months) {
@@ -362,6 +376,8 @@ var DataRow = ({
   onCellFocus,
   onNavigate,
   editTrigger = 0,
+  showVariableColumn = false,
+  onToggleVariable,
   isDragging = false,
   dropIndicator,
   onDragStart,
@@ -372,6 +388,7 @@ var DataRow = ({
 }) => {
   const indented = !!row.groupId;
   const subtract = isSubtractType(row.type);
+  const varBorder = row.isVariable ? "border-l-2 border-l-amber-400" : "";
   const rowBg = selected ? "bg-emerald-50/60" : subtract ? "bg-red-50/50 hover:bg-red-100/50" : "hover:bg-gray-50";
   const showCheckbox = selectable && (anySelected || isHovered);
   const dropBorder = dropIndicator === "above" ? "border-t-2 border-t-blue-400" : dropIndicator === "below" ? "border-b-2 border-b-blue-400" : "";
@@ -386,7 +403,7 @@ var DataRow = ({
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "tr",
     {
-      className: `border-b border-gray-100 ${rowBg} ${isDragging ? "opacity-40" : ""} ${dropBorder} group`,
+      className: `border-b border-gray-100 ${rowBg} ${varBorder} ${isDragging ? "opacity-40" : ""} ${dropBorder} group`,
       onClick: handleRowClick,
       onMouseEnter,
       onMouseLeave,
@@ -459,15 +476,26 @@ var DataRow = ({
             p.id
           );
         }),
-        /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" }, className: "text-center", children: isHovered && !anySelected && /* @__PURE__ */ jsxRuntime.jsx(
-          "button",
-          {
-            onClick: onRemove,
-            className: "p-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-100",
-            title: "Eliminar fila",
-            children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.X, { size: 14 })
-          }
-        ) })
+        /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" }, className: "text-center", children: isHovered && !anySelected && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center justify-center gap-0.5", children: [
+          showVariableColumn && /* @__PURE__ */ jsxRuntime.jsx(
+            "button",
+            {
+              onClick: onToggleVariable,
+              className: `p-0.5 rounded transition-colors ${row.isVariable ? "text-amber-500 hover:text-amber-700 hover:bg-amber-100" : "text-gray-300 hover:text-amber-500 hover:bg-amber-100"}`,
+              title: row.isVariable ? "Quitar de renta variable" : "Marcar como renta variable",
+              children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.TrendingUp, { size: 14 })
+            }
+          ),
+          /* @__PURE__ */ jsxRuntime.jsx(
+            "button",
+            {
+              onClick: onRemove,
+              className: "p-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-100",
+              title: "Eliminar fila",
+              children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.X, { size: 14 })
+            }
+          )
+        ] }) })
       ]
     }
   );
@@ -479,7 +507,8 @@ var AddRow = ({
   labelValue,
   onLabelChange,
   onAddRow,
-  onAddRowWithValue
+  onAddRowWithValue,
+  showVariableColumn = false
 }) => {
   const subtract = isSubtractType(section.type);
   const bgClass = subtract ? "bg-red-50/30 border-red-100" : "bg-gray-50/30 border-gray-100";
@@ -527,6 +556,7 @@ var GroupRow = ({
   onToggleCollapse,
   onUngroup,
   onLabelChange,
+  showVariableColumn = false,
   isDragging = false,
   dropIndicator,
   onDragStart,
@@ -706,7 +736,7 @@ var formatDeletedDate = (iso) => {
   if (diffDays < 7) return `hace ${diffDays}d`;
   return d.toLocaleDateString("es-CL", { day: "numeric", month: "short" });
 };
-var RecycleBin = ({ deletedRows, months, onRestore }) => {
+var RecycleBin = ({ deletedRows, months, onRestore, formatValue, showVariableColumn = false }) => {
   const [expanded, setExpanded] = React3.useState(false);
   if (deletedRows.length === 0) return null;
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "border-t border-gray-200 bg-gray-50/50", children: [
@@ -726,37 +756,50 @@ var RecycleBin = ({ deletedRows, months, onRestore }) => {
         ]
       }
     ),
-    expanded && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "px-4 pb-3", children: deletedRows.map((row) => /* @__PURE__ */ jsxRuntime.jsxs(
-      "div",
-      {
-        className: "flex items-center gap-3 py-1.5 group",
-        children: [
+    expanded && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntime.jsx("table", { className: T.table, style: { tableLayout: "fixed" }, children: /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: deletedRows.map((row) => {
+      const subtract = isSubtractType(row.type);
+      return /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-b border-gray-100 opacity-75 group", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `pl-1 pr-2 py-1.5 text-gray-500 ${T.cellLabel}`, style: { width: "180px" }, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-1 min-w-0", children: [
           /* @__PURE__ */ jsxRuntime.jsx(
             "button",
             {
               onClick: () => onRestore(row.id),
-              className: "shrink-0 p-1 rounded text-gray-300 hover:text-emerald-600 hover:bg-emerald-50 transition-colors",
+              className: "shrink-0 p-1 rounded text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors",
               title: "Restaurar",
               children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Undo2, { size: 13 })
             }
           ),
-          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "truncate min-w-0 flex-1", children: [
-            /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-xs text-gray-500 truncate block", children: row.label }),
-            months.some((m) => row.values[m.id] != null) && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-[10px] text-gray-400 tabular-nums", children: months.map((m, i) => {
-              const v = row.values[m.id];
-              if (v == null) return null;
-              return /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
-                i > 0 && months.slice(0, i).some((prev) => row.values[prev.id] != null) && " \xB7 ",
-                displayCurrencyCompact(v, isSubtractType(row.type))
-              ] }, m.id);
-            }) })
-          ] }),
-          row.deletionReason && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-xs text-gray-400 italic truncate max-w-[160px]", title: row.deletionReason, children: row.deletionReason }),
-          row.deletedAt && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-xs text-gray-300 shrink-0", children: formatDeletedDate(row.deletedAt) })
-        ]
-      },
-      row.id
-    )) })
+          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "min-w-0 flex-1", children: [
+            /* @__PURE__ */ jsxRuntime.jsx(
+              "span",
+              {
+                className: `${T.rowLabel} line-through text-gray-400 truncate block`,
+                title: row.label,
+                children: row.label
+              }
+            ),
+            row.deletedAt && /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "text-[10px] text-gray-400 truncate block", title: row.deletionReason, children: [
+              formatDeletedDate(row.deletedAt),
+              row.deletionReason && ` \xB7 ${row.deletionReason}`
+            ] })
+          ] })
+        ] }) }),
+        months.map((m) => {
+          const v = row.values[m.id];
+          const hasValue = v != null;
+          return /* @__PURE__ */ jsxRuntime.jsx(
+            "td",
+            {
+              className: "px-2 py-1.5 text-right tabular-nums",
+              style: { width: "110px" },
+              children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalValue} ${hasValue ? subtract ? "text-rose-300" : "text-gray-400" : "text-gray-200"}`, children: hasValue ? formatValue(v) : "\u2014" })
+            },
+            m.id
+          );
+        }),
+        /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" } })
+      ] }, row.id);
+    }) }) }) })
   ] });
 };
 var recyclebin_default = RecycleBin;
@@ -849,7 +892,7 @@ var ContextMenu = ({ x, y, canGroup, selectedCount, onGroup, onDeleteSelected, o
   }
   return menu;
 };
-var HeaderSelectionBar = ({ selectedCount, canGroup, monthCount, naming, onNamingChange, onGroup, onDeleteSelected, onCancel }) => {
+var HeaderSelectionBar = ({ selectedCount, canGroup, monthCount, naming, onNamingChange, onGroup, onDeleteSelected, onCancel, showVariableColumn = false }) => {
   const [groupName, setGroupName] = React3.useState("");
   const inputRef = React3.useRef(null);
   React3.useEffect(() => {
@@ -1158,6 +1201,7 @@ var MonthlyTable = ({
   forceExpanded = false,
   formatValue = defaultFormatValue,
   calculateTotal = defaultCalculateTotal,
+  showVariableColumn = false,
   sourceFileIds,
   onViewSource
 }) => {
@@ -1297,6 +1341,9 @@ var MonthlyTable = ({
   const handleUngroup = React3.useCallback((groupId) => {
     onRowsChange(ungroupRows(rows, groupId));
   }, [rows, onRowsChange]);
+  const toggleVariable = React3.useCallback((rowId) => {
+    onRowsChange(rows.map((r) => r.id === rowId ? { ...r, isVariable: !r.isVariable } : r));
+  }, [rows, onRowsChange]);
   const addRow = React3.useCallback((type, label) => {
     if (!label.trim()) return;
     const newRow = { id: `row_${type}_${Date.now()}`, label: label.trim(), type, values: {} };
@@ -1350,6 +1397,8 @@ var MonthlyTable = ({
       onLabelChange: (label) => updateRowLabel(r.id, label),
       onValueChange: (monthId, value) => updateRowValue(r.id, monthId, value),
       onViewSource,
+      showVariableColumn,
+      onToggleVariable: () => toggleVariable(r.id),
       isCellFocused: (mi) => keyboard.isFocused(r.id, mi),
       onCellFocus: (mi) => keyboard.focus(r.id, mi),
       onNavigate: keyboard.navigateAndEdit,
@@ -1384,10 +1433,12 @@ var MonthlyTable = ({
             onCancel: () => {
               clearSelection();
               setNaming(false);
-            }
+            },
+            showVariableColumn
           }
         ) : /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
           /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-4 py-2.5 text-left", style: { width: "180px" }, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-2", children: [
+            !forceExpanded && (isExpanded ? /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ChevronUp, { size: 16, className: headerText }) : /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ChevronDown, { size: 16, className: headerText })),
             /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${headerText} ${T.headerTitle}`, children: title }),
             sourceFileIds && sourceFileIds.length > 0 && onViewSource && /* @__PURE__ */ jsxRuntime.jsx(
               "button",
@@ -1413,7 +1464,7 @@ var MonthlyTable = ({
               /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.headerStat} ${hasValue ? headerText : "text-gray-400"}`, children: hasValue ? formatValue(total) : "\u2014" })
             ] }, p.id);
           }),
-          /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-2 py-2.5 text-right", style: { width: "40px" }, children: !forceExpanded && (isExpanded ? /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ChevronUp, { size: 20, className: headerText }) : /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ChevronDown, { size: 20, className: headerText })) })
+          /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" } })
         ] }) }) }) }) })
       }
     ),
@@ -1423,72 +1474,111 @@ var MonthlyTable = ({
         className: `bg-white ${!isExpanded ? "hidden print:block" : ""} outline-none`,
         tabIndex: 0,
         onKeyDown: keyboard.handleContainerKeyDown,
-        children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntime.jsx("table", { className: T.table, style: { tableLayout: "fixed" }, children: /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: effectiveSections.map((section) => {
-          const items = getOrderedItems(rows, section.type);
-          return /* @__PURE__ */ jsxRuntime.jsxs(React3__default.default.Fragment, { children: [
-            items.map((item) => {
-              if (item.kind === "group") {
-                const { group, children: groupChildren } = item;
-                const showChildren = forceExpanded || !group.collapsed;
-                return /* @__PURE__ */ jsxRuntime.jsxs(React3__default.default.Fragment, { children: [
-                  /* @__PURE__ */ jsxRuntime.jsx(
-                    grouprow_default,
-                    {
-                      group,
-                      childRows: groupChildren,
-                      months: monthsArray,
-                      isHovered: hoveredRow === group.id,
-                      forceExpanded,
-                      formatValue,
-                      onMouseEnter: () => setHoveredRow(group.id),
-                      onMouseLeave: () => setHoveredRow(null),
-                      onToggleCollapse: () => toggleGroupCollapse(group.id),
-                      onUngroup: () => handleUngroup(group.id),
-                      onLabelChange: (label) => updateRowLabel(group.id, label),
-                      isDragging: drag.dragRowId === group.id,
-                      dropIndicator: drag.dropTargetId === group.id ? drag.dropPosition : null,
-                      onDragStart: drag.handleDragStart(group.id),
-                      onDragOver: drag.handleDragOver(group.id),
-                      onDragLeave: drag.handleDragLeave,
-                      onDrop: drag.handleDrop(rows, onRowsChange),
-                      onDragEnd: drag.handleDragEnd
-                    }
-                  ),
-                  showChildren && groupChildren.map((child) => renderDataRow(child))
-                ] }, group.id);
-              }
-              return renderDataRow(item.row);
-            }),
-            /* @__PURE__ */ jsxRuntime.jsx(
-              addrow_default,
-              {
-                section,
-                months: monthsArray,
-                labelValue: newRowLabels[section.type] || "",
-                onLabelChange: (v) => setNewRowLabels((prev) => ({ ...prev, [section.type]: v })),
-                onAddRow: (label) => addRow(section.type, label),
-                onAddRowWithValue: (monthId, value) => addRowWithValue(section.type, monthId, value)
-              }
-            ),
-            effectiveSections.length > 1 && (() => {
-              const subtotals = computeSectionSubtotal(rows, section.type, monthsArray);
-              const isSubtract = isSubtractType(section.type);
-              const label = isSubtract ? "Total descuentos" : "Total haberes";
-              return /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: `border-t-2 ${isSubtract ? "border-t-rose-200 bg-red-50/30" : "border-t-emerald-200 bg-emerald-50/30"}`, children: [
-                /* @__PURE__ */ jsxRuntime.jsx("td", { className: "pl-4 pr-2 py-2 text-gray-700", style: { width: "180px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalLabel} ${isSubtract ? "text-rose-700" : "text-emerald-700"}`, children: label }) }),
+        children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntime.jsx("table", { className: T.table, style: { tableLayout: "fixed" }, children: /* @__PURE__ */ jsxRuntime.jsxs("tbody", { children: [
+          effectiveSections.map((section) => {
+            const items = getOrderedItems(rows, section.type);
+            return /* @__PURE__ */ jsxRuntime.jsxs(React3__default.default.Fragment, { children: [
+              effectiveSections.length > 1 && (() => {
+                const subtotals = computeSectionSubtotal(rows, section.type, monthsArray);
+                const isSubtract = isSubtractType(section.type);
+                const label = isSubtract ? "Total descuentos" : "Total haberes";
+                return /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: `border-b-2 ${isSubtract ? "border-b-rose-200 bg-red-50/30" : "border-b-emerald-200 bg-emerald-50/30"}`, children: [
+                  /* @__PURE__ */ jsxRuntime.jsx("td", { className: "pl-4 pr-2 py-2 text-gray-700", style: { width: "180px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalLabel} ${isSubtract ? "text-rose-700" : "text-emerald-700"}`, children: label }) }),
+                  monthsArray.map((p) => {
+                    const value = subtotals[p.id] ?? 0;
+                    const hasValue = value !== 0;
+                    return /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-2 py-2 text-right", style: { width: "110px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalValue} tabular-nums ${isSubtract ? hasValue ? "text-rose-600" : "text-gray-300" : hasValue ? "text-emerald-700" : "text-gray-300"}`, children: hasValue ? formatValue(isSubtract ? -value : value) : "\u2014" }) }, p.id);
+                  }),
+                  /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" } })
+                ] });
+              })(),
+              items.map((item) => {
+                if (item.kind === "group") {
+                  const { group, children: groupChildren } = item;
+                  const showChildren = forceExpanded || !group.collapsed;
+                  return /* @__PURE__ */ jsxRuntime.jsxs(React3__default.default.Fragment, { children: [
+                    /* @__PURE__ */ jsxRuntime.jsx(
+                      grouprow_default,
+                      {
+                        group,
+                        childRows: groupChildren,
+                        months: monthsArray,
+                        isHovered: hoveredRow === group.id,
+                        forceExpanded,
+                        formatValue,
+                        onMouseEnter: () => setHoveredRow(group.id),
+                        onMouseLeave: () => setHoveredRow(null),
+                        onToggleCollapse: () => toggleGroupCollapse(group.id),
+                        onUngroup: () => handleUngroup(group.id),
+                        onLabelChange: (label) => updateRowLabel(group.id, label),
+                        showVariableColumn,
+                        isDragging: drag.dragRowId === group.id,
+                        dropIndicator: drag.dropTargetId === group.id ? drag.dropPosition : null,
+                        onDragStart: drag.handleDragStart(group.id),
+                        onDragOver: drag.handleDragOver(group.id),
+                        onDragLeave: drag.handleDragLeave,
+                        onDrop: drag.handleDrop(rows, onRowsChange),
+                        onDragEnd: drag.handleDragEnd
+                      }
+                    ),
+                    showChildren && groupChildren.map((child) => renderDataRow(child))
+                  ] }, group.id);
+                }
+                return renderDataRow(item.row);
+              }),
+              /* @__PURE__ */ jsxRuntime.jsx(
+                addrow_default,
+                {
+                  section,
+                  months: monthsArray,
+                  labelValue: newRowLabels[section.type] || "",
+                  onLabelChange: (v) => setNewRowLabels((prev) => ({ ...prev, [section.type]: v })),
+                  onAddRow: (label) => addRow(section.type, label),
+                  onAddRowWithValue: (monthId, value) => addRowWithValue(section.type, monthId, value),
+                  showVariableColumn
+                }
+              )
+            ] }, section.type);
+          }),
+          showVariableColumn && effectiveSections.length > 1 && (() => {
+            const rentaVariable = computeRentaVariable(rows, monthsArray);
+            const fmtSigned = (v) => v < 0 ? `-${formatValue(-v)}` : formatValue(v);
+            return /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
+              /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-t-2 border-t-blue-200 bg-blue-50", children: [
+                /* @__PURE__ */ jsxRuntime.jsx("td", { className: "pl-4 pr-2 py-2", style: { width: "180px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalLabel} text-blue-800`, children: "Renta L\xEDquida" }) }),
                 monthsArray.map((p) => {
-                  const value = subtotals[p.id] ?? 0;
+                  const value = calculateTotal(p.id, rows);
                   const hasValue = value !== 0;
-                  return /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-2 py-2 text-right", style: { width: "110px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalValue} tabular-nums ${isSubtract ? hasValue ? "text-rose-600" : "text-gray-300" : hasValue ? "text-emerald-700" : "text-gray-300"}`, children: hasValue ? formatValue(isSubtract ? -value : value) : "\u2014" }) }, p.id);
+                  return /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-2 py-2 text-right", style: { width: "110px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalValue} tabular-nums font-semibold ${hasValue ? "text-blue-800" : "text-gray-300"}`, children: hasValue ? fmtSigned(value) : "\u2014" }) }, p.id);
                 }),
                 /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" } })
-              ] });
-            })()
-          ] }, section.type);
-        }) }) }) })
+              ] }),
+              /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-b border-gray-100 bg-amber-50/50", children: [
+                /* @__PURE__ */ jsxRuntime.jsx("td", { className: "pl-4 pr-2 py-2", style: { width: "180px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalLabel} text-amber-700`, children: "Renta Variable" }) }),
+                monthsArray.map((p) => {
+                  const value = rentaVariable[p.id] ?? 0;
+                  const hasValue = value !== 0;
+                  return /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-2 py-2 text-right", style: { width: "110px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalValue} tabular-nums ${hasValue ? "text-amber-700" : "text-gray-300"}`, children: hasValue ? fmtSigned(value) : "\u2014" }) }, p.id);
+                }),
+                /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" } })
+              ] }),
+              /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-b border-gray-200 bg-emerald-50/50", children: [
+                /* @__PURE__ */ jsxRuntime.jsx("td", { className: "pl-4 pr-2 py-2", style: { width: "180px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalLabel} text-emerald-700`, children: "Renta Fija" }) }),
+                monthsArray.map((p) => {
+                  const liquida = calculateTotal(p.id, rows);
+                  const variable = rentaVariable[p.id] ?? 0;
+                  const fija = liquida - variable;
+                  const hasValue = fija !== 0;
+                  return /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-2 py-2 text-right", style: { width: "110px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalValue} tabular-nums ${hasValue ? "text-emerald-700" : "text-gray-300"}`, children: hasValue ? fmtSigned(fija) : "\u2014" }) }, p.id);
+                }),
+                /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" } })
+              ] })
+            ] });
+          })()
+        ] }) }) })
       }
     ),
-    isExpanded && /* @__PURE__ */ jsxRuntime.jsx(recyclebin_default, { deletedRows, months: monthsArray, onRestore: handleRestore }),
+    isExpanded && /* @__PURE__ */ jsxRuntime.jsx(recyclebin_default, { deletedRows, months: monthsArray, onRestore: handleRestore, formatValue, showVariableColumn }),
     deleteTarget && /* @__PURE__ */ jsxRuntime.jsx(
       deletedialog_default,
       {

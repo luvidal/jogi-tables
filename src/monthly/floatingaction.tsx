@@ -97,9 +97,10 @@ interface HeaderSelectionBarProps {
     onGroup: (name: string) => void
     onDeleteSelected: () => void
     onCancel: () => void
+    showVariableColumn?: boolean
 }
 
-export const HeaderSelectionBar = ({ selectedCount, canGroup, monthCount, naming, onNamingChange, onGroup, onDeleteSelected, onCancel }: HeaderSelectionBarProps) => {
+export const HeaderSelectionBar = ({ selectedCount, canGroup, monthCount, naming, onNamingChange, onGroup, onDeleteSelected, onCancel, showVariableColumn = false }: HeaderSelectionBarProps) => {
     const [groupName, setGroupName] = useState('')
     const inputRef = useRef<HTMLInputElement>(null)
 

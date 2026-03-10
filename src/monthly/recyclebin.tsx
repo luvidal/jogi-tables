@@ -1,13 +1,15 @@
 import { useState } from 'react'
 import { ChevronDown, ChevronUp, Undo2, Trash2 } from 'lucide-react'
-import { displayCurrencyCompact } from '../common/utils'
 import { isSubtractType } from './helpers'
+import { T } from '../common/styles'
 import type { RowData, Month } from './types'
 
 interface RecycleBinProps {
     deletedRows: RowData[]
     months: Month[]
     onRestore: (id: string) => void
+    formatValue: (value: number | null | undefined) => string
+    showVariableColumn?: boolean
 }
 
 const formatDeletedDate = (iso: string): string => {
@@ -24,7 +26,7 @@ const formatDeletedDate = (iso: string): string => {
     return d.toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })
 }
 
-const RecycleBin = ({ deletedRows, months, onRestore }: RecycleBinProps) => {
+const RecycleBin = ({ deletedRows, months, onRestore, formatValue, showVariableColumn = false }: RecycleBinProps) => {
     const [expanded, setExpanded] = useState(false)
 
     if (deletedRows.length === 0) return null
@@ -43,50 +45,60 @@ const RecycleBin = ({ deletedRows, months, onRestore }: RecycleBinProps) => {
             </button>
 
             {expanded && (
-                <div className="px-4 pb-3">
-                    {deletedRows.map(row => (
-                        <div
-                            key={row.id}
-                            className="flex items-center gap-3 py-1.5 group"
-                        >
-                            <button
-                                onClick={() => onRestore(row.id)}
-                                className="shrink-0 p-1 rounded text-gray-300 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
-                                title="Restaurar"
-                            >
-                                <Undo2 size={13} />
-                            </button>
-                            <div className="truncate min-w-0 flex-1">
-                                <span className="text-xs text-gray-500 truncate block">
-                                    {row.label}
-                                </span>
-                                {months.some(m => row.values[m.id] != null) && (
-                                    <span className="text-[10px] text-gray-400 tabular-nums">
-                                        {months.map((m, i) => {
+                <div className="overflow-x-auto">
+                    <table className={T.table} style={{ tableLayout: 'fixed' }}>
+                        <tbody>
+                            {deletedRows.map(row => {
+                                const subtract = isSubtractType(row.type)
+
+                                return (
+                                    <tr key={row.id} className="border-b border-gray-100 opacity-75 group">
+                                        <td className={`pl-1 pr-2 py-1.5 text-gray-500 ${T.cellLabel}`} style={{ width: '180px' }}>
+                                            <div className="flex items-center gap-1 min-w-0">
+                                                <button
+                                                    onClick={() => onRestore(row.id)}
+                                                    className="shrink-0 p-1 rounded text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+                                                    title="Restaurar"
+                                                >
+                                                    <Undo2 size={13} />
+                                                </button>
+                                                <div className="min-w-0 flex-1">
+                                                    <span
+                                                        className={`${T.rowLabel} line-through text-gray-400 truncate block`}
+                                                        title={row.label}
+                                                    >
+                                                        {row.label}
+                                                    </span>
+                                                    {row.deletedAt && (
+                                                        <span className="text-[10px] text-gray-400 truncate block" title={row.deletionReason}>
+                                                            {formatDeletedDate(row.deletedAt)}
+                                                            {row.deletionReason && ` · ${row.deletionReason}`}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        {months.map(m => {
                                             const v = row.values[m.id]
-                                            if (v == null) return null
+                                            const hasValue = v != null
                                             return (
-                                                <span key={m.id}>
-                                                    {i > 0 && months.slice(0, i).some(prev => row.values[prev.id] != null) && ' · '}
-                                                    {displayCurrencyCompact(v, isSubtractType(row.type))}
-                                                </span>
+                                                <td
+                                                    key={m.id}
+                                                    className="px-2 py-1.5 text-right tabular-nums"
+                                                    style={{ width: '110px' }}
+                                                >
+                                                    <span className={`${T.totalValue} ${hasValue ? (subtract ? 'text-rose-300' : 'text-gray-400') : 'text-gray-200'}`}>
+                                                        {hasValue ? formatValue(v) : '—'}
+                                                    </span>
+                                                </td>
                                             )
                                         })}
-                                    </span>
-                                )}
-                            </div>
-                            {row.deletionReason && (
-                                <span className="text-xs text-gray-400 italic truncate max-w-[160px]" title={row.deletionReason}>
-                                    {row.deletionReason}
-                                </span>
-                            )}
-                            {row.deletedAt && (
-                                <span className="text-xs text-gray-300 shrink-0">
-                                    {formatDeletedDate(row.deletedAt)}
-                                </span>
-                            )}
-                        </div>
-                    ))}
+                                        <td style={{ width: '40px' }} />
+                                    </tr>
+                                )
+                            })}
+                        </tbody>
+                    </table>
                 </div>
             )}
         </div>

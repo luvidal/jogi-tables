@@ -11,6 +11,7 @@ interface AddRowProps {
     onLabelChange: (value: string) => void
     onAddRow: (label: string) => void
     onAddRowWithValue: (monthId: string, value: number | null) => void
+    showVariableColumn?: boolean
 }
 
 const AddRow = ({
@@ -20,6 +21,7 @@ const AddRow = ({
     onLabelChange,
     onAddRow,
     onAddRowWithValue,
+    showVariableColumn = false,
 }: AddRowProps) => {
     const subtract = isSubtractType(section.type)
     const bgClass = subtract

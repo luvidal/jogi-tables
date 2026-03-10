@@ -1,5 +1,5 @@
 import React from 'react'
-import { GripVertical, X, Eye } from 'lucide-react'
+import { GripVertical, X, Eye, TrendingUp } from 'lucide-react'
 import EditableCell from '../common/editablecell'
 import { T } from '../common/styles'
 import { isSubtractType } from './helpers'
@@ -28,6 +28,9 @@ interface DataRowProps {
     onNavigate?: (direction: 'up' | 'down' | 'left' | 'right') => void
     /** Keyboard nav: counter that triggers edit on focused cell */
     editTrigger?: number
+    /** Variable column */
+    showVariableColumn?: boolean
+    onToggleVariable?: () => void
     /** Drag reorder: is this row being dragged */
     isDragging?: boolean
     /** Drag reorder: is this the drop target, and position */
@@ -63,6 +66,8 @@ const DataRow = ({
     onCellFocus,
     onNavigate,
     editTrigger = 0,
+    showVariableColumn = false,
+    onToggleVariable,
     isDragging = false,
     dropIndicator,
     onDragStart,
@@ -73,6 +78,7 @@ const DataRow = ({
 }: DataRowProps) => {
     const indented = !!row.groupId
     const subtract = isSubtractType(row.type)
+    const varBorder = row.isVariable ? 'border-l-2 border-l-amber-400' : ''
     const rowBg = selected
         ? 'bg-emerald-50/60'
         : subtract ? 'bg-red-50/50 hover:bg-red-100/50' : 'hover:bg-gray-50'
@@ -91,7 +97,7 @@ const DataRow = ({
 
     return (
         <tr
-            className={`border-b border-gray-100 ${rowBg} ${isDragging ? 'opacity-40' : ''} ${dropBorder} group`}
+            className={`border-b border-gray-100 ${rowBg} ${varBorder} ${isDragging ? 'opacity-40' : ''} ${dropBorder} group`}
             onClick={handleRowClick}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
@@ -163,13 +169,27 @@ const DataRow = ({
             })}
             <td style={{ width: '40px' }} className="text-center">
                 {isHovered && !anySelected && (
-                    <button
-                        onClick={onRemove}
-                        className="p-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-100"
-                        title="Eliminar fila"
-                    >
-                        <X size={14} />
-                    </button>
+                    <div className="flex items-center justify-center gap-0.5">
+                        {showVariableColumn && (
+                            <button
+                                onClick={onToggleVariable}
+                                className={`p-0.5 rounded transition-colors ${row.isVariable
+                                    ? 'text-amber-500 hover:text-amber-700 hover:bg-amber-100'
+                                    : 'text-gray-300 hover:text-amber-500 hover:bg-amber-100'
+                                }`}
+                                title={row.isVariable ? 'Quitar de renta variable' : 'Marcar como renta variable'}
+                            >
+                                <TrendingUp size={14} />
+                            </button>
+                        )}
+                        <button
+                            onClick={onRemove}
+                            className="p-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-100"
+                            title="Eliminar fila"
+                        >
+                            <X size={14} />
+                        </button>
+                    </div>
                 )}
             </td>
         </tr>

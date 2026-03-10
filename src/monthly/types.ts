@@ -15,6 +15,8 @@ export type RowData = {
     collapsed?: boolean    // group headers only: whether children are hidden
     // Ordering
     order?: number         // explicit sort position within its type section
+    // Variable flag
+    isVariable?: boolean   // true = variable income/deduction (drives Renta Variable calc)
     // Soft-delete
     deletedAt?: string     // ISO timestamp — presence means row is in recycle bin
     deletionReason?: string // User-provided reason for deletion
@@ -57,6 +59,9 @@ export interface MonthlyTableProps {
 
     // Optional: Custom total calculation (default: sum add/income rows, subtract subtract/deduction/debt rows)
     calculateTotal?: (monthId: string, rows: RowData[]) => number
+
+    // Variable column — shows "Var?" checkbox per row + summary rows (Renta Líquida/Variable/Fija)
+    showVariableColumn?: boolean
 
     // Source file viewing
     sourceFileIds?: string[]  // Source files for the whole table (shown in header)

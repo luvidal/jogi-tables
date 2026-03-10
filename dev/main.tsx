@@ -31,18 +31,21 @@ const INITIAL_ROWS: RowData[] = [
         id: 'r3',
         label: 'Bono Producción',
         type: 'income',
+        isVariable: true,
         values: { '2026-01': 120_000, '2026-02': null, '2026-03': 180_000 },
     },
     {
         id: 'r4',
         label: 'Horas Extra',
         type: 'income',
+        isVariable: true,
         values: { '2026-01': 85_000, '2026-02': 120_000, '2026-03': null },
     },
     {
         id: 'r5',
         label: 'Comisiones',
         type: 'income',
+        isVariable: true,
         values: { '2026-01': 200_000, '2026-02': 150_000, '2026-03': 310_000 },
     },
     {
@@ -133,6 +136,7 @@ function IncomeTable() {
             ]}
             headerBg="bg-emerald-50"
             headerText="text-emerald-700"
+            showVariableColumn
         />
     )
 }

@@ -13,6 +13,7 @@ type RowData = {
     isGroup?: boolean;
     collapsed?: boolean;
     order?: number;
+    isVariable?: boolean;
     deletedAt?: string;
     deletionReason?: string;
 };
@@ -36,11 +37,12 @@ interface MonthlyTableProps {
     forceExpanded?: boolean;
     formatValue?: (value: number | null | undefined) => string;
     calculateTotal?: (monthId: string, rows: RowData[]) => number;
+    showVariableColumn?: boolean;
     sourceFileIds?: string[];
     onViewSource?: (fileIds: string[]) => void;
 }
 
-declare const MonthlyTable: ({ title, months, rows, onRowsChange, sections, headerBg, headerText, defaultCollapsed, forceExpanded, formatValue, calculateTotal, sourceFileIds, onViewSource, }: MonthlyTableProps) => react_jsx_runtime.JSX.Element;
+declare const MonthlyTable: ({ title, months, rows, onRowsChange, sections, headerBg, headerText, defaultCollapsed, forceExpanded, formatValue, calculateTotal, showVariableColumn, sourceFileIds, onViewSource, }: MonthlyTableProps) => react_jsx_runtime.JSX.Element;
 
 declare const generateLastNMonths: (count: number) => Month[];
 

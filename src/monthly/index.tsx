@@ -15,6 +15,7 @@ import {
     softDeleteRows,
     restoreRows,
     computeSectionSubtotal,
+    computeRentaVariable,
 } from './helpers'
 import DataRow from './datarow'
 import AddRow from './addrow'
@@ -43,6 +44,7 @@ const MonthlyTable = ({
     forceExpanded = false,
     formatValue = defaultFormatValue,
     calculateTotal = defaultCalculateTotal,
+    showVariableColumn = false,
     sourceFileIds,
     onViewSource,
 }: MonthlyTableProps) => {
@@ -209,6 +211,10 @@ const MonthlyTable = ({
         onRowsChange(ungroupRows(rows, groupId))
     }, [rows, onRowsChange])
 
+    const toggleVariable = useCallback((rowId: string) => {
+        onRowsChange(rows.map(r => r.id === rowId ? { ...r, isVariable: !r.isVariable } : r))
+    }, [rows, onRowsChange])
+
     const addRow = useCallback((type: typeof rows[0]['type'], label: string) => {
         if (!label.trim()) return
         const newRow: RowData = { id: `row_${type}_${Date.now()}`, label: label.trim(), type, values: {} }
@@ -270,6 +276,8 @@ const MonthlyTable = ({
             onLabelChange={(label) => updateRowLabel(r.id, label)}
             onValueChange={(monthId, value) => updateRowValue(r.id, monthId, value)}
             onViewSource={onViewSource}
+            showVariableColumn={showVariableColumn}
+            onToggleVariable={() => toggleVariable(r.id)}
             isCellFocused={(mi) => keyboard.isFocused(r.id, mi)}
             onCellFocus={(mi) => keyboard.focus(r.id, mi)}
             onNavigate={keyboard.navigateAndEdit}
@@ -306,11 +314,15 @@ const MonthlyTable = ({
                                         onGroup={handleGroup}
                                         onDeleteSelected={requestDeleteSelected}
                                         onCancel={() => { clearSelection(); setNaming(false) }}
+                                        showVariableColumn={showVariableColumn}
                                     />
                                 ) : (
                                     <>
                                         <td className="px-4 py-2.5 text-left" style={{ width: '180px' }}>
                                             <div className="flex items-center gap-2">
+                                                {!forceExpanded && (
+                                                    isExpanded ? <ChevronUp size={16} className={headerText} /> : <ChevronDown size={16} className={headerText} />
+                                                )}
                                                 <span className={`${headerText} ${T.headerTitle}`}>{title}</span>
                                                 {sourceFileIds && sourceFileIds.length > 0 && onViewSource && (
                                                     <button
@@ -335,11 +347,8 @@ const MonthlyTable = ({
                                                 </td>
                                             )
                                         })}
-                                        <td className="px-2 py-2.5 text-right" style={{ width: '40px' }}>
-                                            {!forceExpanded && (
-                                                isExpanded ? <ChevronUp size={20} className={headerText} /> : <ChevronDown size={20} className={headerText} />
-                                            )}
-                                        </td>
+                                        {/* Spacer aligns with body rows' actions column */}
+                                        <td style={{ width: '40px' }} />
                                     </>
                                 )}
                             </tr>
@@ -361,6 +370,31 @@ const MonthlyTable = ({
                                 const items = getOrderedItems(rows, section.type)
                                 return (
                                     <React.Fragment key={section.type}>
+                                        {/* Subtotal row at TOP of section — only when table has multiple sections */}
+                                        {effectiveSections.length > 1 && (() => {
+                                            const subtotals = computeSectionSubtotal(rows, section.type, monthsArray)
+                                            const isSubtract = isSubtractType(section.type)
+                                            const label = isSubtract ? 'Total descuentos' : 'Total haberes'
+                                            return (
+                                                <tr className={`border-b-2 ${isSubtract ? 'border-b-rose-200 bg-red-50/30' : 'border-b-emerald-200 bg-emerald-50/30'}`}>
+                                                    <td className="pl-4 pr-2 py-2 text-gray-700" style={{ width: '180px' }}>
+                                                        <span className={`${T.totalLabel} ${isSubtract ? 'text-rose-700' : 'text-emerald-700'}`}>{label}</span>
+                                                    </td>
+                                                    {monthsArray.map(p => {
+                                                        const value = subtotals[p.id] ?? 0
+                                                        const hasValue = value !== 0
+                                                        return (
+                                                            <td key={p.id} className="px-2 py-2 text-right" style={{ width: '110px' }}>
+                                                                <span className={`${T.totalValue} tabular-nums ${isSubtract ? (hasValue ? 'text-rose-600' : 'text-gray-300') : (hasValue ? 'text-emerald-700' : 'text-gray-300')}`}>
+                                                                    {hasValue ? formatValue(isSubtract ? -value : value) : '—'}
+                                                                </span>
+                                                            </td>
+                                                        )
+                                                    })}
+                                                    <td style={{ width: '40px' }} />
+                                                </tr>
+                                            )
+                                        })()}
                                         {items.map(item => {
                                             if (item.kind === 'group') {
                                                 const { group, children: groupChildren } = item
@@ -379,6 +413,7 @@ const MonthlyTable = ({
                                                             onToggleCollapse={() => toggleGroupCollapse(group.id)}
                                                             onUngroup={() => handleUngroup(group.id)}
                                                             onLabelChange={(label) => updateRowLabel(group.id, label)}
+                                                            showVariableColumn={showVariableColumn}
                                                             isDragging={drag.dragRowId === group.id}
                                                             dropIndicator={drag.dropTargetId === group.id ? drag.dropPosition : null}
                                                             onDragStart={drag.handleDragStart(group.id)}
@@ -400,35 +435,78 @@ const MonthlyTable = ({
                                             onLabelChange={(v) => setNewRowLabels(prev => ({ ...prev, [section.type]: v }))}
                                             onAddRow={(label) => addRow(section.type, label)}
                                             onAddRowWithValue={(monthId, value) => addRowWithValue(section.type, monthId, value)}
+                                            showVariableColumn={showVariableColumn}
                                         />
-                                        {/* Subtotal row — only when table has multiple sections */}
-                                        {effectiveSections.length > 1 && (() => {
-                                            const subtotals = computeSectionSubtotal(rows, section.type, monthsArray)
-                                            const isSubtract = isSubtractType(section.type)
-                                            const label = isSubtract ? 'Total descuentos' : 'Total haberes'
-                                            return (
-                                                <tr className={`border-t-2 ${isSubtract ? 'border-t-rose-200 bg-red-50/30' : 'border-t-emerald-200 bg-emerald-50/30'}`}>
-                                                    <td className="pl-4 pr-2 py-2 text-gray-700" style={{ width: '180px' }}>
-                                                        <span className={`${T.totalLabel} ${isSubtract ? 'text-rose-700' : 'text-emerald-700'}`}>{label}</span>
-                                                    </td>
-                                                    {monthsArray.map(p => {
-                                                        const value = subtotals[p.id] ?? 0
-                                                        const hasValue = value !== 0
-                                                        return (
-                                                            <td key={p.id} className="px-2 py-2 text-right" style={{ width: '110px' }}>
-                                                                <span className={`${T.totalValue} tabular-nums ${isSubtract ? (hasValue ? 'text-rose-600' : 'text-gray-300') : (hasValue ? 'text-emerald-700' : 'text-gray-300')}`}>
-                                                                    {hasValue ? formatValue(isSubtract ? -value : value) : '—'}
-                                                                </span>
-                                                            </td>
-                                                        )
-                                                    })}
-                                                    <td style={{ width: '40px' }}></td>
-                                                </tr>
-                                            )
-                                        })()}
                                     </React.Fragment>
                                 )
                             })}
+                            {/* Summary rows — Renta Líquida, Renta Variable, Renta Fija */}
+                            {showVariableColumn && effectiveSections.length > 1 && (() => {
+                                const rentaVariable = computeRentaVariable(rows, monthsArray)
+                                // formatValue strips negatives (displayCurrencyCompact uses Math.abs).
+                                // Summary rows can be negative, so we prefix the sign manually.
+                                const fmtSigned = (v: number) => v < 0 ? `-${formatValue(-v)}` : formatValue(v)
+                                return (
+                                    <>
+                                        {/* Renta Líquida = Total Haberes - Total Descuentos */}
+                                        <tr className="border-t-2 border-t-blue-200 bg-blue-50">
+                                            <td className="pl-4 pr-2 py-2" style={{ width: '180px' }}>
+                                                <span className={`${T.totalLabel} text-blue-800`}>Renta Líquida</span>
+                                            </td>
+                                            {monthsArray.map(p => {
+                                                const value = calculateTotal(p.id, rows)
+                                                const hasValue = value !== 0
+                                                return (
+                                                    <td key={p.id} className="px-2 py-2 text-right" style={{ width: '110px' }}>
+                                                        <span className={`${T.totalValue} tabular-nums font-semibold ${hasValue ? 'text-blue-800' : 'text-gray-300'}`}>
+                                                            {hasValue ? fmtSigned(value) : '—'}
+                                                        </span>
+                                                    </td>
+                                                )
+                                            })}
+                                            <td style={{ width: '40px' }} />
+                                        </tr>
+                                        {/* Renta Variable = sum of variable-flagged items */}
+                                        <tr className="border-b border-gray-100 bg-amber-50/50">
+                                            <td className="pl-4 pr-2 py-2" style={{ width: '180px' }}>
+                                                <span className={`${T.totalLabel} text-amber-700`}>Renta Variable</span>
+                                            </td>
+                                            {monthsArray.map(p => {
+                                                const value = rentaVariable[p.id] ?? 0
+                                                const hasValue = value !== 0
+                                                return (
+                                                    <td key={p.id} className="px-2 py-2 text-right" style={{ width: '110px' }}>
+                                                        <span className={`${T.totalValue} tabular-nums ${hasValue ? 'text-amber-700' : 'text-gray-300'}`}>
+                                                            {hasValue ? fmtSigned(value) : '—'}
+                                                        </span>
+                                                    </td>
+                                                )
+                                            })}
+                                            <td style={{ width: '40px' }} />
+                                        </tr>
+                                        {/* Renta Fija = Renta Líquida - Renta Variable */}
+                                        <tr className="border-b border-gray-200 bg-emerald-50/50">
+                                            <td className="pl-4 pr-2 py-2" style={{ width: '180px' }}>
+                                                <span className={`${T.totalLabel} text-emerald-700`}>Renta Fija</span>
+                                            </td>
+                                            {monthsArray.map(p => {
+                                                const liquida = calculateTotal(p.id, rows)
+                                                const variable = rentaVariable[p.id] ?? 0
+                                                const fija = liquida - variable
+                                                const hasValue = fija !== 0
+                                                return (
+                                                    <td key={p.id} className="px-2 py-2 text-right" style={{ width: '110px' }}>
+                                                        <span className={`${T.totalValue} tabular-nums ${hasValue ? 'text-emerald-700' : 'text-gray-300'}`}>
+                                                            {hasValue ? fmtSigned(fija) : '—'}
+                                                        </span>
+                                                    </td>
+                                                )
+                                            })}
+                                            <td style={{ width: '40px' }} />
+                                        </tr>
+                                    </>
+                                )
+                            })()}
                         </tbody>
                     </table>
                 </div>
@@ -437,7 +515,7 @@ const MonthlyTable = ({
 
             {/* Recycle bin footer */}
             {isExpanded && (
-                <RecycleBin deletedRows={deletedRows} months={monthsArray} onRestore={handleRestore} />
+                <RecycleBin deletedRows={deletedRows} months={monthsArray} onRestore={handleRestore} formatValue={formatValue} showVariableColumn={showVariableColumn} />
             )}
 
             {/* Delete confirmation dialog */}

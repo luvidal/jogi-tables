@@ -16,6 +16,8 @@ interface GroupRowProps {
     onToggleCollapse: () => void
     onUngroup: () => void
     onLabelChange: (label: string) => void
+    /** Variable column */
+    showVariableColumn?: boolean
     /** Drag reorder props */
     isDragging?: boolean
     dropIndicator?: 'above' | 'below' | null
@@ -38,6 +40,7 @@ const GroupRow = ({
     onToggleCollapse,
     onUngroup,
     onLabelChange,
+    showVariableColumn = false,
     isDragging = false,
     dropIndicator,
     onDragStart,
