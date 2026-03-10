@@ -59,7 +59,7 @@ const BoletasTable = ({
     totales,
     headerBg = 'bg-emerald-50',
     headerText = 'text-emerald-700',
-    defaultCollapsed = true,
+    defaultCollapsed = false,
     forceExpanded = false,
     sourceFileIds,
     onViewSource,
@@ -76,8 +76,11 @@ const BoletasTable = ({
     return (
         <div className={`rounded-xl overflow-hidden ${!isExpanded ? '' : 'border border-gray-200'}`}>
             {/* Accordion Header */}
-            <button
+            <div
+                role="button"
+                tabIndex={0}
                 onClick={() => !forceExpanded && setIsCollapsed(!isCollapsed)}
+                onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && !forceExpanded) { e.preventDefault(); setIsCollapsed(!isCollapsed) } }}
                 className={`w-full ${headerBg} hover:brightness-95 transition-all ${forceExpanded ? 'cursor-default' : 'cursor-pointer'} ${!isExpanded ? 'rounded-xl' : 'rounded-t-xl'}`}
             >
                 <div className="flex items-center justify-between px-4 py-3">
@@ -118,7 +121,7 @@ const BoletasTable = ({
                         )}
                     </div>
                 </div>
-            </button>
+            </div>
 
             {/* Collapsible Content */}
             <div className={`bg-white ${!isExpanded ? 'hidden print:block' : ''}`}>

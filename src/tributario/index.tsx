@@ -51,7 +51,7 @@ const TributarioTable = ({
     entries,
     headerBg = 'bg-amber-50',
     headerText = 'text-amber-700',
-    defaultCollapsed = true,
+    defaultCollapsed = false,
     forceExpanded = false,
     sourceFileIds,
     onViewSource,

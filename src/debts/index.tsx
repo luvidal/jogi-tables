@@ -71,7 +71,7 @@ const DebtsTable = ({
     summary,
     headerBg = 'bg-rose-50',
     headerText = 'text-rose-700',
-    defaultCollapsed = true,
+    defaultCollapsed = false,
     forceExpanded = false,
     formatCurrency = defaultFormatCurrency,
     sourceFileIds,

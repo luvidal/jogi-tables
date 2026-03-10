@@ -39,7 +39,7 @@ const MonthlyTable = ({
     sections,
     headerBg = 'bg-gray-100',
     headerText = 'text-gray-700',
-    defaultCollapsed = true,
+    defaultCollapsed = false,
     forceExpanded = false,
     formatValue = defaultFormatValue,
     calculateTotal = defaultCalculateTotal,

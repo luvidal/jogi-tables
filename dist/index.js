@@ -375,10 +375,19 @@ var DataRow = ({
   const rowBg = selected ? "bg-emerald-50/60" : subtract ? "bg-red-50/50 hover:bg-red-100/50" : "hover:bg-gray-50";
   const showCheckbox = selectable && (anySelected || isHovered);
   const dropBorder = dropIndicator === "above" ? "border-t-2 border-t-blue-400" : dropIndicator === "below" ? "border-b-2 border-b-blue-400" : "";
+  const handleRowClick = (e) => {
+    if (!selectable || !onToggleSelect) return;
+    if (!(e.metaKey || e.ctrlKey)) return;
+    const target = e.target;
+    if (target.closest('input, button, [role="button"]')) return;
+    e.preventDefault();
+    onToggleSelect();
+  };
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "tr",
     {
       className: `border-b border-gray-100 ${rowBg} ${isDragging ? "opacity-40" : ""} ${dropBorder} group`,
+      onClick: handleRowClick,
       onMouseEnter,
       onMouseLeave,
       onContextMenu,
@@ -697,7 +706,7 @@ var formatDeletedDate = (iso) => {
   if (diffDays < 7) return `hace ${diffDays}d`;
   return d.toLocaleDateString("es-CL", { day: "numeric", month: "short" });
 };
-var RecycleBin = ({ deletedRows, onRestore }) => {
+var RecycleBin = ({ deletedRows, months, onRestore }) => {
   const [expanded, setExpanded] = React3.useState(false);
   if (deletedRows.length === 0) return null;
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "border-t border-gray-200 bg-gray-50/50", children: [
@@ -731,7 +740,17 @@ var RecycleBin = ({ deletedRows, onRestore }) => {
               children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Undo2, { size: 13 })
             }
           ),
-          /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-xs text-gray-500 truncate min-w-0 flex-1", children: row.label }),
+          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "truncate min-w-0 flex-1", children: [
+            /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-xs text-gray-500 truncate block", children: row.label }),
+            months.some((m) => row.values[m.id] != null) && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-[10px] text-gray-400 tabular-nums", children: months.map((m, i) => {
+              const v = row.values[m.id];
+              if (v == null) return null;
+              return /* @__PURE__ */ jsxRuntime.jsxs("span", { children: [
+                i > 0 && months.slice(0, i).some((prev) => row.values[prev.id] != null) && " \xB7 ",
+                displayCurrencyCompact(v, isSubtractType(row.type))
+              ] }, m.id);
+            }) })
+          ] }),
           row.deletionReason && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-xs text-gray-400 italic truncate max-w-[160px]", title: row.deletionReason, children: row.deletionReason }),
           row.deletedAt && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-xs text-gray-300 shrink-0", children: formatDeletedDate(row.deletedAt) })
         ]
@@ -1135,7 +1154,7 @@ var MonthlyTable = ({
   sections,
   headerBg = "bg-gray-100",
   headerText = "text-gray-700",
-  defaultCollapsed = true,
+  defaultCollapsed = false,
   forceExpanded = false,
   formatValue = defaultFormatValue,
   calculateTotal = defaultCalculateTotal,
@@ -1469,7 +1488,7 @@ var MonthlyTable = ({
         }) }) }) })
       }
     ),
-    isExpanded && /* @__PURE__ */ jsxRuntime.jsx(recyclebin_default, { deletedRows, onRestore: handleRestore }),
+    isExpanded && /* @__PURE__ */ jsxRuntime.jsx(recyclebin_default, { deletedRows, months: monthsArray, onRestore: handleRestore }),
     deleteTarget && /* @__PURE__ */ jsxRuntime.jsx(
       deletedialog_default,
       {
@@ -1505,7 +1524,7 @@ var DebtsTable = ({
   summary,
   headerBg = "bg-rose-50",
   headerText = "text-rose-700",
-  defaultCollapsed = true,
+  defaultCollapsed = false,
   forceExpanded = false,
   formatCurrency: formatCurrency4 = defaultFormatCurrency,
   sourceFileIds,
@@ -1771,7 +1790,7 @@ var BoletasTable = ({
   totales,
   headerBg = "bg-emerald-50",
   headerText = "text-emerald-700",
-  defaultCollapsed = true,
+  defaultCollapsed = false,
   forceExpanded = false,
   sourceFileIds,
   onViewSource
@@ -1784,9 +1803,17 @@ var BoletasTable = ({
   const promedioMensual = monthsWithData.length > 0 ? totalLiquido / monthsWithData.length : 0;
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `rounded-xl overflow-hidden ${!isExpanded ? "" : "border border-gray-200"}`, children: [
     /* @__PURE__ */ jsxRuntime.jsx(
-      "button",
+      "div",
       {
+        role: "button",
+        tabIndex: 0,
         onClick: () => !forceExpanded && setIsCollapsed(!isCollapsed),
+        onKeyDown: (e) => {
+          if ((e.key === "Enter" || e.key === " ") && !forceExpanded) {
+            e.preventDefault();
+            setIsCollapsed(!isCollapsed);
+          }
+        },
         className: `w-full ${headerBg} hover:brightness-95 transition-all ${forceExpanded ? "cursor-default" : "cursor-pointer"} ${!isExpanded ? "rounded-xl" : "rounded-t-xl"}`,
         children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center justify-between px-4 py-3", children: [
           /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-2", children: [
@@ -1860,7 +1887,7 @@ var TributarioTable = ({
   entries,
   headerBg = "bg-amber-50",
   headerText = "text-amber-700",
-  defaultCollapsed = true,
+  defaultCollapsed = false,
   forceExpanded = false,
   sourceFileIds,
   onViewSource
