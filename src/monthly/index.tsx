@@ -383,10 +383,11 @@ const MonthlyTable = ({
                                                     {monthsArray.map(p => {
                                                         const value = subtotals[p.id] ?? 0
                                                         const hasValue = value !== 0
+                                                        const display = isSubtract ? `-${formatValue(value)}` : formatValue(value)
                                                         return (
                                                             <td key={p.id} className="px-2 py-2 text-right" style={{ width: '110px' }}>
                                                                 <span className={`${T.totalValue} tabular-nums ${isSubtract ? (hasValue ? 'text-rose-600' : 'text-gray-300') : (hasValue ? 'text-emerald-700' : 'text-gray-300')}`}>
-                                                                    {hasValue ? formatValue(isSubtract ? -value : value) : '—'}
+                                                                    {hasValue ? display : '—'}
                                                                 </span>
                                                             </td>
                                                         )

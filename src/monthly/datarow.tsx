@@ -78,10 +78,12 @@ const DataRow = ({
 }: DataRowProps) => {
     const indented = !!row.groupId
     const subtract = isSubtractType(row.type)
-    const varBorder = row.isVariable ? 'border-l-2 border-l-amber-400' : ''
+    const varBorder = row.isVariable ? 'border-l-4 border-l-amber-400' : ''
     const rowBg = selected
         ? 'bg-emerald-50/60'
-        : subtract ? 'bg-red-50/50 hover:bg-red-100/50' : 'hover:bg-gray-50'
+        : row.isVariable
+            ? (subtract ? 'bg-amber-50/60 hover:bg-amber-100/50' : 'bg-amber-50/40 hover:bg-amber-100/40')
+            : (subtract ? 'bg-red-50/50 hover:bg-red-100/50' : 'hover:bg-gray-50')
     const showCheckbox = selectable && (anySelected || isHovered)
     const dropBorder = dropIndicator === 'above' ? 'border-t-2 border-t-blue-400'
         : dropIndicator === 'below' ? 'border-b-2 border-b-blue-400' : ''

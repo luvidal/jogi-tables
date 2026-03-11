@@ -380,8 +380,8 @@ var DataRow = ({
 }) => {
   const indented = !!row.groupId;
   const subtract = isSubtractType(row.type);
-  const varBorder = row.isVariable ? "border-l-2 border-l-amber-400" : "";
-  const rowBg = selected ? "bg-emerald-50/60" : subtract ? "bg-red-50/50 hover:bg-red-100/50" : "hover:bg-gray-50";
+  const varBorder = row.isVariable ? "border-l-4 border-l-amber-400" : "";
+  const rowBg = selected ? "bg-emerald-50/60" : row.isVariable ? subtract ? "bg-amber-50/60 hover:bg-amber-100/50" : "bg-amber-50/40 hover:bg-amber-100/40" : subtract ? "bg-red-50/50 hover:bg-red-100/50" : "hover:bg-gray-50";
   const showCheckbox = selectable && (anySelected || isHovered);
   const dropBorder = dropIndicator === "above" ? "border-t-2 border-t-blue-400" : dropIndicator === "below" ? "border-b-2 border-b-blue-400" : "";
   const handleRowClick = (e) => {
@@ -1479,7 +1479,8 @@ var MonthlyTable = ({
                   monthsArray.map((p) => {
                     const value = subtotals[p.id] ?? 0;
                     const hasValue = value !== 0;
-                    return /* @__PURE__ */ jsx("td", { className: "px-2 py-2 text-right", style: { width: "110px" }, children: /* @__PURE__ */ jsx("span", { className: `${T.totalValue} tabular-nums ${isSubtract ? hasValue ? "text-rose-600" : "text-gray-300" : hasValue ? "text-emerald-700" : "text-gray-300"}`, children: hasValue ? formatValue(isSubtract ? -value : value) : "\u2014" }) }, p.id);
+                    const display = isSubtract ? `-${formatValue(value)}` : formatValue(value);
+                    return /* @__PURE__ */ jsx("td", { className: "px-2 py-2 text-right", style: { width: "110px" }, children: /* @__PURE__ */ jsx("span", { className: `${T.totalValue} tabular-nums ${isSubtract ? hasValue ? "text-rose-600" : "text-gray-300" : hasValue ? "text-emerald-700" : "text-gray-300"}`, children: hasValue ? display : "\u2014" }) }, p.id);
                   }),
                   /* @__PURE__ */ jsx("td", { style: { width: "40px" } })
                 ] });
