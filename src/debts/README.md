@@ -18,6 +18,7 @@ Financial debt entries table with accordion layout, editable cells, and late pay
 
 ## Dependencies
 
+- `../common/tableshell` — `TableShell` accordion wrapper + `SourceIcon` (see [Adding a New Table](#adding-a-new-table))
 - `../common/editablecell` — inline-editable cells for numerical values
 - `../common/styles` — `T` object for Tailwind classes
 

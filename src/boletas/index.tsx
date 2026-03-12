@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
-import { Eye, ChevronUp, ChevronDown } from 'lucide-react'
+import React from 'react'
+import { ChevronUp, ChevronDown } from 'lucide-react'
 import { displayCurrencyCompact } from '../common/utils'
 import { T } from '../common/styles'
+import TableShell, { SourceIcon } from '../common/tableshell'
 
 // ============================================================================
 // Types
@@ -64,42 +65,24 @@ const BoletasTable = ({
     sourceFileIds,
     onViewSource,
 }: BoletasTableProps) => {
-    const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed)
-
-    const isExpanded = forceExpanded || !isCollapsed
-
     const monthsWithData = months.filter(m => m.hasData)
     const totalLiquido = totales?.total_liquido ?? monthsWithData.reduce((s, m) => s + (m.liquido || 0), 0)
     const totalBoletas = totales?.boletas_vigentes ?? monthsWithData.reduce((s, m) => s + (m.boletas || 0), 0)
     const promedioMensual = monthsWithData.length > 0 ? totalLiquido / monthsWithData.length : 0
 
     return (
-        <div className={`rounded-xl overflow-hidden ${!isExpanded ? '' : 'border border-gray-200'}`}>
-            {/* Accordion Header */}
-            <div
-                role="button"
-                tabIndex={0}
-                onClick={() => !forceExpanded && setIsCollapsed(!isCollapsed)}
-                onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && !forceExpanded) { e.preventDefault(); setIsCollapsed(!isCollapsed) } }}
-                className={`w-full ${headerBg} hover:brightness-95 transition-all ${forceExpanded ? 'cursor-default' : 'cursor-pointer'} ${!isExpanded ? 'rounded-xl' : 'rounded-t-xl'}`}
-            >
+        <TableShell
+            headerBg={headerBg}
+            headerText={headerText}
+            defaultCollapsed={defaultCollapsed}
+            forceExpanded={forceExpanded}
+            renderHeader={({ isExpanded }) => (
                 <div className="flex items-center justify-between px-4 py-3">
                     <div className="flex items-center gap-2">
                         <span className={`${headerText} ${T.headerTitle}`}>
                             {title}
                         </span>
-                        {sourceFileIds && sourceFileIds.length > 0 && onViewSource && (
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation()
-                                    onViewSource(sourceFileIds)
-                                }}
-                                className="p-1 rounded hover:bg-white/50 transition-colors"
-                                title="Ver documento fuente"
-                            >
-                                <Eye size={14} className={headerText} />
-                            </button>
-                        )}
+                        <SourceIcon fileIds={sourceFileIds} onViewSource={onViewSource} className={headerText} />
                     </div>
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-3 text-xs">
@@ -121,66 +104,63 @@ const BoletasTable = ({
                         )}
                     </div>
                 </div>
-            </div>
-
-            {/* Collapsible Content */}
-            <div className={`bg-white ${!isExpanded ? 'hidden print:block' : ''}`}>
-                <div className="overflow-x-auto">
-                    <table className={T.table} style={{ tableLayout: 'fixed' }}>
-                        <thead>
-                            <tr className="border-b border-gray-200 bg-gray-50/50">
-                                <th className={`px-4 py-2 text-left ${T.th}`} style={{ width: '140px' }}>Mes</th>
-                                <th className={`px-3 py-2 text-center ${T.th}`} style={{ width: '80px' }}>Boletas</th>
-                                <th className={`px-3 py-2 text-right ${T.th}`} style={{ width: '130px' }}>Bruto</th>
-                                <th className={`px-3 py-2 text-right ${T.th}`} style={{ width: '130px' }}>Retención</th>
-                                <th className={`px-4 py-2 text-right ${T.th}`} style={{ width: '130px' }}>Líquido</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {months.map((m, i) => (
-                                <tr key={i} className={`border-b border-gray-100 ${m.hasData ? 'hover:bg-emerald-50/30' : ''}`}>
-                                    <td className={`px-4 py-2.5 font-medium ${T.cellLabel} ${m.hasData ? 'text-gray-700' : 'text-gray-300'}`} style={{ width: '140px' }}>
-                                        <span className="truncate block">{MONTH_LABELS[m.mes] || m.mes}</span>
-                                    </td>
-                                    <td className="px-3 py-2.5 text-center text-gray-800" style={{ width: '80px' }}>
-                                        {m.hasData ? (m.boletas ?? '') : ''}
-                                    </td>
-                                    <td className="px-3 py-2.5 text-right text-gray-800" style={{ width: '130px' }}>
-                                        {m.hasData ? formatCurrency(m.bruto) : ''}
-                                    </td>
-                                    <td className="px-3 py-2.5 text-right text-red-700" style={{ width: '130px' }}>
-                                        {m.hasData ? formatCurrency(m.retencion) : ''}
-                                    </td>
-                                    <td className="px-4 py-2.5 text-right font-medium text-emerald-700" style={{ width: '130px' }}>
-                                        {m.hasData ? formatCurrency(m.liquido) : ''}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                        <tfoot>
-                            <tr className="border-t-2 border-emerald-200 bg-emerald-50/50">
-                                <td className={`px-4 py-3 ${T.footerLabel} text-emerald-700`} style={{ width: '140px' }}>TOTALES</td>
-                                <td className={`px-3 py-3 text-center ${T.footerValue} text-emerald-700`} style={{ width: '80px' }}>
-                                    {totalBoletas}
+            )}
+        >
+            <div className="overflow-x-auto">
+                <table className={T.table} style={{ tableLayout: 'fixed' }}>
+                    <thead>
+                        <tr className="border-b border-gray-200 bg-gray-50/50">
+                            <th className={`px-4 py-2 text-left ${T.th}`} style={{ width: '140px' }}>Mes</th>
+                            <th className={`px-3 py-2 text-center ${T.th}`} style={{ width: '80px' }}>Boletas</th>
+                            <th className={`px-3 py-2 text-right ${T.th}`} style={{ width: '130px' }}>Bruto</th>
+                            <th className={`px-3 py-2 text-right ${T.th}`} style={{ width: '130px' }}>Retención</th>
+                            <th className={`px-4 py-2 text-right ${T.th}`} style={{ width: '130px' }}>Líquido</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {months.map((m, i) => (
+                            <tr key={i} className={`border-b border-gray-100 ${m.hasData ? 'hover:bg-emerald-50/30' : ''}`}>
+                                <td className={`px-4 py-2.5 font-medium ${T.cellLabel} ${m.hasData ? 'text-gray-700' : 'text-gray-300'}`} style={{ width: '140px' }}>
+                                    <span className="truncate block">{MONTH_LABELS[m.mes] || m.mes}</span>
                                 </td>
-                                <td className={`px-3 py-3 text-right ${T.footerValue} text-emerald-700`} style={{ width: '130px' }}>
-                                    {formatCurrency(totales?.honorario_bruto ?? monthsWithData.reduce((s, m) => s + (m.bruto || 0), 0))}
+                                <td className="px-3 py-2.5 text-center text-gray-800" style={{ width: '80px' }}>
+                                    {m.hasData ? (m.boletas ?? '') : ''}
                                 </td>
-                                <td className={`px-3 py-3 text-right ${T.footerValue} text-red-700`} style={{ width: '130px' }}>
-                                    {formatCurrency(
-                                        (totales?.retencion_terceros ?? 0) + (totales?.retencion_contribuyente ?? 0)
-                                        || monthsWithData.reduce((s, m) => s + (m.retencion || 0), 0)
-                                    )}
+                                <td className="px-3 py-2.5 text-right text-gray-800" style={{ width: '130px' }}>
+                                    {m.hasData ? formatCurrency(m.bruto) : ''}
                                 </td>
-                                <td className={`px-4 py-3 text-right ${T.footerValue} text-emerald-700`} style={{ width: '130px' }}>
-                                    {formatCurrency(totalLiquido)}
+                                <td className="px-3 py-2.5 text-right text-red-700" style={{ width: '130px' }}>
+                                    {m.hasData ? formatCurrency(m.retencion) : ''}
+                                </td>
+                                <td className="px-4 py-2.5 text-right font-medium text-emerald-700" style={{ width: '130px' }}>
+                                    {m.hasData ? formatCurrency(m.liquido) : ''}
                                 </td>
                             </tr>
-                        </tfoot>
-                    </table>
-                </div>
+                        ))}
+                    </tbody>
+                    <tfoot>
+                        <tr className="border-t-2 border-emerald-200 bg-emerald-50/50">
+                            <td className={`px-4 py-3 ${T.footerLabel} text-emerald-700`} style={{ width: '140px' }}>TOTALES</td>
+                            <td className={`px-3 py-3 text-center ${T.footerValue} text-emerald-700`} style={{ width: '80px' }}>
+                                {totalBoletas}
+                            </td>
+                            <td className={`px-3 py-3 text-right ${T.footerValue} text-emerald-700`} style={{ width: '130px' }}>
+                                {formatCurrency(totales?.honorario_bruto ?? monthsWithData.reduce((s, m) => s + (m.bruto || 0), 0))}
+                            </td>
+                            <td className={`px-3 py-3 text-right ${T.footerValue} text-red-700`} style={{ width: '130px' }}>
+                                {formatCurrency(
+                                    (totales?.retencion_terceros ?? 0) + (totales?.retencion_contribuyente ?? 0)
+                                    || monthsWithData.reduce((s, m) => s + (m.retencion || 0), 0)
+                                )}
+                            </td>
+                            <td className={`px-4 py-3 text-right ${T.footerValue} text-emerald-700`} style={{ width: '130px' }}>
+                                {formatCurrency(totalLiquido)}
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
             </div>
-        </div>
+        </TableShell>
     )
 }
 

@@ -17,6 +17,7 @@ Tributario info table displaying carpeta tributaria and balance anual entries (r
 
 ## Dependencies
 
+- `../common/tableshell` — `TableShell` accordion wrapper + `SourceIcon` (see [Adding a New Table](#adding-a-new-table))
 - `../common/utils` — `displayCurrencyCompact` for currency formatting
 - `../common/styles` — `T` object for Tailwind classes
 

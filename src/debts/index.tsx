@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { X, Eye, ChevronUp, ChevronDown } from 'lucide-react'
 import EditableCell from '../common/editablecell'
 import { T } from '../common/styles'
+import TableShell, { SourceIcon } from '../common/tableshell'
 
 // ============================================================================
 // Types
@@ -78,10 +79,7 @@ const DebtsTable = ({
     onViewSource,
 }: DebtsTableProps) => {
     const [hoveredRow, setHoveredRow] = useState<string | null>(null)
-    const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed)
     const [newEntry, setNewEntry] = useState({ entidad: '', tipo: '' })
-
-    const isExpanded = forceExpanded || !isCollapsed
 
     // ========================================================================
     // Entry Management
@@ -282,12 +280,12 @@ const DebtsTable = ({
     // ========================================================================
 
     return (
-        <div className={`rounded-xl overflow-hidden ${!isExpanded ? '' : 'border border-gray-200'}`}>
-            {/* Accordion Header */}
-            <button
-                onClick={() => !forceExpanded && setIsCollapsed(!isCollapsed)}
-                className={`w-full ${headerBg} hover:brightness-95 transition-all ${forceExpanded ? 'cursor-default' : 'cursor-pointer'} ${!isExpanded ? 'rounded-xl' : 'rounded-t-xl'}`}
-            >
+        <TableShell
+            headerBg={headerBg}
+            headerText={headerText}
+            defaultCollapsed={defaultCollapsed}
+            forceExpanded={forceExpanded}
+            renderHeader={({ isExpanded }) => (
                 <div className="overflow-x-auto">
                     <table className={T.table} style={{ tableLayout: 'fixed' }}>
                         <tbody>
@@ -297,18 +295,7 @@ const DebtsTable = ({
                                         <span className={`${headerText} ${T.headerTitle}`}>
                                             {title}
                                         </span>
-                                        {sourceFileIds && sourceFileIds.length > 0 && onViewSource && (
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    onViewSource(sourceFileIds)
-                                                }}
-                                                className="p-1 rounded hover:bg-white/50 transition-colors"
-                                                title="Ver documento fuente"
-                                            >
-                                                <Eye size={14} className={headerText} />
-                                            </button>
-                                        )}
+                                        <SourceIcon fileIds={sourceFileIds} onViewSource={onViewSource} className={headerText} />
                                     </div>
                                 </td>
                                 <td className="px-3 py-3 text-right" style={{ width: '100px' }}>
@@ -345,32 +332,29 @@ const DebtsTable = ({
                         </tbody>
                     </table>
                 </div>
-            </button>
-
-            {/* Collapsible Content */}
-            <div className={`bg-white ${!isExpanded ? 'hidden print:block' : ''}`}>
-                <div className="overflow-x-auto">
-                    <table className={T.table} style={{ tableLayout: 'fixed' }}>
-                        <thead>
-                            <tr className="border-b border-gray-200 bg-gray-50/50">
-                                <th className={`px-4 py-2 text-left ${T.th}`} style={{ width: '180px' }}>Institución</th>
-                                <th className={`px-2 py-2 text-left ${T.th}`} style={{ width: '100px' }}>Tipo</th>
-                                <th className={`px-3 py-2 text-right ${T.th}`} style={{ width: '120px' }}>Total Crédito</th>
-                                <th className={`px-3 py-2 text-right ${T.th}`} style={{ width: '120px' }}>Vigente</th>
-                                {hasLatePayments && (
-                                    <th className={`px-3 py-2 text-right text-red-500 font-medium text-xs uppercase`} style={{ width: '100px' }}>Atraso</th>
-                                )}
-                                <th style={{ width: '40px' }}></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {entries.map(entry => renderDataRow(entry))}
-                            {renderAddRow()}
-                        </tbody>
-                    </table>
-                </div>
+            )}
+        >
+            <div className="overflow-x-auto">
+                <table className={T.table} style={{ tableLayout: 'fixed' }}>
+                    <thead>
+                        <tr className="border-b border-gray-200 bg-gray-50/50">
+                            <th className={`px-4 py-2 text-left ${T.th}`} style={{ width: '180px' }}>Institución</th>
+                            <th className={`px-2 py-2 text-left ${T.th}`} style={{ width: '100px' }}>Tipo</th>
+                            <th className={`px-3 py-2 text-right ${T.th}`} style={{ width: '120px' }}>Total Crédito</th>
+                            <th className={`px-3 py-2 text-right ${T.th}`} style={{ width: '120px' }}>Vigente</th>
+                            {hasLatePayments && (
+                                <th className={`px-3 py-2 text-right text-red-500 font-medium text-xs uppercase`} style={{ width: '100px' }}>Atraso</th>
+                            )}
+                            <th style={{ width: '40px' }}></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {entries.map(entry => renderDataRow(entry))}
+                        {renderAddRow()}
+                    </tbody>
+                </table>
             </div>
-        </div>
+        </TableShell>
     )
 }
 

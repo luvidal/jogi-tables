@@ -18,6 +18,7 @@ Boletas de honorarios table with monthly breakdown (read-only display with accor
 
 ## Dependencies
 
+- `../common/tableshell` — `TableShell` accordion wrapper + `SourceIcon` (see [Adding a New Table](#adding-a-new-table))
 - `../common/utils` — `displayCurrencyCompact` for currency formatting
 - `../common/styles` — `T` object for Tailwind classes
 

@@ -31,6 +31,7 @@ Editable monthly spreadsheet with CRUD, grouping, drag-reorder, keyboard navigat
 
 ## Dependencies
 
+- `../common/tableshell` — `TableShell` accordion wrapper + `SourceIcon` (see [Adding a New Table](#adding-a-new-table))
 - `../common/styles` — `T` object for Tailwind classes
 - `../common/editablecell` — inline-editable cells (via datarow, addrow)
 - `../common/utils` — `displayCurrencyCompact` (via helpers)

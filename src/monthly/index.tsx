@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react'
-import { Eye, ChevronUp, ChevronDown } from 'lucide-react'
+import { ChevronUp, ChevronDown } from 'lucide-react'
 import { T } from '../common/styles'
+import TableShell, { SourceIcon } from '../common/tableshell'
 import {
     generateLastNMonths,
     defaultFormatValue,
@@ -49,7 +50,6 @@ const MonthlyTable = ({
     onViewSource,
 }: MonthlyTableProps) => {
     const [hoveredRow, setHoveredRow] = useState<string | null>(null)
-    const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed)
     const [newRowLabels, setNewRowLabels] = useState<Record<string, string>>({})
     const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
     const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
@@ -78,7 +78,6 @@ const MonthlyTable = ({
         return result
     }, [sections, rows])
 
-    const isExpanded = forceExpanded || !isCollapsed
     const anySelected = selectedRows.size > 0
 
     // Compute visible row IDs for keyboard navigation
@@ -293,13 +292,18 @@ const MonthlyTable = ({
     )
 
     return (
-        <div className={`rounded-xl overflow-hidden ${!isExpanded ? '' : 'border border-gray-200'}`}>
-            {/* Accordion Header — uses div (not button) to allow nested interactive elements during selection */}
-            <div
-                role={anySelected ? undefined : 'button'}
-                onClick={() => !forceExpanded && !anySelected && setIsCollapsed(!isCollapsed)}
-                className={`w-full ${headerBg} hover:brightness-95 transition-all ${forceExpanded || anySelected ? 'cursor-default' : 'cursor-pointer'} ${!isExpanded ? 'rounded-xl' : 'rounded-t-xl'}`}
-            >
+        <TableShell
+            headerBg={headerBg}
+            headerText={headerText}
+            defaultCollapsed={defaultCollapsed}
+            forceExpanded={forceExpanded}
+            disableToggle={anySelected}
+            contentClassName="outline-none"
+            contentProps={{
+                tabIndex: 0,
+                onKeyDown: keyboard.handleContainerKeyDown,
+            }}
+            renderHeader={({ isExpanded }) => (
                 <div className="overflow-x-auto">
                     <table className={T.table} style={{ tableLayout: 'fixed' }}>
                         <tbody>
@@ -324,15 +328,7 @@ const MonthlyTable = ({
                                                     isExpanded ? <ChevronUp size={16} className={headerText} /> : <ChevronDown size={16} className={headerText} />
                                                 )}
                                                 <span className={`${headerText} ${T.headerTitle}`}>{title}</span>
-                                                {sourceFileIds && sourceFileIds.length > 0 && onViewSource && (
-                                                    <button
-                                                        onClick={(e) => { e.stopPropagation(); onViewSource(sourceFileIds) }}
-                                                        className="p-1 rounded hover:bg-white/50 transition-colors"
-                                                        title="Ver documento fuente"
-                                                    >
-                                                        <Eye size={14} className={headerText} />
-                                                    </button>
-                                                )}
+                                                <SourceIcon fileIds={sourceFileIds} onViewSource={onViewSource} className={headerText} />
                                             </div>
                                         </td>
                                         {monthsArray.map((p) => {
@@ -355,193 +351,188 @@ const MonthlyTable = ({
                         </tbody>
                     </table>
                 </div>
-            </div>
+            )}
+            renderAfterContent={({ isExpanded }) => (
+                <>
+                    {/* Recycle bin footer */}
+                    {isExpanded && (
+                        <RecycleBin deletedRows={deletedRows} months={monthsArray} onRestore={handleRestore} formatValue={formatValue} showVariableColumn={showVariableColumn} />
+                    )}
 
-            {/* Collapsible Content */}
-            <div
-                className={`bg-white ${!isExpanded ? 'hidden print:block' : ''} outline-none`}
-                tabIndex={0}
-                onKeyDown={keyboard.handleContainerKeyDown}
-            >
-                <div className="overflow-x-auto">
-                    <table className={T.table} style={{ tableLayout: 'fixed' }}>
-                        <tbody>
-                            {effectiveSections.map((section) => {
-                                const items = getOrderedItems(rows, section.type)
-                                return (
-                                    <React.Fragment key={section.type}>
-                                        {/* Subtotal row at TOP of section — only when table has multiple sections */}
-                                        {effectiveSections.length > 1 && (() => {
-                                            const subtotals = computeSectionSubtotal(rows, section.type, monthsArray)
-                                            const isSubtract = isSubtractType(section.type)
-                                            const label = isSubtract ? 'Total descuentos' : 'Total haberes'
+                    {/* Delete confirmation dialog */}
+                    {deleteTarget && (
+                        <DeleteDialog
+                            count={deleteTarget.size}
+                            onConfirm={confirmDelete}
+                            onCancel={() => setDeleteTarget(null)}
+                        />
+                    )}
+
+                    {/* Right-click context menu */}
+                    {contextMenu && anySelected && (
+                        <ContextMenu
+                            x={contextMenu.x}
+                            y={contextMenu.y}
+                            canGroup={canGroup}
+                            selectedCount={selectedRows.size}
+                            onGroup={startGroupNaming}
+                            onDeleteSelected={requestDeleteSelected}
+                            onCancel={clearSelection}
+                            onClose={() => setContextMenu(null)}
+                        />
+                    )}
+                </>
+            )}
+        >
+            <div className="overflow-x-auto">
+                <table className={T.table} style={{ tableLayout: 'fixed' }}>
+                    <tbody>
+                        {effectiveSections.map((section) => {
+                            const items = getOrderedItems(rows, section.type)
+                            return (
+                                <React.Fragment key={section.type}>
+                                    {/* Subtotal row at TOP of section — only when table has multiple sections */}
+                                    {effectiveSections.length > 1 && (() => {
+                                        const subtotals = computeSectionSubtotal(rows, section.type, monthsArray)
+                                        const isSubtract = isSubtractType(section.type)
+                                        const label = isSubtract ? 'Total descuentos' : 'Total haberes'
+                                        return (
+                                            <tr className={`border-b-2 ${isSubtract ? 'border-b-rose-200 bg-red-50/30' : 'border-b-emerald-200 bg-emerald-50/30'}`}>
+                                                <td className="pl-4 pr-2 py-2 text-gray-700" style={{ width: '180px' }}>
+                                                    <span className={`${T.totalLabel} ${isSubtract ? 'text-rose-700' : 'text-emerald-700'}`}>{label}</span>
+                                                </td>
+                                                {monthsArray.map(p => {
+                                                    const value = subtotals[p.id] ?? 0
+                                                    const hasValue = value !== 0
+                                                    const display = isSubtract ? `-${formatValue(value)}` : formatValue(value)
+                                                    return (
+                                                        <td key={p.id} className="px-2 py-2 text-right" style={{ width: '110px' }}>
+                                                            <span className={`${T.totalValue} tabular-nums ${isSubtract ? (hasValue ? 'text-rose-600' : 'text-gray-300') : (hasValue ? 'text-emerald-700' : 'text-gray-300')}`}>
+                                                                {hasValue ? display : '—'}
+                                                            </span>
+                                                        </td>
+                                                    )
+                                                })}
+                                                <td style={{ width: '40px' }} />
+                                            </tr>
+                                        )
+                                    })()}
+                                    {items.map(item => {
+                                        if (item.kind === 'group') {
+                                            const { group, children: groupChildren } = item
+                                            const showChildren = forceExpanded || !group.collapsed
                                             return (
-                                                <tr className={`border-b-2 ${isSubtract ? 'border-b-rose-200 bg-red-50/30' : 'border-b-emerald-200 bg-emerald-50/30'}`}>
-                                                    <td className="pl-4 pr-2 py-2 text-gray-700" style={{ width: '180px' }}>
-                                                        <span className={`${T.totalLabel} ${isSubtract ? 'text-rose-700' : 'text-emerald-700'}`}>{label}</span>
-                                                    </td>
-                                                    {monthsArray.map(p => {
-                                                        const value = subtotals[p.id] ?? 0
-                                                        const hasValue = value !== 0
-                                                        const display = isSubtract ? `-${formatValue(value)}` : formatValue(value)
-                                                        return (
-                                                            <td key={p.id} className="px-2 py-2 text-right" style={{ width: '110px' }}>
-                                                                <span className={`${T.totalValue} tabular-nums ${isSubtract ? (hasValue ? 'text-rose-600' : 'text-gray-300') : (hasValue ? 'text-emerald-700' : 'text-gray-300')}`}>
-                                                                    {hasValue ? display : '—'}
-                                                                </span>
-                                                            </td>
-                                                        )
-                                                    })}
-                                                    <td style={{ width: '40px' }} />
-                                                </tr>
+                                                <React.Fragment key={group.id}>
+                                                    <GroupRow
+                                                        group={group}
+                                                        childRows={groupChildren}
+                                                        months={monthsArray}
+                                                        isHovered={hoveredRow === group.id}
+                                                        forceExpanded={forceExpanded}
+                                                        formatValue={formatValue}
+                                                        onMouseEnter={() => setHoveredRow(group.id)}
+                                                        onMouseLeave={() => setHoveredRow(null)}
+                                                        onToggleCollapse={() => toggleGroupCollapse(group.id)}
+                                                        onUngroup={() => handleUngroup(group.id)}
+                                                        onLabelChange={(label) => updateRowLabel(group.id, label)}
+                                                        showVariableColumn={showVariableColumn}
+                                                        isDragging={drag.dragRowId === group.id}
+                                                        dropIndicator={drag.dropTargetId === group.id ? drag.dropPosition : null}
+                                                        onDragStart={drag.handleDragStart(group.id)}
+                                                        onDragOver={drag.handleDragOver(group.id)}
+                                                        onDragLeave={drag.handleDragLeave}
+                                                        onDrop={drag.handleDrop(rows, onRowsChange)}
+                                                        onDragEnd={drag.handleDragEnd}
+                                                    />
+                                                    {showChildren && groupChildren.map(child => renderDataRow(child))}
+                                                </React.Fragment>
                                             )
-                                        })()}
-                                        {items.map(item => {
-                                            if (item.kind === 'group') {
-                                                const { group, children: groupChildren } = item
-                                                const showChildren = forceExpanded || !group.collapsed
-                                                return (
-                                                    <React.Fragment key={group.id}>
-                                                        <GroupRow
-                                                            group={group}
-                                                            childRows={groupChildren}
-                                                            months={monthsArray}
-                                                            isHovered={hoveredRow === group.id}
-                                                            forceExpanded={forceExpanded}
-                                                            formatValue={formatValue}
-                                                            onMouseEnter={() => setHoveredRow(group.id)}
-                                                            onMouseLeave={() => setHoveredRow(null)}
-                                                            onToggleCollapse={() => toggleGroupCollapse(group.id)}
-                                                            onUngroup={() => handleUngroup(group.id)}
-                                                            onLabelChange={(label) => updateRowLabel(group.id, label)}
-                                                            showVariableColumn={showVariableColumn}
-                                                            isDragging={drag.dragRowId === group.id}
-                                                            dropIndicator={drag.dropTargetId === group.id ? drag.dropPosition : null}
-                                                            onDragStart={drag.handleDragStart(group.id)}
-                                                            onDragOver={drag.handleDragOver(group.id)}
-                                                            onDragLeave={drag.handleDragLeave}
-                                                            onDrop={drag.handleDrop(rows, onRowsChange)}
-                                                            onDragEnd={drag.handleDragEnd}
-                                                        />
-                                                        {showChildren && groupChildren.map(child => renderDataRow(child))}
-                                                    </React.Fragment>
-                                                )
-                                            }
-                                            return renderDataRow(item.row)
+                                        }
+                                        return renderDataRow(item.row)
+                                    })}
+                                    <AddRow
+                                        section={section}
+                                        months={monthsArray}
+                                        labelValue={newRowLabels[section.type] || ''}
+                                        onLabelChange={(v) => setNewRowLabels(prev => ({ ...prev, [section.type]: v }))}
+                                        onAddRow={(label) => addRow(section.type, label)}
+                                        onAddRowWithValue={(monthId, value) => addRowWithValue(section.type, monthId, value)}
+                                        showVariableColumn={showVariableColumn}
+                                    />
+                                </React.Fragment>
+                            )
+                        })}
+                        {/* Summary rows — Renta Líquida, Renta Variable, Renta Fija */}
+                        {showVariableColumn && effectiveSections.length > 1 && (() => {
+                            const rentaVariable = computeRentaVariable(rows, monthsArray)
+                            // formatValue strips negatives (displayCurrencyCompact uses Math.abs).
+                            // Summary rows can be negative, so we prefix the sign manually.
+                            const fmtSigned = (v: number) => v < 0 ? `-${formatValue(-v)}` : formatValue(v)
+                            return (
+                                <>
+                                    {/* Renta Líquida = Total Haberes - Total Descuentos */}
+                                    <tr className="border-t-2 border-t-blue-200 bg-blue-50">
+                                        <td className="pl-4 pr-2 py-2" style={{ width: '180px' }}>
+                                            <span className={`${T.totalLabel} text-blue-800`}>Renta Líquida</span>
+                                        </td>
+                                        {monthsArray.map(p => {
+                                            const value = calculateTotal(p.id, rows)
+                                            const hasValue = value !== 0
+                                            return (
+                                                <td key={p.id} className="px-2 py-2 text-right" style={{ width: '110px' }}>
+                                                    <span className={`${T.totalValue} tabular-nums font-semibold ${hasValue ? 'text-blue-800' : 'text-gray-300'}`}>
+                                                        {hasValue ? fmtSigned(value) : '—'}
+                                                    </span>
+                                                </td>
+                                            )
                                         })}
-                                        <AddRow
-                                            section={section}
-                                            months={monthsArray}
-                                            labelValue={newRowLabels[section.type] || ''}
-                                            onLabelChange={(v) => setNewRowLabels(prev => ({ ...prev, [section.type]: v }))}
-                                            onAddRow={(label) => addRow(section.type, label)}
-                                            onAddRowWithValue={(monthId, value) => addRowWithValue(section.type, monthId, value)}
-                                            showVariableColumn={showVariableColumn}
-                                        />
-                                    </React.Fragment>
-                                )
-                            })}
-                            {/* Summary rows — Renta Líquida, Renta Variable, Renta Fija */}
-                            {showVariableColumn && effectiveSections.length > 1 && (() => {
-                                const rentaVariable = computeRentaVariable(rows, monthsArray)
-                                // formatValue strips negatives (displayCurrencyCompact uses Math.abs).
-                                // Summary rows can be negative, so we prefix the sign manually.
-                                const fmtSigned = (v: number) => v < 0 ? `-${formatValue(-v)}` : formatValue(v)
-                                return (
-                                    <>
-                                        {/* Renta Líquida = Total Haberes - Total Descuentos */}
-                                        <tr className="border-t-2 border-t-blue-200 bg-blue-50">
-                                            <td className="pl-4 pr-2 py-2" style={{ width: '180px' }}>
-                                                <span className={`${T.totalLabel} text-blue-800`}>Renta Líquida</span>
-                                            </td>
-                                            {monthsArray.map(p => {
-                                                const value = calculateTotal(p.id, rows)
-                                                const hasValue = value !== 0
-                                                return (
-                                                    <td key={p.id} className="px-2 py-2 text-right" style={{ width: '110px' }}>
-                                                        <span className={`${T.totalValue} tabular-nums font-semibold ${hasValue ? 'text-blue-800' : 'text-gray-300'}`}>
-                                                            {hasValue ? fmtSigned(value) : '—'}
-                                                        </span>
-                                                    </td>
-                                                )
-                                            })}
-                                            <td style={{ width: '40px' }} />
-                                        </tr>
-                                        {/* Renta Variable = sum of variable-flagged items */}
-                                        <tr className="border-b border-gray-100 bg-amber-50/50">
-                                            <td className="pl-4 pr-2 py-2" style={{ width: '180px' }}>
-                                                <span className={`${T.totalLabel} text-amber-700`}>Renta Variable</span>
-                                            </td>
-                                            {monthsArray.map(p => {
-                                                const value = rentaVariable[p.id] ?? 0
-                                                const hasValue = value !== 0
-                                                return (
-                                                    <td key={p.id} className="px-2 py-2 text-right" style={{ width: '110px' }}>
-                                                        <span className={`${T.totalValue} tabular-nums ${hasValue ? 'text-amber-700' : 'text-gray-300'}`}>
-                                                            {hasValue ? fmtSigned(value) : '—'}
-                                                        </span>
-                                                    </td>
-                                                )
-                                            })}
-                                            <td style={{ width: '40px' }} />
-                                        </tr>
-                                        {/* Renta Fija = Renta Líquida - Renta Variable */}
-                                        <tr className="border-b border-gray-200 bg-emerald-50/50">
-                                            <td className="pl-4 pr-2 py-2" style={{ width: '180px' }}>
-                                                <span className={`${T.totalLabel} text-emerald-700`}>Renta Fija</span>
-                                            </td>
-                                            {monthsArray.map(p => {
-                                                const liquida = calculateTotal(p.id, rows)
-                                                const variable = rentaVariable[p.id] ?? 0
-                                                const fija = liquida - variable
-                                                const hasValue = fija !== 0
-                                                return (
-                                                    <td key={p.id} className="px-2 py-2 text-right" style={{ width: '110px' }}>
-                                                        <span className={`${T.totalValue} tabular-nums ${hasValue ? 'text-emerald-700' : 'text-gray-300'}`}>
-                                                            {hasValue ? fmtSigned(fija) : '—'}
-                                                        </span>
-                                                    </td>
-                                                )
-                                            })}
-                                            <td style={{ width: '40px' }} />
-                                        </tr>
-                                    </>
-                                )
-                            })()}
-                        </tbody>
-                    </table>
-                </div>
-
+                                        <td style={{ width: '40px' }} />
+                                    </tr>
+                                    {/* Renta Variable = sum of variable-flagged items */}
+                                    <tr className="border-b border-gray-100 bg-amber-50/50">
+                                        <td className="pl-4 pr-2 py-2" style={{ width: '180px' }}>
+                                            <span className={`${T.totalLabel} text-amber-700`}>Renta Variable</span>
+                                        </td>
+                                        {monthsArray.map(p => {
+                                            const value = rentaVariable[p.id] ?? 0
+                                            const hasValue = value !== 0
+                                            return (
+                                                <td key={p.id} className="px-2 py-2 text-right" style={{ width: '110px' }}>
+                                                    <span className={`${T.totalValue} tabular-nums ${hasValue ? 'text-amber-700' : 'text-gray-300'}`}>
+                                                        {hasValue ? fmtSigned(value) : '—'}
+                                                    </span>
+                                                </td>
+                                            )
+                                        })}
+                                        <td style={{ width: '40px' }} />
+                                    </tr>
+                                    {/* Renta Fija = Renta Líquida - Renta Variable */}
+                                    <tr className="border-b border-gray-200 bg-emerald-50/50">
+                                        <td className="pl-4 pr-2 py-2" style={{ width: '180px' }}>
+                                            <span className={`${T.totalLabel} text-emerald-700`}>Renta Fija</span>
+                                        </td>
+                                        {monthsArray.map(p => {
+                                            const liquida = calculateTotal(p.id, rows)
+                                            const variable = rentaVariable[p.id] ?? 0
+                                            const fija = liquida - variable
+                                            const hasValue = fija !== 0
+                                            return (
+                                                <td key={p.id} className="px-2 py-2 text-right" style={{ width: '110px' }}>
+                                                    <span className={`${T.totalValue} tabular-nums ${hasValue ? 'text-emerald-700' : 'text-gray-300'}`}>
+                                                        {hasValue ? fmtSigned(fija) : '—'}
+                                                    </span>
+                                                </td>
+                                            )
+                                        })}
+                                        <td style={{ width: '40px' }} />
+                                    </tr>
+                                </>
+                            )
+                        })()}
+                    </tbody>
+                </table>
             </div>
-
-            {/* Recycle bin footer */}
-            {isExpanded && (
-                <RecycleBin deletedRows={deletedRows} months={monthsArray} onRestore={handleRestore} formatValue={formatValue} showVariableColumn={showVariableColumn} />
-            )}
-
-            {/* Delete confirmation dialog */}
-            {deleteTarget && (
-                <DeleteDialog
-                    count={deleteTarget.size}
-                    onConfirm={confirmDelete}
-                    onCancel={() => setDeleteTarget(null)}
-                />
-            )}
-
-            {/* Right-click context menu */}
-            {contextMenu && anySelected && (
-                <ContextMenu
-                    x={contextMenu.x}
-                    y={contextMenu.y}
-                    canGroup={canGroup}
-                    selectedCount={selectedRows.size}
-                    onGroup={startGroupNaming}
-                    onDeleteSelected={requestDeleteSelected}
-                    onCancel={clearSelection}
-                    onClose={() => setContextMenu(null)}
-                />
-            )}
-        </div>
+        </TableShell>
     )
 }
 
