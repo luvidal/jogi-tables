@@ -1,5 +1,5 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 
 type RowType = 'add' | 'subtract' | 'income' | 'deduction' | 'debt';
 type RowData = {
@@ -198,4 +198,159 @@ interface FinalResultsCompactProps {
 }
 declare const FinalResultsCompact: ({ values, onChange, calculatedDebtorIncome, calculatedCodebtorIncome, codeudorIncomes, calculatedDebts, prompt, }: FinalResultsCompactProps) => react_jsx_runtime.JSX.Element;
 
-export { type AssetRowData, AssetTable, type AssetTableProps, type BoletaMonth, BoletasTable, type BoletasTableProps, type CodeudorIncomeInfo, type Column, type DebtEntry, DebtsTable, type DebtsTableProps, FinalResultsCompact, type FinalResultsCompactProps, type FinalResultsValues, type Month, type MonthlyTableProps, type PromptOptions, ReportTable, type ReportTableProps, type RowData, type RowType, type TributarioEntry, TributarioTable, type TributarioTableProps, MonthlyTable as default, generateLastNMonths };
+type VehiculoRow = {
+    id: string;
+    marca: string;
+    modelo: string;
+    monto: number | null;
+    anio: number | null;
+};
+interface VehiculosTableProps {
+    rows: VehiculoRow[];
+    onRowsChange: (rows: VehiculoRow[]) => void;
+    formatCurrency?: (value: number | null | undefined) => string;
+    headerBg?: string;
+    headerText?: string;
+    emptyMessage?: string;
+    addLabel?: string;
+}
+
+declare const VehiculosTable: ({ rows, onRowsChange, formatCurrency, headerBg, headerText, emptyMessage, addLabel, }: VehiculosTableProps) => react_jsx_runtime.JSX.Element;
+
+type InversionRow = {
+    id: string;
+    institucion: string;
+    tipo: string;
+    monto: number | null;
+    fecha: string;
+};
+interface InversionesTableProps {
+    rows: InversionRow[];
+    onRowsChange: (rows: InversionRow[]) => void;
+    formatCurrency?: (value: number | null | undefined) => string;
+    headerBg?: string;
+    headerText?: string;
+    emptyMessage?: string;
+    addLabel?: string;
+}
+
+declare const InversionesTable: ({ rows, onRowsChange, formatCurrency, headerBg, headerText, emptyMessage, addLabel, }: InversionesTableProps) => react_jsx_runtime.JSX.Element;
+
+type DeudaConsumoRow = {
+    id: string;
+    institucion: string;
+    tipo_deuda: string;
+    saldo_deuda_uf: number | null;
+    saldo_deuda_pesos: number | null;
+    monto_cuota: number | null;
+    cuotas_pagadas: number | null;
+    cuotas_total: number | null;
+};
+interface DeudasConsumoTableProps {
+    rows: DeudaConsumoRow[];
+    onRowsChange: (rows: DeudaConsumoRow[]) => void;
+    formatCurrency?: (value: number | null | undefined) => string;
+    ufValue?: number | null;
+    castigo?: number;
+    headerBg?: string;
+    headerText?: string;
+}
+
+declare const DeudasConsumoTable: ({ rows, onRowsChange, formatCurrency, ufValue, castigo, headerBg, headerText, }: DeudasConsumoTableProps) => react_jsx_runtime.JSX.Element;
+
+type BienRaizRow = {
+    id: string;
+    direccion: string;
+    comuna: string;
+    valor_uf: number | null;
+    valor_pesos: number | null;
+    arriendo_real: number | null;
+    arriendo_futuro: number | null;
+    institucion: string;
+    tipo_deuda: string;
+    saldo_deuda_uf: number | null;
+    saldo_deuda_pesos: number | null;
+    monto_cuota: number | null;
+    cuotas_pagadas: number | null;
+    cuotas_total: number | null;
+};
+interface BienesRaicesTableProps {
+    rows: BienRaizRow[];
+    onRowsChange: (rows: BienRaizRow[]) => void;
+    formatCurrency?: (value: number | null | undefined) => string;
+    ufValue?: number | null;
+    capRate?: number;
+    factorDescuento?: number;
+    headerBg?: string;
+    headerText?: string;
+}
+
+declare const BienesRaicesTable: ({ rows, onRowsChange, formatCurrency, ufValue, capRate, factorDescuento, headerBg, headerText, }: BienesRaicesTableProps) => react_jsx_runtime.JSX.Element;
+
+interface ActivosSummaryItem {
+    label: string;
+    value: number | null;
+    count: number;
+}
+interface ActivosSummaryProps {
+    items: ActivosSummaryItem[];
+    totalLabel?: string;
+    formatCurrency?: (value: number | null | undefined) => string;
+    colorScheme?: {
+        totalBg: string;
+        totalBorder: string;
+        totalText: string;
+        totalValueText: string;
+    };
+}
+declare const ActivosSummary: ({ items, totalLabel, formatCurrency, colorScheme, }: ActivosSummaryProps) => react_jsx_runtime.JSX.Element;
+
+declare const SourceIcon: ({ fileIds, onViewSource, className, }: {
+    fileIds?: string[];
+    onViewSource?: (ids: string[]) => void;
+    className?: string;
+}) => react_jsx_runtime.JSX.Element | null;
+interface TableShellProps {
+    headerBg?: string;
+    headerText?: string;
+    defaultCollapsed?: boolean;
+    forceExpanded?: boolean;
+    disableToggle?: boolean;
+    renderHeader: (ctx: {
+        isExpanded: boolean;
+    }) => React.ReactNode;
+    children: React.ReactNode;
+    renderAfterContent?: (ctx: {
+        isExpanded: boolean;
+    }) => React.ReactNode;
+    contentClassName?: string;
+    contentProps?: React.HTMLAttributes<HTMLDivElement>;
+}
+declare const TableShell: ({ headerBg, headerText, defaultCollapsed, forceExpanded, disableToggle, renderHeader, children, renderAfterContent, contentClassName, contentProps, }: TableShellProps) => react_jsx_runtime.JSX.Element;
+
+type AutoConvertRule = {
+    source: string;
+    target: string;
+    formula: (value: number, params: Record<string, number>) => number;
+    precision?: number;
+};
+type AutoComputeRule = {
+    target: string;
+    depends: string[];
+    condition?: (row: Record<string, any>) => boolean;
+    formula: (row: Record<string, any>, params: Record<string, number>) => number | null;
+};
+/**
+ * Apply auto-conversions after a field edit.
+ * Given the edited field and its new value, applies matching conversion rules
+ * (e.g. UF→CLP or CLP→UF) and returns the updated row.
+ */
+declare function applyAutoConversions<T extends Record<string, any>>(row: T, editedField: string, editedValue: any, rules: AutoConvertRule[], params: Record<string, number>): T;
+/**
+ * Apply auto-compute rules after a field edit.
+ * Checks which compute rules depend on the edited field, evaluates conditions,
+ * and applies formulas to compute derived values.
+ */
+declare function applyAutoCompute<T extends Record<string, any>>(row: T, editedField: string, rules: AutoComputeRule[], params: Record<string, number>): T;
+
+export { ActivosSummary, type ActivosSummaryItem, type ActivosSummaryProps, type AssetRowData, AssetTable, type AssetTableProps, type AutoComputeRule, type AutoConvertRule, type BienRaizRow, BienesRaicesTable, type BienesRaicesTableProps, type BoletaMonth, BoletasTable, type BoletasTableProps, type CodeudorIncomeInfo, type Column, type DebtEntry, DebtsTable, type DebtsTableProps, type DeudaConsumoRow, DeudasConsumoTable, type DeudasConsumoTableProps, FinalResultsCompact, type FinalResultsCompactProps, type FinalResultsValues, type InversionRow, InversionesTable, type InversionesTableProps, type Month, type MonthlyTableProps, type PromptOptions, ReportTable, type ReportTableProps, type RowData, type RowType, SourceIcon, TableShell, type TableShellProps, type TributarioEntry, TributarioTable, type TributarioTableProps, type VehiculoRow, VehiculosTable, type VehiculosTableProps, applyAutoCompute, applyAutoConversions, MonthlyTable as default, generateLastNMonths };

@@ -26,3 +26,29 @@ export type { ReportTableProps, Column } from './reporttable'
 // FinalResultsCompact
 export { default as FinalResultsCompact } from './finalresults'
 export type { FinalResultsCompactProps, FinalResultsValues, CodeudorIncomeInfo, PromptOptions } from './finalresults'
+
+// VehiculosTable
+export { default as VehiculosTable } from './vehiculos'
+export type { VehiculoRow, VehiculosTableProps } from './vehiculos/types'
+
+// InversionesTable
+export { default as InversionesTable } from './inversiones'
+export type { InversionRow, InversionesTableProps } from './inversiones/types'
+
+// DeudasConsumoTable
+export { default as DeudasConsumoTable } from './deudasconsumo'
+export type { DeudaConsumoRow, DeudasConsumoTableProps } from './deudasconsumo/types'
+
+// BienesRaicesTable
+export { default as BienesRaicesTable } from './bienesraices'
+export type { BienRaizRow, BienesRaicesTableProps } from './bienesraices/types'
+
+// ActivosSummary
+export { default as ActivosSummary } from './activossummary'
+export type { ActivosSummaryItem, ActivosSummaryProps } from './activossummary'
+
+// Common
+export { default as TableShell, SourceIcon } from './common/tableshell'
+export type { TableShellProps } from './common/tableshell'
+export { applyAutoConversions, applyAutoCompute } from './common/autoconvert'
+export type { AutoConvertRule, AutoComputeRule } from './common/autoconvert'
