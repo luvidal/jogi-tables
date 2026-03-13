@@ -53,6 +53,7 @@ export interface MonthlyTableProps {
     // Behavior
     defaultCollapsed?: boolean
     forceExpanded?: boolean
+    flush?: boolean
 
     // Formatting
     formatValue?: (value: number | null | undefined) => string

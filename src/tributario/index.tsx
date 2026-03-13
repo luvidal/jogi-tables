@@ -31,6 +31,7 @@ export interface TributarioTableProps {
     headerText?: string
     defaultCollapsed?: boolean
     forceExpanded?: boolean
+    flush?: boolean
     sourceFileIds?: string[]
     onViewSource?: (fileIds: string[]) => void
 }
@@ -54,6 +55,7 @@ const TributarioTable = ({
     headerText = 'text-amber-700',
     defaultCollapsed = false,
     forceExpanded = false,
+    flush = false,
     sourceFileIds,
     onViewSource,
 }: TributarioTableProps) => {
@@ -72,6 +74,7 @@ const TributarioTable = ({
             headerText={headerText}
             defaultCollapsed={defaultCollapsed}
             forceExpanded={forceExpanded}
+            flush={flush}
             renderHeader={({ isExpanded }) => (
                 <div className="overflow-x-auto">
                     <table className={T.table} style={{ tableLayout: 'fixed' }}>

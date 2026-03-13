@@ -52,6 +52,7 @@ var TableShell = ({
   defaultCollapsed = false,
   forceExpanded = false,
   disableToggle = false,
+  flush = false,
   renderHeader,
   children,
   renderAfterContent,
@@ -61,7 +62,10 @@ var TableShell = ({
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const isExpanded = forceExpanded || !isCollapsed;
   const canToggle = !forceExpanded && !disableToggle;
-  return /* @__PURE__ */ jsxs("div", { className: `rounded-xl overflow-hidden ${isExpanded ? "border border-gray-200" : ""}`, children: [
+  const outerBorder = flush ? "" : isExpanded ? "border border-gray-200" : "";
+  const outerRadius = flush ? "overflow-hidden" : `rounded-xl overflow-hidden`;
+  const headerRadius = flush ? "" : isExpanded ? "rounded-t-xl" : "rounded-xl";
+  return /* @__PURE__ */ jsxs("div", { className: `${outerRadius} ${outerBorder}`, children: [
     /* @__PURE__ */ jsx(
       "div",
       {
@@ -74,7 +78,7 @@ var TableShell = ({
             setIsCollapsed(!isCollapsed);
           }
         },
-        className: `w-full ${headerBg} hover:brightness-95 transition-all ${canToggle ? "cursor-pointer" : "cursor-default"} ${isExpanded ? "rounded-t-xl" : "rounded-xl"}`,
+        className: `w-full ${headerBg} hover:brightness-95 transition-all ${canToggle ? "cursor-pointer" : "cursor-default"} ${headerRadius}`,
         children: renderHeader({ isExpanded })
       }
     ),
@@ -1255,6 +1259,7 @@ var MonthlyTable = ({
   headerText = "text-gray-700",
   defaultCollapsed = false,
   forceExpanded = false,
+  flush = false,
   formatValue = defaultFormatValue,
   calculateTotal = defaultCalculateTotal,
   showVariableColumn = false,
@@ -1474,6 +1479,7 @@ var MonthlyTable = ({
       headerText,
       defaultCollapsed,
       forceExpanded,
+      flush,
       disableToggle: anySelected,
       contentClassName: "outline-none",
       contentProps: {
@@ -1659,6 +1665,7 @@ var DebtsTable = ({
   headerText = "text-rose-700",
   defaultCollapsed = false,
   forceExpanded = false,
+  flush = false,
   formatCurrency: formatCurrency4 = defaultFormatCurrency,
   sourceFileIds,
   onViewSource
@@ -1845,6 +1852,7 @@ var DebtsTable = ({
       headerText,
       defaultCollapsed,
       forceExpanded,
+      flush,
       renderHeader: ({ isExpanded }) => /* @__PURE__ */ jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsx("table", { className: T.table, style: { tableLayout: "fixed" }, children: /* @__PURE__ */ jsx("tbody", { children: /* @__PURE__ */ jsxs("tr", { children: [
         /* @__PURE__ */ jsx("td", { className: "px-4 py-3 text-left", style: { width: "180px" }, children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
           /* @__PURE__ */ jsx("span", { className: `${headerText} ${T.headerTitle}`, children: title }),
@@ -1912,6 +1920,7 @@ var BoletasTable = ({
   headerText = "text-emerald-700",
   defaultCollapsed = false,
   forceExpanded = false,
+  flush = false,
   sourceFileIds,
   onViewSource
 }) => {
@@ -1926,6 +1935,7 @@ var BoletasTable = ({
       headerText,
       defaultCollapsed,
       forceExpanded,
+      flush,
       renderHeader: ({ isExpanded }) => /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between px-4 py-3", children: [
         /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
           /* @__PURE__ */ jsx("span", { className: `${headerText} ${T.headerTitle}`, children: title }),
@@ -1988,6 +1998,7 @@ var TributarioTable = ({
   headerText = "text-amber-700",
   defaultCollapsed = false,
   forceExpanded = false,
+  flush = false,
   sourceFileIds,
   onViewSource
 }) => {
@@ -2003,6 +2014,7 @@ var TributarioTable = ({
       headerText,
       defaultCollapsed,
       forceExpanded,
+      flush,
       renderHeader: ({ isExpanded }) => /* @__PURE__ */ jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsx("table", { className: T.table, style: { tableLayout: "fixed" }, children: /* @__PURE__ */ jsx("tbody", { children: /* @__PURE__ */ jsxs("tr", { children: [
         /* @__PURE__ */ jsx("td", { className: "px-4 py-3 text-left", style: { width: "200px" }, children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
           /* @__PURE__ */ jsx("span", { className: `${headerText} ${T.headerTitle}`, children: title }),

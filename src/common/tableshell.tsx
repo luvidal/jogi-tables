@@ -40,6 +40,10 @@ export interface TableShellProps {
     forceExpanded?: boolean
     disableToggle?: boolean       // Prevents toggle (e.g., MonthlyTable during selection)
 
+    // Flush mode — removes outer border + radius so the table can sit
+    // edge-to-edge inside a parent container (e.g., accordion section).
+    flush?: boolean
+
     // Header content — render prop receives { isExpanded }
     renderHeader: (ctx: { isExpanded: boolean }) => React.ReactNode
 
@@ -60,6 +64,7 @@ const TableShell = ({
     defaultCollapsed = false,
     forceExpanded = false,
     disableToggle = false,
+    flush = false,
     renderHeader,
     children,
     renderAfterContent,
@@ -70,8 +75,14 @@ const TableShell = ({
     const isExpanded = forceExpanded || !isCollapsed
     const canToggle = !forceExpanded && !disableToggle
 
+    const outerBorder = flush ? '' : isExpanded ? 'border border-gray-200' : ''
+    const outerRadius = flush ? 'overflow-hidden' : `rounded-xl overflow-hidden`
+    const headerRadius = flush
+        ? ''
+        : isExpanded ? 'rounded-t-xl' : 'rounded-xl'
+
     return (
-        <div className={`rounded-xl overflow-hidden ${isExpanded ? 'border border-gray-200' : ''}`}>
+        <div className={`${outerRadius} ${outerBorder}`}>
             {/* Accordion Header */}
             <div
                 role={canToggle ? 'button' : undefined}
@@ -83,7 +94,7 @@ const TableShell = ({
                         setIsCollapsed(!isCollapsed)
                     }
                 }}
-                className={`w-full ${headerBg} hover:brightness-95 transition-all ${canToggle ? 'cursor-pointer' : 'cursor-default'} ${isExpanded ? 'rounded-t-xl' : 'rounded-xl'}`}
+                className={`w-full ${headerBg} hover:brightness-95 transition-all ${canToggle ? 'cursor-pointer' : 'cursor-default'} ${headerRadius}`}
             >
                 {renderHeader({ isExpanded })}
             </div>

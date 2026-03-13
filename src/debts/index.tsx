@@ -43,6 +43,7 @@ export interface DebtsTableProps {
     // Behavior
     defaultCollapsed?: boolean
     forceExpanded?: boolean
+    flush?: boolean
 
     // Formatting
     formatCurrency?: (value: number | null | undefined) => string
@@ -74,6 +75,7 @@ const DebtsTable = ({
     headerText = 'text-rose-700',
     defaultCollapsed = false,
     forceExpanded = false,
+    flush = false,
     formatCurrency = defaultFormatCurrency,
     sourceFileIds,
     onViewSource,
@@ -285,6 +287,7 @@ const DebtsTable = ({
             headerText={headerText}
             defaultCollapsed={defaultCollapsed}
             forceExpanded={forceExpanded}
+            flush={flush}
             renderHeader={({ isExpanded }) => (
                 <div className="overflow-x-auto">
                     <table className={T.table} style={{ tableLayout: 'fixed' }}>

@@ -32,6 +32,7 @@ export interface BoletasTableProps {
     headerText?: string
     defaultCollapsed?: boolean
     forceExpanded?: boolean
+    flush?: boolean
     sourceFileIds?: string[]
     onViewSource?: (fileIds: string[]) => void
 }
@@ -62,6 +63,7 @@ const BoletasTable = ({
     headerText = 'text-emerald-700',
     defaultCollapsed = false,
     forceExpanded = false,
+    flush = false,
     sourceFileIds,
     onViewSource,
 }: BoletasTableProps) => {
@@ -76,6 +78,7 @@ const BoletasTable = ({
             headerText={headerText}
             defaultCollapsed={defaultCollapsed}
             forceExpanded={forceExpanded}
+            flush={flush}
             renderHeader={({ isExpanded }) => (
                 <div className="flex items-center justify-between px-4 py-3">
                     <div className="flex items-center gap-2">

@@ -35,6 +35,7 @@ interface MonthlyTableProps {
     headerText?: string;
     defaultCollapsed?: boolean;
     forceExpanded?: boolean;
+    flush?: boolean;
     formatValue?: (value: number | null | undefined) => string;
     calculateTotal?: (monthId: string, rows: RowData[]) => number;
     showVariableColumn?: boolean;
@@ -42,7 +43,7 @@ interface MonthlyTableProps {
     onViewSource?: (fileIds: string[]) => void;
 }
 
-declare const MonthlyTable: ({ title, months, rows, onRowsChange, sections, headerBg, headerText, defaultCollapsed, forceExpanded, formatValue, calculateTotal, showVariableColumn, sourceFileIds, onViewSource, }: MonthlyTableProps) => react_jsx_runtime.JSX.Element;
+declare const MonthlyTable: ({ title, months, rows, onRowsChange, sections, headerBg, headerText, defaultCollapsed, forceExpanded, flush, formatValue, calculateTotal, showVariableColumn, sourceFileIds, onViewSource, }: MonthlyTableProps) => react_jsx_runtime.JSX.Element;
 
 declare const generateLastNMonths: (count: number) => Month[];
 
@@ -71,11 +72,12 @@ interface DebtsTableProps {
     headerText?: string;
     defaultCollapsed?: boolean;
     forceExpanded?: boolean;
+    flush?: boolean;
     formatCurrency?: (value: number | null | undefined) => string;
     sourceFileIds?: string[];
     onViewSource?: (fileIds: string[]) => void;
 }
-declare const DebtsTable: ({ title, entries, onEntriesChange, summary, headerBg, headerText, defaultCollapsed, forceExpanded, formatCurrency, sourceFileIds, onViewSource, }: DebtsTableProps) => react_jsx_runtime.JSX.Element;
+declare const DebtsTable: ({ title, entries, onEntriesChange, summary, headerBg, headerText, defaultCollapsed, forceExpanded, flush, formatCurrency, sourceFileIds, onViewSource, }: DebtsTableProps) => react_jsx_runtime.JSX.Element;
 
 type BoletaMonth = {
     periodo: string;
@@ -100,10 +102,11 @@ interface BoletasTableProps {
     headerText?: string;
     defaultCollapsed?: boolean;
     forceExpanded?: boolean;
+    flush?: boolean;
     sourceFileIds?: string[];
     onViewSource?: (fileIds: string[]) => void;
 }
-declare const BoletasTable: ({ title, months, totales, headerBg, headerText, defaultCollapsed, forceExpanded, sourceFileIds, onViewSource, }: BoletasTableProps) => react_jsx_runtime.JSX.Element;
+declare const BoletasTable: ({ title, months, totales, headerBg, headerText, defaultCollapsed, forceExpanded, flush, sourceFileIds, onViewSource, }: BoletasTableProps) => react_jsx_runtime.JSX.Element;
 
 type TributarioEntry = {
     id: string;
@@ -125,10 +128,11 @@ interface TributarioTableProps {
     headerText?: string;
     defaultCollapsed?: boolean;
     forceExpanded?: boolean;
+    flush?: boolean;
     sourceFileIds?: string[];
     onViewSource?: (fileIds: string[]) => void;
 }
-declare const TributarioTable: ({ title, entries, headerBg, headerText, defaultCollapsed, forceExpanded, sourceFileIds, onViewSource, }: TributarioTableProps) => react_jsx_runtime.JSX.Element;
+declare const TributarioTable: ({ title, entries, headerBg, headerText, defaultCollapsed, forceExpanded, flush, sourceFileIds, onViewSource, }: TributarioTableProps) => react_jsx_runtime.JSX.Element;
 
 type AssetRowData = {
     id: string;
@@ -316,6 +320,7 @@ interface TableShellProps {
     defaultCollapsed?: boolean;
     forceExpanded?: boolean;
     disableToggle?: boolean;
+    flush?: boolean;
     renderHeader: (ctx: {
         isExpanded: boolean;
     }) => React.ReactNode;
@@ -326,7 +331,7 @@ interface TableShellProps {
     contentClassName?: string;
     contentProps?: React.HTMLAttributes<HTMLDivElement>;
 }
-declare const TableShell: ({ headerBg, headerText, defaultCollapsed, forceExpanded, disableToggle, renderHeader, children, renderAfterContent, contentClassName, contentProps, }: TableShellProps) => react_jsx_runtime.JSX.Element;
+declare const TableShell: ({ headerBg, headerText, defaultCollapsed, forceExpanded, disableToggle, flush, renderHeader, children, renderAfterContent, contentClassName, contentProps, }: TableShellProps) => react_jsx_runtime.JSX.Element;
 
 type AutoConvertRule = {
     source: string;
