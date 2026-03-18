@@ -75,7 +75,6 @@ const BoletasTable = ({
     return (
         <TableShell
             headerBg={headerBg}
-            headerText={headerText}
             defaultCollapsed={defaultCollapsed}
             forceExpanded={forceExpanded}
             flush={flush}

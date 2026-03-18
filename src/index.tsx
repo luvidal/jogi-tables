@@ -48,7 +48,12 @@ export { default as ActivosSummary } from './activossummary'
 export type { ActivosSummaryItem, ActivosSummaryProps } from './activossummary'
 
 // Common
+export { default as DeleteDialog } from './common/deletedialog'
+export { default as RecycleBin } from './common/recyclebin'
+export { useSoftDelete } from './common/usesoftdelete'
+export type { SoftDeletable } from './common/softdeletetypes'
 export { default as TableShell, SourceIcon } from './common/tableshell'
 export type { TableShellProps } from './common/tableshell'
 export { applyAutoConversions, applyAutoCompute } from './common/autoconvert'
 export type { AutoConvertRule, AutoComputeRule } from './common/autoconvert'
+export { defaultFormatCurrency, displayCurrency, displayCurrencyCompact } from './common/utils'

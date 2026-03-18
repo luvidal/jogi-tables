@@ -47,6 +47,11 @@ declare const MonthlyTable: ({ title, months, rows, onRowsChange, sections, head
 
 declare const generateLastNMonths: (count: number) => Month[];
 
+type SoftDeletable = {
+    deletedAt?: string;
+    deletionReason?: string;
+};
+
 type DebtEntry = {
     id: string;
     entidad: string;
@@ -57,7 +62,7 @@ type DebtEntry = {
     atraso_60_89?: number | null;
     atraso_90_mas?: number | null;
     sourceFileId?: string;
-};
+} & SoftDeletable;
 interface DebtsTableProps {
     title: string;
     entries: DebtEntry[];
@@ -140,7 +145,7 @@ type AssetRowData = {
     type: 'asset';
     value: number | null;
     description?: string;
-};
+} & SoftDeletable;
 interface AssetTableProps {
     rows: AssetRowData[];
     onRowsChange: (rows: AssetRowData[]) => void;
@@ -208,7 +213,7 @@ type VehiculoRow = {
     modelo: string;
     monto: number | null;
     anio: number | null;
-};
+} & SoftDeletable;
 interface VehiculosTableProps {
     rows: VehiculoRow[];
     onRowsChange: (rows: VehiculoRow[]) => void;
@@ -227,7 +232,7 @@ type InversionRow = {
     tipo: string;
     monto: number | null;
     fecha: string;
-};
+} & SoftDeletable;
 interface InversionesTableProps {
     rows: InversionRow[];
     onRowsChange: (rows: InversionRow[]) => void;
@@ -250,7 +255,7 @@ type DeudaConsumoRow = {
     cuotas_pagadas: number | null;
     cuotas_total: number | null;
     sourceFileId?: string;
-};
+} & SoftDeletable;
 interface DeudasConsumoTableProps {
     rows: DeudaConsumoRow[];
     onRowsChange: (rows: DeudaConsumoRow[]) => void;
@@ -280,7 +285,7 @@ type BienRaizRow = {
     cuotas_pagadas: number | null;
     cuotas_total: number | null;
     sourceFileId?: string;
-};
+} & SoftDeletable;
 interface BienesRaicesTableProps {
     rows: BienRaizRow[];
     onRowsChange: (rows: BienRaizRow[]) => void;
@@ -313,6 +318,36 @@ interface ActivosSummaryProps {
 }
 declare const ActivosSummary: ({ items, totalLabel, formatCurrency, colorScheme, }: ActivosSummaryProps) => react_jsx_runtime.JSX.Element;
 
+interface DeleteDialogProps {
+    count: number;
+    onConfirm: (reason: string) => void;
+    onCancel: () => void;
+}
+declare const DeleteDialog: ({ count, onConfirm, onCancel }: DeleteDialogProps) => react_jsx_runtime.JSX.Element;
+
+type RecycleBinRow = {
+    id: string;
+} & SoftDeletable;
+interface RecycleBinProps<T extends RecycleBinRow> {
+    deletedRows: T[];
+    getLabel: (row: T) => string;
+    onRestore: (id: string) => void;
+}
+declare function RecycleBin<T extends RecycleBinRow>({ deletedRows, getLabel, onRestore }: RecycleBinProps<T>): react_jsx_runtime.JSX.Element | null;
+
+type SoftDeletableRow = {
+    id: string;
+} & SoftDeletable;
+declare function useSoftDelete<T extends SoftDeletableRow>(rows: T[], onRowsChange: (rows: T[]) => void): {
+    activeRows: T[];
+    deletedRows: T[];
+    deleteTargetId: string | null;
+    requestDelete: (id: string) => void;
+    confirmDelete: (reason: string) => void;
+    cancelDelete: () => void;
+    restoreRow: (id: string) => void;
+};
+
 declare const SourceIcon: ({ fileIds, onViewSource, className, }: {
     fileIds?: string[];
     onViewSource?: (ids: string[]) => void;
@@ -320,7 +355,6 @@ declare const SourceIcon: ({ fileIds, onViewSource, className, }: {
 }) => react_jsx_runtime.JSX.Element | null;
 interface TableShellProps {
     headerBg?: string;
-    headerText?: string;
     defaultCollapsed?: boolean;
     forceExpanded?: boolean;
     disableToggle?: boolean;
@@ -335,7 +369,7 @@ interface TableShellProps {
     contentClassName?: string;
     contentProps?: React.HTMLAttributes<HTMLDivElement>;
 }
-declare const TableShell: ({ headerBg, headerText, defaultCollapsed, forceExpanded, disableToggle, flush, renderHeader, children, renderAfterContent, contentClassName, contentProps, }: TableShellProps) => react_jsx_runtime.JSX.Element;
+declare const TableShell: ({ headerBg, defaultCollapsed, forceExpanded, disableToggle, flush, renderHeader, children, renderAfterContent, contentClassName, contentProps, }: TableShellProps) => react_jsx_runtime.JSX.Element;
 
 type AutoConvertRule = {
     source: string;
@@ -362,4 +396,16 @@ declare function applyAutoConversions<T extends Record<string, any>>(row: T, edi
  */
 declare function applyAutoCompute<T extends Record<string, any>>(row: T, editedField: string, rules: AutoComputeRule[], params: Record<string, number>): T;
 
-export { ActivosSummary, type ActivosSummaryItem, type ActivosSummaryProps, type AssetRowData, AssetTable, type AssetTableProps, type AutoComputeRule, type AutoConvertRule, type BienRaizRow, BienesRaicesTable, type BienesRaicesTableProps, type BoletaMonth, BoletasTable, type BoletasTableProps, type CodeudorIncomeInfo, type Column, type DebtEntry, DebtsTable, type DebtsTableProps, type DeudaConsumoRow, DeudasConsumoTable, type DeudasConsumoTableProps, FinalResultsCompact, type FinalResultsCompactProps, type FinalResultsValues, type InversionRow, InversionesTable, type InversionesTableProps, type Month, type MonthlyTableProps, type PromptOptions, ReportTable, type ReportTableProps, type RowData, type RowType, SourceIcon, TableShell, type TableShellProps, type TributarioEntry, TributarioTable, type TributarioTableProps, type VehiculoRow, VehiculosTable, type VehiculosTableProps, applyAutoCompute, applyAutoConversions, MonthlyTable as default, generateLastNMonths };
+declare const displayCurrency: (value: number | undefined | null) => string;
+/**
+ * Compact currency: rounds to nearest thousand and displays without decimals.
+ * 1_393_231 → "$1.393", 539_000 → "$539", 150 → "$0"
+ */
+/**
+ * Full currency with em-dash for null/undefined.
+ * 1_500_000 → "$ 1.500.000", null → "—"
+ */
+declare const defaultFormatCurrency: (value: number | null | undefined) => string;
+declare const displayCurrencyCompact: (value: number | undefined | null, isDeduction?: boolean) => string;
+
+export { ActivosSummary, type ActivosSummaryItem, type ActivosSummaryProps, type AssetRowData, AssetTable, type AssetTableProps, type AutoComputeRule, type AutoConvertRule, type BienRaizRow, BienesRaicesTable, type BienesRaicesTableProps, type BoletaMonth, BoletasTable, type BoletasTableProps, type CodeudorIncomeInfo, type Column, type DebtEntry, DebtsTable, type DebtsTableProps, DeleteDialog, type DeudaConsumoRow, DeudasConsumoTable, type DeudasConsumoTableProps, FinalResultsCompact, type FinalResultsCompactProps, type FinalResultsValues, type InversionRow, InversionesTable, type InversionesTableProps, type Month, type MonthlyTableProps, type PromptOptions, RecycleBin, ReportTable, type ReportTableProps, type RowData, type RowType, type SoftDeletable, SourceIcon, TableShell, type TableShellProps, type TributarioEntry, TributarioTable, type TributarioTableProps, type VehiculoRow, VehiculosTable, type VehiculosTableProps, applyAutoCompute, applyAutoConversions, MonthlyTable as default, defaultFormatCurrency, displayCurrency, displayCurrencyCompact, generateLastNMonths, useSoftDelete };

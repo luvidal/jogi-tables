@@ -1,8 +1,18 @@
-import React, { useState } from 'react'
-import { X, Eye, ChevronUp, ChevronDown } from 'lucide-react'
+import React, { useState, useMemo } from 'react'
+import { ChevronUp, ChevronDown } from 'lucide-react'
 import EditableCell from '../common/editablecell'
+import DeleteRowButton from '../common/deletebutton'
+import ViewSourceButton from '../common/viewsourcebutton'
 import { T } from '../common/styles'
 import TableShell, { SourceIcon } from '../common/tableshell'
+import { useFieldUpdate } from '../common/usefieldupdate'
+import { useRowHover } from '../common/userowhover'
+import { useGridKeyboard } from '../common/usegridkeyboard'
+import { defaultFormatCurrency } from '../common/utils'
+import { useSoftDelete } from '../common/usesoftdelete'
+import DeleteDialog from '../common/deletedialog'
+import RecycleBin from '../common/recyclebin'
+import type { SoftDeletable } from '../common/softdeletetypes'
 
 // ============================================================================
 // Types
@@ -18,7 +28,7 @@ export type DebtEntry = {
     atraso_60_89?: number | null  // 60-89 days late
     atraso_90_mas?: number | null // 90+ days late
     sourceFileId?: string     // Source file for traceability
-}
+} & SoftDeletable
 
 export interface DebtsTableProps {
     // Header
@@ -54,15 +64,6 @@ export interface DebtsTableProps {
 }
 
 // ============================================================================
-// Helpers
-// ============================================================================
-
-const defaultFormatCurrency = (value: number | null | undefined): string => {
-    if (value === undefined || value === null) return '—'
-    return `$ ${value.toLocaleString('es-CL')}`
-}
-
-// ============================================================================
 // Component
 // ============================================================================
 
@@ -80,20 +81,17 @@ const DebtsTable = ({
     sourceFileIds,
     onViewSource,
 }: DebtsTableProps) => {
-    const [hoveredRow, setHoveredRow] = useState<string | null>(null)
+    const { getHoverProps, isHovered: isRowHovered } = useRowHover()
     const [newEntry, setNewEntry] = useState({ entidad: '', tipo: '' })
+    const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(entries, onEntriesChange)
+    const visibleRowIds = useMemo(() => activeRows.map(e => e.id), [activeRows])
+    const keyboard = useGridKeyboard({ visibleRowIds, colCount: 2 })
 
     // ========================================================================
     // Entry Management
     // ========================================================================
 
-    const updateEntry = (id: string, field: keyof DebtEntry, value: string | number | null) => {
-        onEntriesChange(entries.map(e => e.id === id ? { ...e, [field]: value } : e))
-    }
-
-    const removeEntry = (id: string) => {
-        onEntriesChange(entries.filter(e => e.id !== id))
-    }
+    const { updateField: updateEntry } = useFieldUpdate(entries, onEntriesChange)
 
     const addEntry = () => {
         if (!newEntry.entidad.trim()) return
@@ -125,14 +123,14 @@ const DebtsTable = ({
     // Calculations
     // ========================================================================
 
-    const totalDeuda = entries.reduce((sum, e) => sum + (e.deuda_total || 0), 0)
-    const totalVigente = entries.reduce((sum, e) => sum + (e.vigente || 0), 0)
-    const totalAtraso = entries.reduce((sum, e) => {
+    const totalDeuda = activeRows.reduce((sum, e) => sum + (e.deuda_total || 0), 0)
+    const totalVigente = activeRows.reduce((sum, e) => sum + (e.vigente || 0), 0)
+    const totalAtraso = activeRows.reduce((sum, e) => {
         return sum + (e.atraso_30_59 || 0) + (e.atraso_60_89 || 0) + (e.atraso_90_mas || 0)
     }, 0)
 
     // Check if any entry has late payments
-    const hasLatePayments = entries.some(e =>
+    const hasLatePayments = activeRows.some(e =>
         (e.atraso_30_59 && e.atraso_30_59 > 0) ||
         (e.atraso_60_89 && e.atraso_60_89 > 0) ||
         (e.atraso_90_mas && e.atraso_90_mas > 0)
@@ -143,7 +141,7 @@ const DebtsTable = ({
     // ========================================================================
 
     const renderDataRow = (entry: DebtEntry) => {
-        const isHovered = hoveredRow === entry.id
+        const isHovered = isRowHovered(entry.id)
         const hasAtraso = (entry.atraso_30_59 && entry.atraso_30_59 > 0) ||
             (entry.atraso_60_89 && entry.atraso_60_89 > 0) ||
             (entry.atraso_90_mas && entry.atraso_90_mas > 0)
@@ -152,19 +150,12 @@ const DebtsTable = ({
             <tr
                 key={entry.id}
                 className={`border-b border-gray-100 ${hasAtraso ? 'bg-red-50/50 hover:bg-red-100/50' : 'bg-rose-50/30 hover:bg-rose-100/50'} group`}
-                onMouseEnter={() => setHoveredRow(entry.id)}
-                onMouseLeave={() => setHoveredRow(null)}
+                {...getHoverProps(entry.id)}
             >
                 {/* Entity */}
                 <td className={`px-2 py-2.5 text-gray-700 ${T.cellLabel}`} style={{ width: '180px' }}>
                     <div className="flex items-center gap-1 min-w-0">
-                        <button
-                            onClick={() => removeEntry(entry.id)}
-                            className={`p-1 rounded transition-all shrink-0 ${isHovered ? 'opacity-100 text-red-400 hover:text-red-600 hover:bg-red-100' : 'opacity-0'}`}
-                            title="Eliminar fila"
-                        >
-                            <X size={16} />
-                        </button>
+                        <DeleteRowButton onClick={() => requestDelete(entry.id)} isVisible={isHovered} size="default" title="Eliminar fila" />
                         <input
                             type="text"
                             value={entry.entidad}
@@ -173,15 +164,7 @@ const DebtsTable = ({
                             placeholder="Entidad"
                             title={entry.entidad}
                         />
-                        {entry.sourceFileId && onViewSource && (
-                            <button
-                                onClick={() => onViewSource([entry.sourceFileId!])}
-                                className={`p-1 rounded transition-all shrink-0 ${isHovered ? 'opacity-100 text-gray-400 hover:text-gray-600 hover:bg-gray-100' : 'opacity-0'}`}
-                                title="Ver documento fuente"
-                            >
-                                <Eye size={14} />
-                            </button>
-                        )}
+                        <ViewSourceButton sourceFileId={entry.sourceFileId} onViewSource={onViewSource} isVisible={isHovered} size="default" />
                     </div>
                 </td>
                 {/* Type */}
@@ -202,6 +185,12 @@ const DebtsTable = ({
                     hasData={entry.deuda_total !== null}
                     width="120px"
                     type="currency"
+                    focused={keyboard.isFocused(entry.id, 0)}
+                    onCellFocus={() => keyboard.focus(entry.id, 0)}
+                    onNavigate={keyboard.navigate}
+                    requestEdit={keyboard.isFocused(entry.id, 0) ? keyboard.editTrigger : 0}
+                    requestClear={keyboard.isFocused(entry.id, 0) ? keyboard.clearTrigger : 0}
+                    editInitialValue={keyboard.isFocused(entry.id, 0) ? keyboard.editInitialValue : undefined}
                 />
                 {/* Vigente */}
                 <EditableCell
@@ -211,6 +200,12 @@ const DebtsTable = ({
                     hasData={entry.vigente !== null}
                     width="120px"
                     type="currency"
+                    focused={keyboard.isFocused(entry.id, 1)}
+                    onCellFocus={() => keyboard.focus(entry.id, 1)}
+                    onNavigate={keyboard.navigate}
+                    requestEdit={keyboard.isFocused(entry.id, 1) ? keyboard.editTrigger : 0}
+                    requestClear={keyboard.isFocused(entry.id, 1) ? keyboard.clearTrigger : 0}
+                    editInitialValue={keyboard.isFocused(entry.id, 1) ? keyboard.editInitialValue : undefined}
                 />
                 {/* Atraso (combined display for simplicity) */}
                 {hasLatePayments && (
@@ -281,10 +276,9 @@ const DebtsTable = ({
     // Main Render
     // ========================================================================
 
-    return (
+    return (<>
         <TableShell
             headerBg={headerBg}
-            headerText={headerText}
             defaultCollapsed={defaultCollapsed}
             forceExpanded={forceExpanded}
             flush={flush}
@@ -302,7 +296,7 @@ const DebtsTable = ({
                                 </td>
                                 <td className="px-3 py-3 text-right" style={{ width: '100px' }}>
                                     <span className={`${headerText} ${T.headerCount}`}>
-                                        {entries.length} {entries.length === 1 ? 'deuda' : 'deudas'}
+                                        {activeRows.length} {activeRows.length === 1 ? 'deuda' : 'deudas'}
                                     </span>
                                 </td>
                                 <td className="px-3 py-3 text-right" style={{ width: '120px' }}>
@@ -334,6 +328,7 @@ const DebtsTable = ({
                         </tbody>
                     </table>
             )}
+            contentProps={{ onKeyDown: keyboard.handleContainerKeyDown, tabIndex: 0 }}
         >
                 <table className={T.table} style={{ tableLayout: 'fixed' }}>
                     <thead>
@@ -349,11 +344,14 @@ const DebtsTable = ({
                         </tr>
                     </thead>
                     <tbody>
-                        {entries.map(entry => renderDataRow(entry))}
+                        {activeRows.map(entry => renderDataRow(entry))}
                         {renderAddRow()}
                     </tbody>
                 </table>
+            <RecycleBin deletedRows={deletedRows} getLabel={(r) => r.entidad} onRestore={restoreRow} />
         </TableShell>
+        {deleteTargetId && <DeleteDialog count={1} onConfirm={confirmDelete} onCancel={cancelDelete} />}
+    </>
     )
 }
 

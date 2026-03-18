@@ -1,3 +1,5 @@
+import type { SoftDeletable } from '../common/softdeletetypes'
+
 export type DeudaConsumoRow = {
   id: string
   institucion: string
@@ -8,7 +10,7 @@ export type DeudaConsumoRow = {
   cuotas_pagadas: number | null
   cuotas_total: number | null
   sourceFileId?: string
-}
+} & SoftDeletable
 
 export interface DeudasConsumoTableProps {
   rows: DeudaConsumoRow[]

@@ -1,7 +1,13 @@
 import { useState } from 'react'
-import { X } from 'lucide-react'
 import EditableCell from '../common/editablecell'
+import DeleteRowButton from '../common/deletebutton'
 import { T } from '../common/styles'
+import { useFieldUpdate } from '../common/usefieldupdate'
+import { useRowHover } from '../common/userowhover'
+import { useSoftDelete } from '../common/usesoftdelete'
+import DeleteDialog from '../common/deletedialog'
+import RecycleBin from '../common/recyclebin'
+import type { SoftDeletable } from '../common/softdeletetypes'
 
 export type AssetRowData = {
     id: string
@@ -9,7 +15,7 @@ export type AssetRowData = {
     type: 'asset'
     value: number | null
     description?: string
-}
+} & SoftDeletable
 
 export interface AssetTableProps {
     rows: AssetRowData[]
@@ -26,24 +32,11 @@ const AssetTable = ({
     placeholder = 'Agregar activo...',
     onViewSource
 }: AssetTableProps) => {
-    const [hoveredRow, setHoveredRow] = useState<string | null>(null)
+    const { getHoverProps, isHovered } = useRowHover()
     const [newAssetLabel, setNewAssetLabel] = useState('')
 
-    const updateRowLabel = (rowId: string, label: string) => {
-        onRowsChange(rows.map(r => r.id === rowId ? { ...r, label } : r))
-    }
-
-    const updateRowValue = (rowId: string, value: number | null) => {
-        onRowsChange(rows.map(r => r.id === rowId ? { ...r, value } : r))
-    }
-
-    const updateRowDescription = (rowId: string, description: string) => {
-        onRowsChange(rows.map(r => r.id === rowId ? { ...r, description } : r))
-    }
-
-    const removeRow = (rowId: string) => {
-        onRowsChange(rows.filter(r => r.id !== rowId))
-    }
+    const { updateField } = useFieldUpdate(rows, onRowsChange)
+    const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange)
 
     const addRow = (label: string) => {
         if (!label.trim()) return
@@ -71,36 +64,24 @@ const AssetTable = ({
         onRowsChange([...rows, newRow])
     }
 
-    // Calculate total assets
-    const calculateTotalAssets = (): number => {
-        return rows.reduce((sum, row) => sum + (row.value || 0), 0)
-    }
-
-    const totalAssets = calculateTotalAssets()
+    const totalAssets = activeRows.reduce((sum, row) => sum + (row.value || 0), 0)
 
     const renderRow = (row: AssetRowData) => {
-        const isHovered = hoveredRow === row.id
+        const hovered = isHovered(row.id)
 
         return (
             <tr
                 key={row.id}
                 className="border-b border-gray-100 bg-blue-50/50 hover:bg-blue-100/50 group"
-                onMouseEnter={() => setHoveredRow(row.id)}
-                onMouseLeave={() => setHoveredRow(null)}
+                {...getHoverProps(row.id)}
             >
                 <td className={`px-2 py-2.5 text-gray-700 ${T.cellLabel}`} style={{ width: '200px' }}>
                     <div className="flex items-center gap-1 min-w-0">
-                        <button
-                            onClick={() => removeRow(row.id)}
-                            className={`p-1 rounded transition-all shrink-0 ${isHovered ? 'opacity-100 text-red-400 hover:text-red-600 hover:bg-red-100' : 'opacity-0'}`}
-                            title="Eliminar fila"
-                        >
-                            <X size={16} />
-                        </button>
+                        <DeleteRowButton onClick={() => requestDelete(row.id)} isVisible={hovered} size="default" title="Eliminar fila" />
                         <input
                             type="text"
                             value={row.label}
-                            onChange={(e) => updateRowLabel(row.id, e.target.value)}
+                            onChange={(e) => updateField(row.id, 'label', e.target.value)}
                             className={`flex-1 min-w-0 ${T.inputLabel} pl-1`}
                             title={row.label}
                         />
@@ -110,14 +91,14 @@ const AssetTable = ({
                     <input
                         type="text"
                         value={row.description || ''}
-                        onChange={(e) => updateRowDescription(row.id, e.target.value)}
+                        onChange={(e) => updateField(row.id, 'description', e.target.value)}
                         placeholder="Descripción..."
                         className={`w-full ${T.input} placeholder-gray-400`}
                     />
                 </td>
                 <EditableCell
                     value={row.value}
-                    onChange={(v) => updateRowValue(row.id, v as number | null)}
+                    onChange={(v) => updateField(row.id, 'value', v as number | null)}
                     isDeduction={false}
                     hasData={row.value !== null}
                     width="140px"
@@ -160,7 +141,7 @@ const AssetTable = ({
         )
     }
 
-    return (
+    return (<>
         <div className="rounded-xl overflow-hidden border border-gray-200 bg-white">
             <div className="overflow-x-auto">
                 <table className={T.table} style={{ tableLayout: 'fixed' }}>
@@ -183,7 +164,7 @@ const AssetTable = ({
                         </tr>
                     </thead>
                     <tbody>
-                        {rows.map(row => renderRow(row))}
+                        {activeRows.map(row => renderRow(row))}
                         {renderAddRow()}
 
                         {/* Total Row */}
@@ -197,7 +178,10 @@ const AssetTable = ({
                     </tbody>
                 </table>
             </div>
+            <RecycleBin deletedRows={deletedRows} getLabel={(r) => r.label} onRestore={restoreRow} />
         </div>
+        {deleteTargetId && <DeleteDialog count={1} onConfirm={confirmDelete} onCancel={cancelDelete} />}
+    </>
     )
 }
 

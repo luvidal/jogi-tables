@@ -1,5 +1,6 @@
 import React from 'react'
 import { T } from '../common/styles'
+import { defaultFormatCurrency } from '../common/utils'
 
 export interface ActivosSummaryItem {
     label: string
@@ -17,11 +18,6 @@ export interface ActivosSummaryProps {
         totalText: string
         totalValueText: string
     }
-}
-
-const defaultFormatCurrency = (value: number | null | undefined): string => {
-    if (value === undefined || value === null) return '—'
-    return `$ ${value.toLocaleString('es-CL')}`
 }
 
 const defaultColorScheme = {

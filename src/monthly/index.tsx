@@ -21,7 +21,7 @@ import {
 import DataRow from './datarow'
 import AddRow from './addrow'
 import GroupRow from './grouprow'
-import DeleteDialog from './deletedialog'
+import DeleteDialog from '../common/deletedialog'
 import RecycleBin from './recyclebin'
 import { HeaderSelectionBar, ContextMenu } from './floatingaction'
 import { useKeyboard } from './usekeyboard'
@@ -280,8 +280,10 @@ const MonthlyTable = ({
             onToggleVariable={() => toggleVariable(r.id)}
             isCellFocused={(mi) => keyboard.isFocused(r.id, mi)}
             onCellFocus={(mi) => keyboard.focus(r.id, mi)}
-            onNavigate={keyboard.navigateAndEdit}
+            onNavigate={keyboard.navigate}
             editTrigger={keyboard.editTrigger}
+            clearTrigger={keyboard.clearTrigger}
+            editInitialValue={keyboard.editInitialValue}
             isDragging={drag.dragRowId === r.id}
             dropIndicator={drag.dropTargetId === r.id ? drag.dropPosition : null}
             onDragStart={drag.handleDragStart(r.id)}
@@ -295,7 +297,6 @@ const MonthlyTable = ({
     return (
         <TableShell
             headerBg={headerBg}
-            headerText={headerText}
             defaultCollapsed={defaultCollapsed}
             forceExpanded={forceExpanded}
             flush={flush}

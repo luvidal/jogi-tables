@@ -30,6 +30,7 @@ src/
 │   ├── styles.ts          # T object — Tailwind class tokens
 │   ├── utils.ts           # displayCurrency, displayCurrencyCompact
 │   ├── editablecell.tsx   # Inline-editable table cell
+│   ├── usegridkeyboard.ts # Grid keyboard navigation hook (arrow keys, Tab, Enter, Escape)
 │   └── usemobile.ts       # useIsMobile hook
 ├── monthly/               # MonthlyTable — see monthly/README.md
 │   ├── index.tsx          # MonthlyTable component
@@ -62,11 +63,16 @@ tests/
 └── utils.test.ts          # Unit tests for common/utils
 ```
 
+## Compact Instructions
+
+When compacting, preserve: file paths changed, errors found, decisions made, API changes. Drop: full file contents already read, tool output bodies.
+
 ## Communication Style
 
 - **No emotional validation** — never say "I understand your frustration". Results matter, not words.
 - **No excessive apologies** — don't apologize repeatedly. Fix the problem.
 - **Be direct** — state facts, propose solutions, execute. Skip the fluff.
+- **Ask for input** — when stuck or facing multiple approaches, ask rather than guessing.
 
 ## Spanish Copy Standard
 
@@ -86,6 +92,8 @@ All user-facing text uses informal **tú**, never **usted**:
 7. **Optimistic updates** — always update UI immediately, then fire callbacks. Don't block UI on async responses
 8. **After modifying a feature**, update this CLAUDE.md if any key behavior changed
 9. **README.md maintenance** — every modification to a component folder must update its `README.md` to reflect changes. Verify that new upgrades don't cause regressions in existing functionality before marking work as complete
+10. **Test coverage** — after implementing a feature, check if tests exist for the affected code (`tests/`). Update or write tests. Never leave a feature without test coverage.
+11. **Planning** — for non-trivial changes, write a plan to `docs/plans/` before implementing
 
 ## Exports
 
@@ -107,6 +115,16 @@ DebtEntry, DebtsTableProps
 BoletaMonth, BoletasTableProps
 TributarioEntry, TributarioTableProps
 AssetRowData, AssetTableProps
+
+// Common components (named exports)
+DeleteDialog, RecycleBin, TableShell, SourceIcon
+
+// Common hooks/utils (named exports)
+useSoftDelete, applyAutoConversions, applyAutoCompute
+defaultFormatCurrency, displayCurrency, displayCurrencyCompact
+
+// Common type exports
+SoftDeletable, TableShellProps, AutoConvertRule, AutoComputeRule
 ```
 
 ## Consumer Setup (jogi)

@@ -1,3 +1,5 @@
+import type { SoftDeletable } from '../common/softdeletetypes'
+
 export type BienRaizRow = {
   id: string
   direccion: string
@@ -14,7 +16,7 @@ export type BienRaizRow = {
   cuotas_pagadas: number | null
   cuotas_total: number | null
   sourceFileId?: string
-}
+} & SoftDeletable
 
 export interface BienesRaicesTableProps {
   rows: BienRaizRow[]

@@ -32,13 +32,18 @@ interface EditableCellProps {
     onCellFocus?: () => void
     /** Called after edit commit to navigate to next cell (Tab→right, Enter→down) */
     onNavigate?: (direction: 'up' | 'down' | 'left' | 'right') => void
-    /** Increment to trigger edit externally (keyboard Enter on focused cell) */
+    /** Increment to trigger edit externally (keyboard Enter/F2 on focused cell) */
     requestEdit?: number
+    /** Increment to clear the cell value (keyboard Delete/Backspace on focused cell) */
+    requestClear?: number
+    /** Initial value for type-to-edit (the character pressed to start editing) */
+    editInitialValue?: string | null
 }
 
 /**
  * EditableCell - An inline-editable table cell
  *
+ * Click to select (focus ring), double-click/Enter/F2/type to edit.
  * IMPORTANT: This component uses a fixed-size container to prevent layout shifts
  * when toggling between display and edit modes. The input is absolutely positioned
  * within a fixed-height container so clicking to edit does NOT scramble/shift
@@ -60,6 +65,8 @@ const EditableCell = ({
     onCellFocus,
     onNavigate,
     requestEdit = 0,
+    requestClear = 0,
+    editInitialValue,
 }: EditableCellProps) => {
     const isMobile = useIsMobile()
     const [isEditing, setIsEditing] = useState(false)
@@ -67,15 +74,22 @@ const EditableCell = ({
     const [isHovered, setIsHovered] = useState(false)
     const inputRef = useRef<HTMLInputElement>(null)
 
-    const startEdit = () => {
-        setEditValue(value?.toString() || '')
+    const startEdit = (initialValue?: string) => {
+        setEditValue(initialValue ?? value?.toString() ?? '')
         setIsEditing(true)
     }
 
     useEffect(() => {
         if (isEditing && inputRef.current) {
             inputRef.current.focus()
-            inputRef.current.select()
+            // For type-to-edit, place cursor at end; otherwise select all
+            if (editValue.length <= 1) {
+                // Single char from type-to-edit — cursor at end
+                const len = inputRef.current.value.length
+                inputRef.current.setSelectionRange(len, len)
+            } else {
+                inputRef.current.select()
+            }
         }
     }, [isEditing])
 
@@ -146,14 +160,28 @@ const EditableCell = ({
 
     const Wrapper = asDiv ? 'div' : 'td'
 
-    // Trigger edit externally (keyboard Enter on focused cell)
+    // Trigger edit externally (keyboard Enter/F2 or type-to-edit)
     useEffect(() => {
         if (requestEdit > 0 && !isEditing) {
-            startEdit()
+            startEdit(editInitialValue ?? undefined)
         }
     }, [requestEdit])
 
+    // Trigger clear externally (keyboard Delete/Backspace)
+    useEffect(() => {
+        if (requestClear > 0) {
+            onChange(null)
+        }
+    }, [requestClear])
+
+    // Click to select (focus ring only), double-click to edit
     const handleClick = () => {
+        if (!isEditing) {
+            onCellFocus?.()
+        }
+    }
+
+    const handleDoubleClick = () => {
         if (!isEditing) {
             onCellFocus?.()
             startEdit()
@@ -167,6 +195,7 @@ const EditableCell = ({
             className={`px-2 py-1.5 cursor-pointer ${focusRing} ${className}`}
             style={{ width, minWidth: width, maxWidth: width }}
             onClick={handleClick}
+            onDoubleClick={handleDoubleClick}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >

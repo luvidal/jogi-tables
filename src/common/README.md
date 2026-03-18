@@ -7,10 +7,20 @@ Shared components, hooks, and utilities used across all table components. Everyt
 | File | Description |
 |------|-------------|
 | `styles.ts` | `T` object with Tailwind class tokens for consistent table styling |
-| `utils.ts` | Currency formatting: `displayCurrency`, `displayCurrencyCompact` (Chilean peso, es-CL) |
+| `utils.ts` | Currency formatting: `displayCurrency`, `displayCurrencyCompact`, `defaultFormatCurrency` (Chilean peso, es-CL) |
 | `editablecell.tsx` | Inline-editable table cell with currency, number, text, and percent modes |
 | `tableshell.tsx` | `TableShell` accordion wrapper + `SourceIcon` for collapsible table sections |
+| `deletebutton.tsx` | `DeleteRowButton` — red X button with opacity-on-hover transition |
+| `viewsourcebutton.tsx` | `ViewSourceButton` — row-level eye icon for source file viewing |
+| `emptystaterow.tsx` | `EmptyStateRow` — "no data" placeholder row for empty tables |
+| `userowhover.ts` | `useRowHover()` — hover state tracking for table rows |
+| `usefieldupdate.ts` | `useFieldUpdate()` — generic row field update + remove logic |
+| `usegridkeyboard.ts` | `useGridKeyboard()` — grid keyboard navigation (arrow keys, Tab, Enter, Escape) for EditableCell grids |
 | `usemobile.ts` | `useIsMobile()` media query hook (max-width: 639px) |
+| `usesoftdelete.ts` | `useSoftDelete()` — generic soft-delete hook with confirm/cancel/restore state management |
+| `softdeletetypes.ts` | `SoftDeletable` type — `{ deletedAt?: string; deletionReason?: string }` mixin for row types |
+| `deletedialog.tsx` | `DeleteDialog` — confirmation modal with reason textarea (portal to body) |
+| `recyclebin.tsx` | `RecycleBin` — generic collapsible footer showing soft-deleted rows with restore button |
 
 ## Usage
 
@@ -19,8 +29,17 @@ All tables import shared resources from this folder:
 ```ts
 import { T } from '../common/styles'
 import EditableCell from '../common/editablecell'
+import DeleteRowButton from '../common/deletebutton'
+import ViewSourceButton from '../common/viewsourcebutton'
+import EmptyStateRow from '../common/emptystaterow'
 import TableShell, { SourceIcon } from '../common/tableshell'
-import { displayCurrencyCompact } from '../common/utils'
+import { useRowHover } from '../common/userowhover'
+import { useFieldUpdate } from '../common/usefieldupdate'
+import { useGridKeyboard } from '../common/usegridkeyboard'
+import { useSoftDelete } from '../common/usesoftdelete'
+import DeleteDialog from '../common/deletedialog'
+import RecycleBin from '../common/recyclebin'
+import { defaultFormatCurrency, displayCurrencyCompact } from '../common/utils'
 ```
 
 ### TableShell
@@ -28,7 +47,7 @@ import { displayCurrencyCompact } from '../common/utils'
 Shared accordion wrapper that manages collapse state, header click behavior, keyboard accessibility, and content show/hide for all collapsible table sections. Accepts a `renderHeader` render prop for custom header content and optional `renderAfterContent` for footers (e.g., recycle bin, dialogs).
 
 Key props:
-- `headerBg`, `headerText` — theming
+- `headerBg` — header background color class
 - `defaultCollapsed`, `forceExpanded` — collapse behavior
 - `disableToggle` — prevents toggle (e.g., during row selection in MonthlyTable)
 - `contentClassName`, `contentProps` — extra attributes on the content wrapper
@@ -110,7 +129,13 @@ const MyTable = ({
 2. **Use `SourceIcon`** — for the header eye icon. It handles null checks internally.
 3. **Use `T` styles** — for typography classes (`T.headerTitle`, `T.th`, `T.cellLabel`, etc.).
 4. **Use `EditableCell`** — for any editable numeric cells. Supports `currency`, `number`, `text`, `percent` modes.
-5. **Chevron placement** — each table controls where the chevron goes in its header. Always guard with `!forceExpanded`.
+5. **Use `DeleteRowButton`** — for row delete buttons. Handles opacity transition, icon sizing (`sm`/`default`).
+6. **Use `ViewSourceButton`** — for row-level source file viewing. Returns null when no source/handler.
+7. **Use `EmptyStateRow`** — for empty table states. Pass `show`, `colSpan`, and `message`.
+8. **Use `useRowHover()`** — for row hover state. Returns `getHoverProps(id)` (spread on `<tr>`) and `isHovered(id)`.
+9. **Use `useFieldUpdate()`** — for generic row update/remove. Returns `updateField(id, field, value)` and `removeRow(id)`.
+10. **Use `useGridKeyboard()`** — for keyboard navigation between EditableCell instances. Pass `visibleRowIds` and `colCount`. Wire `handleContainerKeyDown` + `tabIndex={0}` on the scroll container, and `focused`/`onCellFocus`/`onNavigate`/`requestEdit` on each EditableCell.
+11. **Chevron placement** — each table controls where the chevron goes in its header. Always guard with `!forceExpanded`.
 6. **Header layout** — use flexbox (`div.flex`) for simple headers, or `<table>` layout for column-aligned headers that match the body.
 7. **`renderAfterContent`** — use this for content that sits after the collapsible area but inside the outer wrapper (e.g., MonthlyTable's recycle bin and dialogs).
 8. **`disableToggle`** — set to `true` when the header has interactive elements that should prevent collapse (e.g., selection bar).

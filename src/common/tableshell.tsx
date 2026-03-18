@@ -33,7 +33,6 @@ export const SourceIcon = ({
 export interface TableShellProps {
     // Appearance
     headerBg?: string
-    headerText?: string
 
     // Collapse behavior
     defaultCollapsed?: boolean
@@ -60,7 +59,6 @@ export interface TableShellProps {
 
 const TableShell = ({
     headerBg = 'bg-gray-100',
-    headerText = 'text-gray-700',
     defaultCollapsed = false,
     forceExpanded = false,
     disableToggle = false,
@@ -76,39 +74,43 @@ const TableShell = ({
     const canToggle = !forceExpanded && !disableToggle
 
     const outerBorder = flush ? '' : isExpanded ? 'border border-gray-200' : ''
-    const outerRadius = flush ? 'overflow-hidden' : `rounded-xl overflow-hidden`
+    const outerRadius = flush ? '' : `rounded-xl overflow-hidden`
     const headerRadius = flush
         ? ''
         : isExpanded ? 'rounded-t-xl' : 'rounded-xl'
 
     return (
-        <div className={`${outerRadius} ${outerBorder} overflow-x-auto`}>
-            {/* Accordion Header */}
-            <div
-                role={canToggle ? 'button' : undefined}
-                tabIndex={canToggle ? 0 : undefined}
-                onClick={() => canToggle && setIsCollapsed(!isCollapsed)}
-                onKeyDown={(e) => {
-                    if (canToggle && (e.key === 'Enter' || e.key === ' ')) {
-                        e.preventDefault()
-                        setIsCollapsed(!isCollapsed)
-                    }
-                }}
-                className={`w-full ${headerBg} hover:brightness-95 transition-all ${canToggle ? 'cursor-pointer' : 'cursor-default'} ${headerRadius}`}
-            >
-                {renderHeader({ isExpanded })}
-            </div>
+        <div className={`${outerRadius} ${outerBorder}`}>
+            <div className="overflow-x-auto">
+                <div className="inline-block min-w-full">
+                    {/* Accordion Header */}
+                    <div
+                        role={canToggle ? 'button' : undefined}
+                        tabIndex={canToggle ? 0 : undefined}
+                        onClick={() => canToggle && setIsCollapsed(!isCollapsed)}
+                        onKeyDown={(e) => {
+                            if (canToggle && (e.key === 'Enter' || e.key === ' ')) {
+                                e.preventDefault()
+                                setIsCollapsed(!isCollapsed)
+                            }
+                        }}
+                        className={`${headerBg} hover:brightness-95 transition-all ${canToggle ? 'cursor-pointer' : 'cursor-default'} ${headerRadius}`}
+                    >
+                        {renderHeader({ isExpanded })}
+                    </div>
 
-            {/* Collapsible Content */}
-            <div
-                {...contentProps}
-                className={`bg-white ${!isExpanded ? 'hidden print:block' : ''} ${contentClassName || ''}`}
-            >
-                {children}
-            </div>
+                    {/* Collapsible Content */}
+                    <div
+                        {...contentProps}
+                        className={`bg-white ${!isExpanded ? 'hidden print:block' : ''} ${contentClassName || ''}`}
+                    >
+                        {children}
+                    </div>
 
-            {/* Optional footer (recycle bin, dialogs, etc.) */}
-            {renderAfterContent?.({ isExpanded })}
+                    {/* Optional footer (recycle bin, dialogs, etc.) */}
+                    {renderAfterContent?.({ isExpanded })}
+                </div>
+            </div>
         </div>
     )
 }

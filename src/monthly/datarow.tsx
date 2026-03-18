@@ -28,6 +28,10 @@ interface DataRowProps {
     onNavigate?: (direction: 'up' | 'down' | 'left' | 'right') => void
     /** Keyboard nav: counter that triggers edit on focused cell */
     editTrigger?: number
+    /** Keyboard nav: counter that triggers clear on focused cell */
+    clearTrigger?: number
+    /** Keyboard nav: initial value for type-to-edit */
+    editInitialValue?: string | null
     /** Variable column */
     showVariableColumn?: boolean
     onToggleVariable?: () => void
@@ -66,6 +70,8 @@ const DataRow = ({
     onCellFocus,
     onNavigate,
     editTrigger = 0,
+    clearTrigger = 0,
+    editInitialValue,
     showVariableColumn = false,
     onToggleVariable,
     isDragging = false,
@@ -166,6 +172,8 @@ const DataRow = ({
                         onCellFocus={onCellFocus ? () => onCellFocus(mi) : undefined}
                         onNavigate={onNavigate}
                         requestEdit={cellFocused ? editTrigger : 0}
+                        requestClear={cellFocused ? clearTrigger : 0}
+                        editInitialValue={cellFocused ? editInitialValue : undefined}
                     />
                 )
             })}

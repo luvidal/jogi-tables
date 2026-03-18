@@ -1,10 +1,12 @@
+import type { SoftDeletable } from '../common/softdeletetypes'
+
 export type VehiculoRow = {
   id: string
   marca: string
   modelo: string
   monto: number | null
   anio: number | null
-}
+} & SoftDeletable
 
 export interface VehiculosTableProps {
   rows: VehiculoRow[]

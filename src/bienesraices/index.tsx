@@ -1,15 +1,18 @@
-import React, { useState } from 'react'
-import { X, Eye } from 'lucide-react'
+import React, { useState, useMemo } from 'react'
+import { Eye } from 'lucide-react'
 import EditableCell from '../common/editablecell'
+import DeleteRowButton from '../common/deletebutton'
+import EmptyStateRow from '../common/emptystaterow'
 import { T } from '../common/styles'
+import { useRowHover } from '../common/userowhover'
+import { useGridKeyboard } from '../common/usegridkeyboard'
 import { applyAutoConversions, applyAutoCompute } from '../common/autoconvert'
 import type { AutoConvertRule, AutoComputeRule } from '../common/autoconvert'
+import { defaultFormatCurrency } from '../common/utils'
+import { useSoftDelete } from '../common/usesoftdelete'
+import DeleteDialog from '../common/deletedialog'
+import RecycleBin from '../common/recyclebin'
 import type { BienRaizRow, BienesRaicesTableProps } from './types'
-
-const defaultFormatCurrency = (value: number | null | undefined): string => {
-    if (value === undefined || value === null) return '—'
-    return `$ ${value.toLocaleString('es-CL')}`
-}
 
 const BienesRaicesTable = ({
     rows,
@@ -22,7 +25,10 @@ const BienesRaicesTable = ({
     headerText = 'text-teal-700',
     onViewSource,
 }: BienesRaicesTableProps) => {
-    const [hoveredRow, setHoveredRow] = useState<string | null>(null)
+    const { getHoverProps, isHovered: isRowHovered } = useRowHover()
+    const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange)
+    const visibleRowIds = useMemo(() => activeRows.map(r => r.id), [activeRows])
+    const keyboard = useGridKeyboard({ visibleRowIds, colCount: 9 })
 
     // Auto-conversion rules
     const conversionRules: AutoConvertRule[] = ufValue ? [
@@ -55,10 +61,6 @@ const BienesRaicesTable = ({
         }))
     }
 
-    const removeRow = (id: string) => {
-        onRowsChange(rows.filter(r => r.id !== id))
-    }
-
     const addRow = () => {
         const row: BienRaizRow = {
             id: `br_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
@@ -79,11 +81,11 @@ const BienesRaicesTable = ({
         onRowsChange([...rows, row])
     }
 
-    const totalValorPesos = rows.reduce((s, r) => s + (r.valor_pesos || 0), 0)
-    const totalArriendoReal = rows.reduce((s, r) => s + (r.arriendo_real || 0), 0)
-    const totalArriendoFuturo = rows.reduce((s, r) => s + (r.arriendo_futuro || 0), 0)
-    const totalSaldoDeudaPesos = rows.reduce((s, r) => s + (r.saldo_deuda_pesos || 0), 0)
-    const totalMontoCuota = rows.reduce((s, r) => s + (r.monto_cuota || 0), 0)
+    const totalValorPesos = activeRows.reduce((s, r) => s + (r.valor_pesos || 0), 0)
+    const totalArriendoReal = activeRows.reduce((s, r) => s + (r.arriendo_real || 0), 0)
+    const totalArriendoFuturo = activeRows.reduce((s, r) => s + (r.arriendo_futuro || 0), 0)
+    const totalSaldoDeudaPesos = activeRows.reduce((s, r) => s + (r.saldo_deuda_pesos || 0), 0)
+    const totalMontoCuota = activeRows.reduce((s, r) => s + (r.monto_cuota || 0), 0)
 
     const isAutoComputed = (row: BienRaizRow, field: string): boolean => {
         if (!ufValue) return false
@@ -93,8 +95,8 @@ const BienesRaicesTable = ({
         return false
     }
 
-    return (
-        <div className="overflow-x-auto">
+    return (<>
+        <div className="overflow-x-auto" onKeyDown={keyboard.handleContainerKeyDown} tabIndex={0}>
             <table className={T.table} style={{ tableLayout: 'fixed' }}>
                 <thead>
                     <tr className={`${headerBg} border-b border-teal-200`}>
@@ -119,25 +121,18 @@ const BienesRaicesTable = ({
                     </tr>
                 </thead>
                 <tbody>
-                    {rows.map(row => {
-                        const isHovered = hoveredRow === row.id
+                    {activeRows.map(row => {
+                        const isHovered = isRowHovered(row.id)
                         return (
                             <tr
                                 key={row.id}
                                 className="border-b border-gray-100 hover:bg-gray-50"
-                                onMouseEnter={() => setHoveredRow(row.id)}
-                                onMouseLeave={() => setHoveredRow(null)}
+                                {...getHoverProps(row.id)}
                             >
                                 {/* Propiedad columns */}
                                 <td className={`px-2 py-2.5 ${T.cellLabel}`} style={{ width: '140px' }}>
                                     <div className="flex items-center gap-1 min-w-0">
-                                        <button
-                                            onClick={() => removeRow(row.id)}
-                                            className={`p-0.5 rounded transition-all shrink-0 ${isHovered ? 'opacity-100 text-red-400 hover:text-red-600 hover:bg-red-100' : 'opacity-0'}`}
-                                            title="Eliminar"
-                                        >
-                                            <X size={14} />
-                                        </button>
+                                        <DeleteRowButton onClick={() => requestDelete(row.id)} isVisible={isHovered} />
                                         <input
                                             type="text"
                                             value={row.direccion}
@@ -162,6 +157,12 @@ const BienesRaicesTable = ({
                                     type="number"
                                     hasData={row.valor_uf !== null}
                                     width="90px"
+                                    focused={keyboard.isFocused(row.id, 0)}
+                                    onCellFocus={() => keyboard.focus(row.id, 0)}
+                                    onNavigate={keyboard.navigate}
+                                    requestEdit={keyboard.isFocused(row.id, 0) ? keyboard.editTrigger : 0}
+                                    requestClear={keyboard.isFocused(row.id, 0) ? keyboard.clearTrigger : 0}
+                                    editInitialValue={keyboard.isFocused(row.id, 0) ? keyboard.editInitialValue : undefined}
                                 />
                                 <EditableCell
                                     value={row.valor_pesos}
@@ -170,6 +171,12 @@ const BienesRaicesTable = ({
                                     hasData={row.valor_pesos !== null}
                                     width="110px"
                                     className={isAutoComputed(row, 'valor_pesos') ? 'italic text-teal-500' : ''}
+                                    focused={keyboard.isFocused(row.id, 1)}
+                                    onCellFocus={() => keyboard.focus(row.id, 1)}
+                                    onNavigate={keyboard.navigate}
+                                    requestEdit={keyboard.isFocused(row.id, 1) ? keyboard.editTrigger : 0}
+                                    requestClear={keyboard.isFocused(row.id, 1) ? keyboard.clearTrigger : 0}
+                                    editInitialValue={keyboard.isFocused(row.id, 1) ? keyboard.editInitialValue : undefined}
                                 />
                                 <EditableCell
                                     value={row.arriendo_real}
@@ -177,6 +184,12 @@ const BienesRaicesTable = ({
                                     type="currency"
                                     hasData={row.arriendo_real !== null}
                                     width="100px"
+                                    focused={keyboard.isFocused(row.id, 2)}
+                                    onCellFocus={() => keyboard.focus(row.id, 2)}
+                                    onNavigate={keyboard.navigate}
+                                    requestEdit={keyboard.isFocused(row.id, 2) ? keyboard.editTrigger : 0}
+                                    requestClear={keyboard.isFocused(row.id, 2) ? keyboard.clearTrigger : 0}
+                                    editInitialValue={keyboard.isFocused(row.id, 2) ? keyboard.editInitialValue : undefined}
                                 />
                                 <EditableCell
                                     value={row.arriendo_futuro}
@@ -185,6 +198,12 @@ const BienesRaicesTable = ({
                                     hasData={row.arriendo_futuro !== null}
                                     width="100px"
                                     className={`border-r border-teal-200 ${isAutoComputed(row, 'arriendo_futuro') ? 'italic text-teal-500' : ''}`}
+                                    focused={keyboard.isFocused(row.id, 3)}
+                                    onCellFocus={() => keyboard.focus(row.id, 3)}
+                                    onNavigate={keyboard.navigate}
+                                    requestEdit={keyboard.isFocused(row.id, 3) ? keyboard.editTrigger : 0}
+                                    requestClear={keyboard.isFocused(row.id, 3) ? keyboard.clearTrigger : 0}
+                                    editInitialValue={keyboard.isFocused(row.id, 3) ? keyboard.editInitialValue : undefined}
                                 />
                                 {/* Deuda Hipotecaria columns */}
                                 <td className="px-2 py-2.5" style={{ width: '120px' }}>
@@ -222,6 +241,12 @@ const BienesRaicesTable = ({
                                     type="number"
                                     hasData={row.saldo_deuda_uf !== null}
                                     width="90px"
+                                    focused={keyboard.isFocused(row.id, 4)}
+                                    onCellFocus={() => keyboard.focus(row.id, 4)}
+                                    onNavigate={keyboard.navigate}
+                                    requestEdit={keyboard.isFocused(row.id, 4) ? keyboard.editTrigger : 0}
+                                    requestClear={keyboard.isFocused(row.id, 4) ? keyboard.clearTrigger : 0}
+                                    editInitialValue={keyboard.isFocused(row.id, 4) ? keyboard.editInitialValue : undefined}
                                 />
                                 <EditableCell
                                     value={row.saldo_deuda_pesos}
@@ -230,6 +255,12 @@ const BienesRaicesTable = ({
                                     hasData={row.saldo_deuda_pesos !== null}
                                     width="110px"
                                     className={isAutoComputed(row, 'saldo_deuda_pesos') ? 'italic text-teal-500' : ''}
+                                    focused={keyboard.isFocused(row.id, 5)}
+                                    onCellFocus={() => keyboard.focus(row.id, 5)}
+                                    onNavigate={keyboard.navigate}
+                                    requestEdit={keyboard.isFocused(row.id, 5) ? keyboard.editTrigger : 0}
+                                    requestClear={keyboard.isFocused(row.id, 5) ? keyboard.clearTrigger : 0}
+                                    editInitialValue={keyboard.isFocused(row.id, 5) ? keyboard.editInitialValue : undefined}
                                 />
                                 <EditableCell
                                     value={row.monto_cuota}
@@ -237,6 +268,12 @@ const BienesRaicesTable = ({
                                     type="currency"
                                     hasData={row.monto_cuota !== null}
                                     width="100px"
+                                    focused={keyboard.isFocused(row.id, 6)}
+                                    onCellFocus={() => keyboard.focus(row.id, 6)}
+                                    onNavigate={keyboard.navigate}
+                                    requestEdit={keyboard.isFocused(row.id, 6) ? keyboard.editTrigger : 0}
+                                    requestClear={keyboard.isFocused(row.id, 6) ? keyboard.clearTrigger : 0}
+                                    editInitialValue={keyboard.isFocused(row.id, 6) ? keyboard.editInitialValue : undefined}
                                 />
                                 <td className="text-center text-xs text-gray-500" style={{ width: '80px' }}>
                                     <div className="flex items-center justify-center gap-0.5">
@@ -248,6 +285,12 @@ const BienesRaicesTable = ({
                                             width="30px"
                                             align="center"
                                             asDiv
+                                            focused={keyboard.isFocused(row.id, 7)}
+                                            onCellFocus={() => keyboard.focus(row.id, 7)}
+                                            onNavigate={keyboard.navigate}
+                                            requestEdit={keyboard.isFocused(row.id, 7) ? keyboard.editTrigger : 0}
+                                    requestClear={keyboard.isFocused(row.id, 7) ? keyboard.clearTrigger : 0}
+                                    editInitialValue={keyboard.isFocused(row.id, 7) ? keyboard.editInitialValue : undefined}
                                         />
                                         <span className="text-gray-400">/</span>
                                         <EditableCell
@@ -258,6 +301,12 @@ const BienesRaicesTable = ({
                                             width="30px"
                                             align="center"
                                             asDiv
+                                            focused={keyboard.isFocused(row.id, 8)}
+                                            onCellFocus={() => keyboard.focus(row.id, 8)}
+                                            onNavigate={keyboard.navigate}
+                                            requestEdit={keyboard.isFocused(row.id, 8) ? keyboard.editTrigger : 0}
+                                    requestClear={keyboard.isFocused(row.id, 8) ? keyboard.clearTrigger : 0}
+                                    editInitialValue={keyboard.isFocused(row.id, 8) ? keyboard.editInitialValue : undefined}
                                         />
                                     </div>
                                 </td>
@@ -266,11 +315,7 @@ const BienesRaicesTable = ({
                         )
                     })}
 
-                    {rows.length === 0 && (
-                        <tr>
-                            <td colSpan={13} className={`px-2 py-3 text-center ${T.empty}`}>Sin bienes raíces registrados</td>
-                        </tr>
-                    )}
+                    <EmptyStateRow show={activeRows.length === 0} colSpan={13} message="Sin bienes raíces registrados" />
                 </tbody>
                 <tfoot>
                     <tr className={`${headerBg} font-semibold text-xs border-t border-teal-200`}>
@@ -301,7 +346,10 @@ const BienesRaicesTable = ({
             >
                 + Agregar propiedad
             </button>
+            <RecycleBin deletedRows={deletedRows} getLabel={(r) => r.direccion} onRestore={restoreRow} />
         </div>
+        {deleteTargetId && <DeleteDialog count={1} onConfirm={confirmDelete} onCancel={cancelDelete} />}
+    </>
     )
 }
 

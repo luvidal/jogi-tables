@@ -1,8 +1,11 @@
 import React, { useState } from 'react'
-import { Eye, ChevronUp, ChevronDown } from 'lucide-react'
+import { ChevronUp, ChevronDown } from 'lucide-react'
+import EmptyStateRow from '../common/emptystaterow'
+import ViewSourceButton from '../common/viewsourcebutton'
 import { displayCurrencyCompact } from '../common/utils'
 import { T } from '../common/styles'
 import TableShell, { SourceIcon } from '../common/tableshell'
+import { useRowHover } from '../common/userowhover'
 
 // ============================================================================
 // Types
@@ -59,7 +62,7 @@ const TributarioTable = ({
     sourceFileIds,
     onViewSource,
 }: TributarioTableProps) => {
-    const [hoveredRow, setHoveredRow] = useState<string | null>(null)
+    const { getHoverProps, isHovered: isRowHovered } = useRowHover()
 
     const balanceEntries = entries.filter(e => e.source === 'balance-anual')
     const carpetaEntries = entries.filter(e => e.source === 'carpeta-tributaria')
@@ -71,7 +74,6 @@ const TributarioTable = ({
     return (
         <TableShell
             headerBg={headerBg}
-            headerText={headerText}
             defaultCollapsed={defaultCollapsed}
             forceExpanded={forceExpanded}
             flush={flush}
@@ -140,21 +142,12 @@ const TributarioTable = ({
                             <tr
                                 key={entry.id}
                                 className="border-b border-gray-100 bg-amber-50/30 hover:bg-amber-100/50 group"
-                                onMouseEnter={() => setHoveredRow(entry.id)}
-                                onMouseLeave={() => setHoveredRow(null)}
+                                {...getHoverProps(entry.id)}
                             >
                                 <td className={`px-4 py-2.5 text-gray-700 ${T.cellLabel}`} style={{ width: '200px' }}>
                                     <div className="flex items-center gap-1 min-w-0">
                                         <span className="font-medium text-xs truncate" title={entry.empresa || entry.label}>{entry.empresa || entry.label}</span>
-                                        {entry.sourceFileId && onViewSource && (
-                                            <button
-                                                onClick={() => onViewSource([entry.sourceFileId!])}
-                                                className={`p-1 rounded transition-all shrink-0 ${hoveredRow === entry.id ? 'opacity-100 text-gray-400 hover:text-gray-600 hover:bg-gray-100' : 'opacity-0'}`}
-                                                title="Ver documento fuente"
-                                            >
-                                                <Eye size={14} />
-                                            </button>
-                                        )}
+                                        <ViewSourceButton sourceFileId={entry.sourceFileId} onViewSource={onViewSource} isVisible={isRowHovered(entry.id)} size="default" />
                                     </div>
                                 </td>
                                 <td className={`px-2 py-2.5 ${T.muted}`} style={{ width: '120px' }}>
@@ -174,21 +167,12 @@ const TributarioTable = ({
                             <tr
                                 key={entry.id}
                                 className="border-b border-gray-100 bg-amber-50/30 hover:bg-amber-100/50 group"
-                                onMouseEnter={() => setHoveredRow(entry.id)}
-                                onMouseLeave={() => setHoveredRow(null)}
+                                {...getHoverProps(entry.id)}
                             >
                                 <td className={`px-4 py-2.5 text-gray-700 ${T.cellLabel}`} style={{ width: '200px' }}>
                                     <div className="flex items-center gap-1 min-w-0">
                                         <span className="font-medium text-xs truncate">Carpeta Tributaria</span>
-                                        {entry.sourceFileId && onViewSource && (
-                                            <button
-                                                onClick={() => onViewSource([entry.sourceFileId!])}
-                                                className={`p-1 rounded transition-all shrink-0 ${hoveredRow === entry.id ? 'opacity-100 text-gray-400 hover:text-gray-600 hover:bg-gray-100' : 'opacity-0'}`}
-                                                title="Ver documento fuente"
-                                            >
-                                                <Eye size={14} />
-                                            </button>
-                                        )}
+                                        <ViewSourceButton sourceFileId={entry.sourceFileId} onViewSource={onViewSource} isVisible={isRowHovered(entry.id)} size="default" />
                                     </div>
                                 </td>
                                 <td className={`px-2 py-2.5 ${T.muted}`} colSpan={3} style={{ width: '400px' }}>
@@ -200,13 +184,7 @@ const TributarioTable = ({
                             </tr>
                         ))}
                         {/* Empty state */}
-                        {entries.length === 0 && (
-                            <tr className="border-b border-gray-100">
-                                <td className={`px-4 py-3 ${T.empty}`} colSpan={5}>
-                                    Sin información tributaria
-                                </td>
-                            </tr>
-                        )}
+                        <EmptyStateRow show={entries.length === 0} colSpan={5} message="Sin información tributaria" />
                     </tbody>
                 </table>
         </TableShell>

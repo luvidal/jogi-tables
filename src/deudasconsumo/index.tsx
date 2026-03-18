@@ -1,15 +1,18 @@
-import React, { useState } from 'react'
-import { X, Eye } from 'lucide-react'
+import React, { useState, useMemo } from 'react'
+import { Eye } from 'lucide-react'
 import EditableCell from '../common/editablecell'
+import DeleteRowButton from '../common/deletebutton'
+import EmptyStateRow from '../common/emptystaterow'
 import { T } from '../common/styles'
+import { useRowHover } from '../common/userowhover'
+import { useGridKeyboard } from '../common/usegridkeyboard'
 import { applyAutoConversions, applyAutoCompute } from '../common/autoconvert'
 import type { AutoConvertRule, AutoComputeRule } from '../common/autoconvert'
+import { defaultFormatCurrency } from '../common/utils'
+import { useSoftDelete } from '../common/usesoftdelete'
+import DeleteDialog from '../common/deletedialog'
+import RecycleBin from '../common/recyclebin'
 import type { DeudaConsumoRow, DeudasConsumoTableProps } from './types'
-
-const defaultFormatCurrency = (value: number | null | undefined): string => {
-    if (value === undefined || value === null) return '—'
-    return `$ ${value.toLocaleString('es-CL')}`
-}
 
 const LINEAS_TC_PATTERN = /l[ií]nea|tarjeta|tc/i
 
@@ -23,8 +26,11 @@ const DeudasConsumoTable = ({
     headerText = 'text-rose-700',
     onViewSource,
 }: DeudasConsumoTableProps) => {
-    const [hoveredRow, setHoveredRow] = useState<string | null>(null)
+    const { getHoverProps, isHovered: isRowHovered } = useRowHover()
     const [newRow, setNewRow] = useState({ institucion: '', tipo_deuda: '' })
+    const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange)
+    const visibleRowIds = useMemo(() => activeRows.map(r => r.id), [activeRows])
+    const keyboard = useGridKeyboard({ visibleRowIds, colCount: 5 })
 
     // Auto-conversion rules: UF↔CLP
     const conversionRules: AutoConvertRule[] = ufValue ? [
@@ -51,10 +57,6 @@ const DeudasConsumoTable = ({
         }))
     }
 
-    const removeRow = (id: string) => {
-        onRowsChange(rows.filter(r => r.id !== id))
-    }
-
     const addRow = () => {
         if (!newRow.institucion.trim()) return
         const row: DeudaConsumoRow = {
@@ -71,8 +73,8 @@ const DeudasConsumoTable = ({
         onRowsChange([...rows, row])
     }
 
-    const totalSaldoPesos = rows.reduce((s, r) => s + (r.saldo_deuda_pesos || 0), 0)
-    const totalMontoCuota = rows.reduce((s, r) => s + (r.monto_cuota || 0), 0)
+    const totalSaldoPesos = activeRows.reduce((s, r) => s + (r.saldo_deuda_pesos || 0), 0)
+    const totalMontoCuota = activeRows.reduce((s, r) => s + (r.monto_cuota || 0), 0)
 
     const isAutoComputed = (row: DeudaConsumoRow, field: string): boolean => {
         if (field === 'saldo_deuda_pesos' && row.saldo_deuda_uf != null && ufValue) return true
@@ -80,11 +82,8 @@ const DeudasConsumoTable = ({
         return false
     }
 
-    return (
-        <div className="overflow-x-auto">
-            {castigo > 0 && (
-                <div className={`text-xs text-gray-500 mb-1`}>Castigo Líneas y TC: {(castigo * 100).toFixed(0)}% del saldo</div>
-            )}
+    return (<>
+        <div className="overflow-x-auto" onKeyDown={keyboard.handleContainerKeyDown} tabIndex={0}>
             <table className={T.table} style={{ tableLayout: 'fixed' }}>
                 <thead>
                     <tr className={`${headerBg} border-b border-rose-200 ${headerText}`}>
@@ -98,24 +97,17 @@ const DeudasConsumoTable = ({
                     </tr>
                 </thead>
                 <tbody>
-                    {rows.map(row => {
-                        const isHovered = hoveredRow === row.id
+                    {activeRows.map(row => {
+                        const isHovered = isRowHovered(row.id)
                         return (
                             <tr
                                 key={row.id}
                                 className="border-b border-gray-100 hover:bg-gray-50"
-                                onMouseEnter={() => setHoveredRow(row.id)}
-                                onMouseLeave={() => setHoveredRow(null)}
+                                {...getHoverProps(row.id)}
                             >
                                 <td className={`px-2 py-2.5 ${T.cellLabel}`} style={{ width: '160px' }}>
                                     <div className="flex items-center gap-1 min-w-0">
-                                        <button
-                                            onClick={() => removeRow(row.id)}
-                                            className={`p-0.5 rounded transition-all shrink-0 ${isHovered ? 'opacity-100 text-red-400 hover:text-red-600 hover:bg-red-100' : 'opacity-0'}`}
-                                            title="Eliminar"
-                                        >
-                                            <X size={14} />
-                                        </button>
+                                        <DeleteRowButton onClick={() => requestDelete(row.id)} isVisible={isHovered} />
                                         {row.sourceFileId && onViewSource && (
                                             <button
                                                 onClick={() => onViewSource([row.sourceFileId!])}
@@ -149,6 +141,12 @@ const DeudasConsumoTable = ({
                                     type="number"
                                     hasData={row.saldo_deuda_uf !== null}
                                     width="100px"
+                                    focused={keyboard.isFocused(row.id, 0)}
+                                    onCellFocus={() => keyboard.focus(row.id, 0)}
+                                    onNavigate={keyboard.navigate}
+                                    requestEdit={keyboard.isFocused(row.id, 0) ? keyboard.editTrigger : 0}
+                                    requestClear={keyboard.isFocused(row.id, 0) ? keyboard.clearTrigger : 0}
+                                    editInitialValue={keyboard.isFocused(row.id, 0) ? keyboard.editInitialValue : undefined}
                                 />
                                 <EditableCell
                                     value={row.saldo_deuda_pesos}
@@ -157,6 +155,12 @@ const DeudasConsumoTable = ({
                                     hasData={row.saldo_deuda_pesos !== null}
                                     width="120px"
                                     className={isAutoComputed(row, 'saldo_deuda_pesos') ? 'italic text-rose-400' : ''}
+                                    focused={keyboard.isFocused(row.id, 1)}
+                                    onCellFocus={() => keyboard.focus(row.id, 1)}
+                                    onNavigate={keyboard.navigate}
+                                    requestEdit={keyboard.isFocused(row.id, 1) ? keyboard.editTrigger : 0}
+                                    requestClear={keyboard.isFocused(row.id, 1) ? keyboard.clearTrigger : 0}
+                                    editInitialValue={keyboard.isFocused(row.id, 1) ? keyboard.editInitialValue : undefined}
                                 />
                                 <EditableCell
                                     value={row.monto_cuota}
@@ -165,6 +169,12 @@ const DeudasConsumoTable = ({
                                     hasData={row.monto_cuota !== null}
                                     width="110px"
                                     className={isAutoComputed(row, 'monto_cuota') ? 'italic text-rose-400' : ''}
+                                    focused={keyboard.isFocused(row.id, 2)}
+                                    onCellFocus={() => keyboard.focus(row.id, 2)}
+                                    onNavigate={keyboard.navigate}
+                                    requestEdit={keyboard.isFocused(row.id, 2) ? keyboard.editTrigger : 0}
+                                    requestClear={keyboard.isFocused(row.id, 2) ? keyboard.clearTrigger : 0}
+                                    editInitialValue={keyboard.isFocused(row.id, 2) ? keyboard.editInitialValue : undefined}
                                 />
                                 <td className="text-center text-xs text-gray-500" style={{ width: '90px' }}>
                                     <div className="flex items-center justify-center gap-0.5">
@@ -176,6 +186,12 @@ const DeudasConsumoTable = ({
                                             width="35px"
                                             align="center"
                                             asDiv
+                                            focused={keyboard.isFocused(row.id, 3)}
+                                            onCellFocus={() => keyboard.focus(row.id, 3)}
+                                            onNavigate={keyboard.navigate}
+                                            requestEdit={keyboard.isFocused(row.id, 3) ? keyboard.editTrigger : 0}
+                                    requestClear={keyboard.isFocused(row.id, 3) ? keyboard.clearTrigger : 0}
+                                    editInitialValue={keyboard.isFocused(row.id, 3) ? keyboard.editInitialValue : undefined}
                                         />
                                         <span className="text-gray-400">/</span>
                                         <EditableCell
@@ -186,6 +202,12 @@ const DeudasConsumoTable = ({
                                             width="35px"
                                             align="center"
                                             asDiv
+                                            focused={keyboard.isFocused(row.id, 4)}
+                                            onCellFocus={() => keyboard.focus(row.id, 4)}
+                                            onNavigate={keyboard.navigate}
+                                            requestEdit={keyboard.isFocused(row.id, 4) ? keyboard.editTrigger : 0}
+                                    requestClear={keyboard.isFocused(row.id, 4) ? keyboard.clearTrigger : 0}
+                                    editInitialValue={keyboard.isFocused(row.id, 4) ? keyboard.editInitialValue : undefined}
                                         />
                                     </div>
                                 </td>
@@ -222,11 +244,7 @@ const DeudasConsumoTable = ({
                         <td style={{ width: '40px' }}></td>
                     </tr>
 
-                    {rows.length === 0 && (
-                        <tr>
-                            <td colSpan={7} className={`px-2 py-3 text-center ${T.empty}`}>Sin deudas de consumo registradas</td>
-                        </tr>
-                    )}
+                    <EmptyStateRow show={activeRows.length === 0} colSpan={7} message="Sin deudas de consumo registradas" />
                 </tbody>
                 <tfoot>
                     <tr className={`${headerBg} font-semibold text-xs border-t border-rose-200`}>
@@ -241,7 +259,10 @@ const DeudasConsumoTable = ({
                     </tr>
                 </tfoot>
             </table>
+            <RecycleBin deletedRows={deletedRows} getLabel={(r) => r.institucion} onRestore={restoreRow} />
         </div>
+        {deleteTargetId && <DeleteDialog count={1} onConfirm={confirmDelete} onCancel={cancelDelete} />}
+    </>
     )
 }
 

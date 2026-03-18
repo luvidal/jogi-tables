@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { displayCurrency, displayCurrencyCompact } from '../src/common/utils'
+import { displayCurrency, displayCurrencyCompact, defaultFormatCurrency } from '../src/common/utils'
 
 describe('displayCurrency', () => {
     it('returns empty string for null/undefined', () => {
@@ -57,5 +57,22 @@ describe('displayCurrencyCompact', () => {
     it('handles negative values', () => {
         const result = displayCurrencyCompact(-300_000)
         expect(result).toBe('$300')
+    })
+})
+
+describe('defaultFormatCurrency', () => {
+    it('returns em-dash for null/undefined', () => {
+        expect(defaultFormatCurrency(null)).toBe('—')
+        expect(defaultFormatCurrency(undefined)).toBe('—')
+    })
+
+    it('formats with $ prefix and locale separators', () => {
+        const result = defaultFormatCurrency(1_500_000)
+        expect(result).toContain('$')
+        expect(result).toContain('1.500.000')
+    })
+
+    it('formats zero', () => {
+        expect(defaultFormatCurrency(0)).toBe('$ 0')
     })
 })
