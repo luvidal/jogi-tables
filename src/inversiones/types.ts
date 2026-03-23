@@ -16,4 +16,5 @@ export interface InversionesTableProps {
   headerText?: string
   emptyMessage?: string
   addLabel?: string
+  title?: React.ReactNode
 }

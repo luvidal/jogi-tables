@@ -86,7 +86,7 @@ const DeudasConsumoTable = ({
         <div className="overflow-x-auto" onKeyDown={keyboard.handleContainerKeyDown} tabIndex={0}>
             <table className={T.table} style={{ tableLayout: 'fixed' }}>
                 <thead>
-                    <tr className={`${headerBg} border-b border-rose-200 ${headerText}`}>
+                    <tr className={`${headerBg} border-t border-rose-200 ${headerText}`}>
                         <th className={`px-2 py-1.5 text-left ${T.th} ${headerText}`} style={{ width: '160px' }}>Institución</th>
                         <th className={`px-2 py-1.5 text-left ${T.th} ${headerText}`} style={{ width: '120px' }}>Tipo Deuda</th>
                         <th className={`px-2 py-1.5 text-right ${T.th} ${headerText}`} style={{ width: '100px' }}>Saldo UF</th>
@@ -247,7 +247,7 @@ const DeudasConsumoTable = ({
                     <EmptyStateRow show={activeRows.length === 0} colSpan={7} message="Sin deudas de consumo registradas" />
                 </tbody>
                 <tfoot>
-                    <tr className={`${headerBg} font-semibold text-xs border-t border-rose-200`}>
+                    <tr className={`${headerBg} font-semibold text-xs border-b border-rose-200`}>
                         <td colSpan={3} className={`px-2 py-1.5 ${headerText} ${T.totalLabel}`}>TOTAL</td>
                         <td className={`px-2 py-1.5 text-right ${headerText} ${T.totalValue}`}>
                             {totalSaldoPesos ? formatCurrency(totalSaldoPesos) : '—'}

@@ -28,4 +28,5 @@ export interface BienesRaicesTableProps {
   headerBg?: string
   headerText?: string
   onViewSource?: (fileIds: string[]) => void
+  title?: React.ReactNode
 }

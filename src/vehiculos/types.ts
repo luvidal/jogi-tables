@@ -16,4 +16,5 @@ export interface VehiculosTableProps {
   headerText?: string
   emptyMessage?: string
   addLabel?: string
+  title?: React.ReactNode
 }

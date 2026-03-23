@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import EditableCell from '../common/editablecell'
 import DeleteRowButton from '../common/deletebutton'
 import EmptyStateRow from '../common/emptystaterow'
@@ -16,41 +16,26 @@ const InversionesTable = ({
     rows,
     onRowsChange,
     formatCurrency = defaultFormatCurrency,
-    headerBg = 'bg-indigo-50',
-    headerText = 'text-indigo-700',
+    headerBg = 'bg-emerald-50',
+    headerText = 'text-emerald-700',
     emptyMessage = 'Sin inversiones registradas',
     addLabel = '+ Agregar inversión',
+    title,
 }: InversionesTableProps) => {
     const { getHoverProps, isHovered } = useRowHover()
-    const [newRow, setNewRow] = useState({ institucion: '', tipo: '' })
     const { updateField } = useFieldUpdate(rows, onRowsChange)
     const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange)
     const visibleRowIds = useMemo(() => activeRows.map(r => r.id), [activeRows])
     const keyboard = useGridKeyboard({ visibleRowIds, colCount: 1 })
 
     const addRow = () => {
-        if (!newRow.institucion.trim()) return
         const row: InversionRow = {
             id: `inv_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-            institucion: newRow.institucion.trim(),
-            tipo: newRow.tipo.trim(),
+            institucion: '',
+            tipo: '',
             monto: null,
             fecha: '',
         }
-        setNewRow({ institucion: '', tipo: '' })
-        onRowsChange([...rows, row])
-    }
-
-    const addRowWithValue = (field: 'monto', value: number | null) => {
-        if (value === null) return
-        const row: InversionRow = {
-            id: `inv_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-            institucion: newRow.institucion.trim() || 'Nueva inversión',
-            tipo: newRow.tipo.trim(),
-            monto: value,
-            fecha: '',
-        }
-        setNewRow({ institucion: '', tipo: '' })
         onRowsChange([...rows, row])
     }
 
@@ -60,8 +45,8 @@ const InversionesTable = ({
         <div className="overflow-x-auto" onKeyDown={keyboard.handleContainerKeyDown} tabIndex={0}>
             <table className={T.table} style={{ tableLayout: 'fixed' }}>
                 <thead>
-                    <tr className={`${headerBg} border-b border-indigo-200 ${headerText}`}>
-                        <th className={`px-2 py-1.5 text-left ${T.th} ${headerText}`} style={{ width: '160px' }}>Institución</th>
+                    <tr className={`${headerBg} border-t border-emerald-200 ${headerText}`}>
+                        <th className={`px-2 py-1.5 text-left ${T.th} ${headerText}`} style={{ width: '160px' }}>{title || 'Institución'}</th>
                         <th className={`px-2 py-1.5 text-left ${T.th} ${headerText}`} style={{ width: '140px' }}>Tipo Inversión</th>
                         <th className={`px-2 py-1.5 text-right ${T.th} ${headerText}`} style={{ width: '120px' }}>Monto $</th>
                         <th className={`px-2 py-1.5 text-left ${T.th} ${headerText}`} style={{ width: '100px' }}>Fecha</th>
@@ -125,42 +110,22 @@ const InversionesTable = ({
                         )
                     })}
 
-                    {/* Add row */}
-                    <tr className="border-b border-dashed border-indigo-100 bg-indigo-50/20">
-                        <td className="px-4 py-2.5" style={{ width: '160px' }}>
-                            <input
-                                type="text"
-                                placeholder="Agregar inversión..."
-                                value={newRow.institucion}
-                                onChange={e => setNewRow(prev => ({ ...prev, institucion: e.target.value }))}
-                                className={`w-full ${T.inputPlaceholder}`}
-                                onKeyDown={e => { if (e.key === 'Enter' && newRow.institucion.trim()) addRow() }}
-                            />
-                        </td>
-                        <td className="px-2 py-2.5" style={{ width: '140px' }}>
-                            <input
-                                type="text"
-                                placeholder="Tipo"
-                                value={newRow.tipo}
-                                onChange={e => setNewRow(prev => ({ ...prev, tipo: e.target.value }))}
-                                className={`w-full ${T.inputPlaceholder}`}
-                            />
-                        </td>
-                        <EditableCell
-                            value={null}
-                            onChange={v => addRowWithValue('monto', v as number | null)}
-                            hasData={false}
-                            width="120px"
-                            type="currency"
-                        />
-                        <td className="px-2 py-2.5" style={{ width: '100px' }}></td>
-                        <td style={{ width: '40px' }}></td>
-                    </tr>
-
                     <EmptyStateRow show={activeRows.length === 0} colSpan={5} message={emptyMessage} />
+
+                    {/* Add row */}
+                    <tr className="border-b border-dashed border-emerald-100 bg-emerald-50/20">
+                        <td colSpan={5} className="px-4 py-2.5 text-center">
+                            <button
+                                className="text-xs text-emerald-600 hover:text-emerald-700"
+                                onClick={addRow}
+                            >
+                                {addLabel}
+                            </button>
+                        </td>
+                    </tr>
                 </tbody>
                 <tfoot>
-                    <tr className={`${headerBg} font-semibold text-xs border-t border-indigo-200`}>
+                    <tr className={`${headerBg} font-semibold text-xs border-b border-emerald-200`}>
                         <td colSpan={2} className={`px-2 py-1.5 ${headerText} ${T.totalLabel}`}>TOTAL</td>
                         <td className={`px-2 py-1.5 text-right ${headerText} ${T.totalValue}`}>
                             {totalMonto ? formatCurrency(totalMonto) : '—'}

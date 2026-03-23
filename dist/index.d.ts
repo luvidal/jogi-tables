@@ -1,5 +1,5 @@
 import * as react_jsx_runtime from 'react/jsx-runtime';
-import React, { ReactNode } from 'react';
+import React$1, { ReactNode } from 'react';
 
 type RowType = 'add' | 'subtract' | 'income' | 'deduction' | 'debt';
 type RowData = {
@@ -222,9 +222,10 @@ interface VehiculosTableProps {
     headerText?: string;
     emptyMessage?: string;
     addLabel?: string;
+    title?: React.ReactNode;
 }
 
-declare const VehiculosTable: ({ rows, onRowsChange, formatCurrency, headerBg, headerText, emptyMessage, addLabel, }: VehiculosTableProps) => react_jsx_runtime.JSX.Element;
+declare const VehiculosTable: ({ rows, onRowsChange, formatCurrency, headerBg, headerText, emptyMessage, addLabel, title, }: VehiculosTableProps) => react_jsx_runtime.JSX.Element;
 
 type InversionRow = {
     id: string;
@@ -241,9 +242,10 @@ interface InversionesTableProps {
     headerText?: string;
     emptyMessage?: string;
     addLabel?: string;
+    title?: React.ReactNode;
 }
 
-declare const InversionesTable: ({ rows, onRowsChange, formatCurrency, headerBg, headerText, emptyMessage, addLabel, }: InversionesTableProps) => react_jsx_runtime.JSX.Element;
+declare const InversionesTable: ({ rows, onRowsChange, formatCurrency, headerBg, headerText, emptyMessage, addLabel, title, }: InversionesTableProps) => react_jsx_runtime.JSX.Element;
 
 type DeudaConsumoRow = {
     id: string;
@@ -296,9 +298,10 @@ interface BienesRaicesTableProps {
     headerBg?: string;
     headerText?: string;
     onViewSource?: (fileIds: string[]) => void;
+    title?: React.ReactNode;
 }
 
-declare const BienesRaicesTable: ({ rows, onRowsChange, formatCurrency, ufValue, capRate, factorDescuento, headerBg, headerText, onViewSource, }: BienesRaicesTableProps) => react_jsx_runtime.JSX.Element;
+declare const BienesRaicesTable: ({ rows, onRowsChange, formatCurrency, ufValue, capRate, factorDescuento, headerBg, headerText, onViewSource, title, }: BienesRaicesTableProps) => react_jsx_runtime.JSX.Element;
 
 interface ActivosSummaryItem {
     label: string;
@@ -361,13 +364,13 @@ interface TableShellProps {
     flush?: boolean;
     renderHeader: (ctx: {
         isExpanded: boolean;
-    }) => React.ReactNode;
-    children: React.ReactNode;
+    }) => React$1.ReactNode;
+    children: React$1.ReactNode;
     renderAfterContent?: (ctx: {
         isExpanded: boolean;
-    }) => React.ReactNode;
+    }) => React$1.ReactNode;
     contentClassName?: string;
-    contentProps?: React.HTMLAttributes<HTMLDivElement>;
+    contentProps?: React$1.HTMLAttributes<HTMLDivElement>;
 }
 declare const TableShell: ({ headerBg, defaultCollapsed, forceExpanded, disableToggle, flush, renderHeader, children, renderAfterContent, contentClassName, contentProps, }: TableShellProps) => react_jsx_runtime.JSX.Element;
 

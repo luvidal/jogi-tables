@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import EditableCell from '../common/editablecell'
 import DeleteRowButton from '../common/deletebutton'
 import EmptyStateRow from '../common/emptystaterow'
@@ -24,41 +24,26 @@ const VehiculosTable = ({
     rows,
     onRowsChange,
     formatCurrency = defaultFormatCurrency,
-    headerBg = 'bg-blue-50',
-    headerText = 'text-blue-700',
+    headerBg = 'bg-slate-50',
+    headerText = 'text-slate-700',
     emptyMessage = 'Sin vehículos registrados',
     addLabel = '+ Agregar vehículo',
+    title,
 }: VehiculosTableProps) => {
     const { getHoverProps, isHovered } = useRowHover()
-    const [newRow, setNewRow] = useState({ marca: '', modelo: '' })
     const { updateField } = useFieldUpdate(rows, onRowsChange)
     const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange)
     const visibleRowIds = useMemo(() => activeRows.map(r => r.id), [activeRows])
     const keyboard = useGridKeyboard({ visibleRowIds, colCount: 2 })
 
     const addRow = () => {
-        if (!newRow.marca.trim()) return
         const row: VehiculoRow = {
             id: `vh_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-            marca: newRow.marca.trim(),
-            modelo: newRow.modelo.trim(),
+            marca: '',
+            modelo: '',
             monto: null,
             anio: null,
         }
-        setNewRow({ marca: '', modelo: '' })
-        onRowsChange([...rows, row])
-    }
-
-    const addRowWithValue = (field: 'monto' | 'anio', value: number | null) => {
-        if (value === null) return
-        const row: VehiculoRow = {
-            id: `vh_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-            marca: newRow.marca.trim() || 'Nuevo vehículo',
-            modelo: newRow.modelo.trim(),
-            monto: field === 'monto' ? value : null,
-            anio: field === 'anio' ? value : null,
-        }
-        setNewRow({ marca: '', modelo: '' })
         onRowsChange([...rows, row])
     }
 
@@ -68,8 +53,8 @@ const VehiculosTable = ({
         <div className="overflow-x-auto" onKeyDown={keyboard.handleContainerKeyDown} tabIndex={0}>
             <table className={T.table} style={{ tableLayout: 'fixed' }}>
                 <thead>
-                    <tr className={`${headerBg} border-b border-blue-200 ${headerText}`}>
-                        <th className={`px-2 py-1.5 text-left ${T.th} ${headerText}`} style={{ width: '160px' }}>Marca</th>
+                    <tr className={`${headerBg} border-t border-slate-200 ${headerText}`}>
+                        <th className={`px-2 py-1.5 text-left ${T.th} ${headerText}`} style={{ width: '160px' }}>{title || 'Marca'}</th>
                         <th className={`px-2 py-1.5 text-left ${T.th} ${headerText}`} style={{ width: '140px' }}>Modelo</th>
                         <th className={`px-2 py-1.5 text-right ${T.th} ${headerText}`} style={{ width: '120px' }}>Monto $</th>
                         <th className={`px-2 py-1.5 text-center ${T.th} ${headerText}`} style={{ width: '80px' }}>Año</th>
@@ -138,49 +123,22 @@ const VehiculosTable = ({
                         )
                     })}
 
-                    {/* Add row */}
-                    <tr className="border-b border-dashed border-blue-100 bg-blue-50/20">
-                        <td className="px-4 py-2.5" style={{ width: '160px' }}>
-                            <input
-                                type="text"
-                                placeholder="Agregar vehículo..."
-                                value={newRow.marca}
-                                onChange={e => setNewRow(prev => ({ ...prev, marca: e.target.value }))}
-                                className={`w-full ${T.inputPlaceholder}`}
-                                onKeyDown={e => { if (e.key === 'Enter' && newRow.marca.trim()) addRow() }}
-                            />
-                        </td>
-                        <td className="px-2 py-2.5" style={{ width: '140px' }}>
-                            <input
-                                type="text"
-                                placeholder="Modelo"
-                                value={newRow.modelo}
-                                onChange={e => setNewRow(prev => ({ ...prev, modelo: e.target.value }))}
-                                className={`w-full ${T.inputPlaceholder}`}
-                            />
-                        </td>
-                        <EditableCell
-                            value={null}
-                            onChange={v => addRowWithValue('monto', v as number | null)}
-                            hasData={false}
-                            width="120px"
-                            type="currency"
-                        />
-                        <EditableCell
-                            value={null}
-                            onChange={v => addRowWithValue('anio', v as number | null)}
-                            hasData={false}
-                            width="80px"
-                            type="number"
-                            align="center"
-                        />
-                        <td style={{ width: '40px' }}></td>
-                    </tr>
-
                     <EmptyStateRow show={activeRows.length === 0} colSpan={5} message={emptyMessage} />
+
+                    {/* Add row */}
+                    <tr className="border-b border-dashed border-slate-100 bg-slate-50/20">
+                        <td colSpan={5} className="px-4 py-2.5 text-center">
+                            <button
+                                className="text-xs text-slate-600 hover:text-slate-700"
+                                onClick={addRow}
+                            >
+                                {addLabel}
+                            </button>
+                        </td>
+                    </tr>
                 </tbody>
                 <tfoot>
-                    <tr className={`${headerBg} font-semibold text-xs border-t border-blue-200`}>
+                    <tr className={`${headerBg} font-semibold text-xs border-b border-slate-200`}>
                         <td colSpan={2} className={`px-2 py-1.5 ${headerText} ${T.totalLabel}`}>TOTAL</td>
                         <td className={`px-2 py-1.5 text-right ${headerText} ${T.totalValue}`}>
                             {totalMonto ? formatCurrency(totalMonto) : '—'}
