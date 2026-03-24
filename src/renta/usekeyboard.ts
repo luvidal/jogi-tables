@@ -13,7 +13,7 @@ export const useKeyboard = ({ visibleRowIds, monthCount }: UseKeyboardProps) => 
 
     return {
         ...grid,
-        // Alias colIndex as monthIndex for MonthlyTable compatibility
+        // Alias colIndex as monthIndex for RentaTable compatibility
         get focusedCell() {
             if (!grid.focusedCell) return null
             return { ...grid.focusedCell, monthIndex: grid.focusedCell.colIndex }

@@ -14,7 +14,5 @@ export interface InversionesTableProps {
   formatCurrency?: (value: number | null | undefined) => string
   headerBg?: string
   headerText?: string
-  emptyMessage?: string
-  addLabel?: string
   title?: React.ReactNode
 }

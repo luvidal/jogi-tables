@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react'
 import { Eye } from 'lucide-react'
 import EditableCell from '../common/editablecell'
 import DeleteRowButton from '../common/deletebutton'
-import EmptyStateRow from '../common/emptystaterow'
 import { T } from '../common/styles'
 import { useRowHover } from '../common/userowhover'
 import { useGridKeyboard } from '../common/usegridkeyboard'
@@ -40,6 +39,7 @@ const BienesRaicesTable = ({
     title,
 }: BienesRaicesTableProps) => {
     const { getHoverProps, isHovered: isRowHovered } = useRowHover()
+    const [newRow, setNewRow] = useState({ direccion: '', comuna: '' })
     const [currency, setCurrency] = useState<'uf' | 'clp'>('uf')
     const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange)
     const visibleRowIds = useMemo(() => activeRows.map(r => r.id), [activeRows])
@@ -77,11 +77,11 @@ const BienesRaicesTable = ({
         }))
     }
 
-    const addRow = () => {
+    const addRow = (overrides?: Partial<BienRaizRow>) => {
         const row: BienRaizRow = {
             id: `br_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-            direccion: '',
-            comuna: '',
+            direccion: newRow.direccion.trim(),
+            comuna: newRow.comuna.trim(),
             valor_uf: null,
             valor_pesos: null,
             arriendo_real: null,
@@ -93,7 +93,9 @@ const BienesRaicesTable = ({
             monto_cuota: null,
             cuotas_pagadas: null,
             cuotas_total: null,
+            ...overrides,
         }
+        setNewRow({ direccion: '', comuna: '' })
         onRowsChange([...rows, row])
     }
 
@@ -344,18 +346,36 @@ const BienesRaicesTable = ({
                         )
                     })}
 
-                    <EmptyStateRow show={activeRows.length === 0} colSpan={totalCols} message="Sin bienes raíces registrados" />
-
                     {/* Add row */}
                     <tr className="border-b border-dashed border-amber-100 bg-amber-50/20">
-                        <td colSpan={totalCols} className="px-4 py-2.5 text-center">
-                            <button
-                                className="text-xs text-amber-600 hover:text-amber-700"
-                                onClick={addRow}
-                            >
-                                + Agregar propiedad
-                            </button>
+                        <td className={`px-2 py-2.5 ${T.cellLabel}`} style={{ width: '140px' }}>
+                            <input
+                                type="text"
+                                placeholder="Agregar propiedad..."
+                                value={newRow.direccion}
+                                onChange={e => setNewRow(prev => ({ ...prev, direccion: e.target.value }))}
+                                className={`w-full ${T.inputPlaceholder}`}
+                                onKeyDown={e => { if (e.key === 'Enter' && newRow.direccion.trim()) addRow() }}
+                            />
                         </td>
+                        <td className="px-2 py-2.5" style={{ width: '100px' }}>
+                            <input
+                                type="text"
+                                placeholder="Comuna"
+                                value={newRow.comuna}
+                                onChange={e => setNewRow(prev => ({ ...prev, comuna: e.target.value }))}
+                                className={`w-full ${T.inputPlaceholder}`}
+                            />
+                        </td>
+                        <td style={{ width: '100px' }}></td>
+                        <td style={{ width: '100px' }}></td>
+                        <td style={{ width: '100px' }}></td>
+                        <td style={{ width: '120px' }}></td>
+                        <td style={{ width: '90px' }}></td>
+                        <td style={{ width: '100px' }}></td>
+                        <td style={{ width: '100px' }}></td>
+                        <td style={{ width: '80px' }}></td>
+                        <td style={{ width: '40px' }}></td>
                     </tr>
                 </tbody>
                 <tfoot>

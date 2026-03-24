@@ -30,7 +30,7 @@ export type DebtEntry = {
     sourceFileId?: string     // Source file for traceability
 } & SoftDeletable
 
-export interface DebtsTableProps {
+export interface DeudasTableProps {
     // Header
     title: string                    // "Deudas Financieras"
 
@@ -67,7 +67,7 @@ export interface DebtsTableProps {
 // Component
 // ============================================================================
 
-const DebtsTable = ({
+const DeudasTable = ({
     title,
     entries,
     onEntriesChange,
@@ -80,7 +80,7 @@ const DebtsTable = ({
     formatCurrency = defaultFormatCurrency,
     sourceFileIds,
     onViewSource,
-}: DebtsTableProps) => {
+}: DeudasTableProps) => {
     const { getHoverProps, isHovered: isRowHovered } = useRowHover()
     const [newEntry, setNewEntry] = useState({ entidad: '', tipo: '' })
     const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(entries, onEntriesChange)
@@ -355,4 +355,4 @@ const DebtsTable = ({
     )
 }
 
-export default DebtsTable
+export default DeudasTable

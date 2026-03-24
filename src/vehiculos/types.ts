@@ -14,7 +14,5 @@ export interface VehiculosTableProps {
   formatCurrency?: (value: number | null | undefined) => string
   headerBg?: string
   headerText?: string
-  emptyMessage?: string
-  addLabel?: string
   title?: React.ReactNode
 }

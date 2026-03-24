@@ -1,7 +1,6 @@
-import React, { useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import EditableCell from '../common/editablecell'
 import DeleteRowButton from '../common/deletebutton'
-import EmptyStateRow from '../common/emptystaterow'
 import { T } from '../common/styles'
 import { useFieldUpdate } from '../common/usefieldupdate'
 import { useRowHover } from '../common/userowhover'
@@ -18,24 +17,25 @@ const InversionesTable = ({
     formatCurrency = defaultFormatCurrency,
     headerBg = 'bg-emerald-50',
     headerText = 'text-emerald-700',
-    emptyMessage = 'Sin inversiones registradas',
-    addLabel = '+ Agregar inversión',
     title,
 }: InversionesTableProps) => {
     const { getHoverProps, isHovered } = useRowHover()
     const { updateField } = useFieldUpdate(rows, onRowsChange)
+    const [newRow, setNewRow] = useState({ institucion: '', tipo: '' })
     const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange)
     const visibleRowIds = useMemo(() => activeRows.map(r => r.id), [activeRows])
     const keyboard = useGridKeyboard({ visibleRowIds, colCount: 1 })
 
-    const addRow = () => {
+    const addRow = (overrides?: Partial<InversionRow>) => {
         const row: InversionRow = {
             id: `inv_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-            institucion: '',
-            tipo: '',
+            institucion: newRow.institucion.trim(),
+            tipo: newRow.tipo.trim(),
             monto: null,
             fecha: '',
+            ...overrides,
         }
+        setNewRow({ institucion: '', tipo: '' })
         onRowsChange([...rows, row])
     }
 
@@ -110,18 +110,38 @@ const InversionesTable = ({
                         )
                     })}
 
-                    <EmptyStateRow show={activeRows.length === 0} colSpan={5} message={emptyMessage} />
-
                     {/* Add row */}
                     <tr className="border-b border-dashed border-emerald-100 bg-emerald-50/20">
-                        <td colSpan={5} className="px-4 py-2.5 text-center">
-                            <button
-                                className="text-xs text-emerald-600 hover:text-emerald-700"
-                                onClick={addRow}
-                            >
-                                {addLabel}
-                            </button>
+                        <td className="px-2 py-2.5" style={{ width: '160px' }}>
+                            <input
+                                type="text"
+                                placeholder="Agregar inversión..."
+                                value={newRow.institucion}
+                                onChange={e => setNewRow(prev => ({ ...prev, institucion: e.target.value }))}
+                                className={`w-full ${T.inputPlaceholder}`}
+                                onKeyDown={e => { if (e.key === 'Enter' && newRow.institucion.trim()) addRow() }}
+                            />
                         </td>
+                        <td className="px-2 py-2.5" style={{ width: '140px' }}>
+                            <input
+                                type="text"
+                                placeholder="Tipo"
+                                value={newRow.tipo}
+                                onChange={e => setNewRow(prev => ({ ...prev, tipo: e.target.value }))}
+                                className={`w-full ${T.inputPlaceholder}`}
+                            />
+                        </td>
+                        <EditableCell
+                            value={null}
+                            onChange={v => addRow({ monto: v as number | null })}
+                            type="currency"
+                            hasData={false}
+                            width="120px"
+                        />
+                        <td className="px-2 py-2.5" style={{ width: '100px' }}>
+                            <span className={T.empty}>—</span>
+                        </td>
+                        <td style={{ width: '40px' }}></td>
                     </tr>
                 </tbody>
                 <tfoot>

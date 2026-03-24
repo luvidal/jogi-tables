@@ -28,7 +28,7 @@ export type Month = {
     sourceFileId?: string  // For traceability per month
 }
 
-export interface MonthlyTableProps {
+export interface RentaTableProps {
     // Header
     title: string                    // "Renta Líquida Titular", "Deudas Mensuales"
 

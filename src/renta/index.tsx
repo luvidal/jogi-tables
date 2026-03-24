@@ -27,13 +27,13 @@ import { HeaderSelectionBar, ContextMenu } from './floatingaction'
 import { useKeyboard } from './usekeyboard'
 import { useDragReorder } from './usedragreorder'
 
-import type { RowData, MonthlyTableProps } from './types'
+import type { RowData, RentaTableProps } from './types'
 
 // ============================================================================
 // Component
 // ============================================================================
 
-const MonthlyTable = ({
+const RentaTable = ({
     title,
     months = 3,
     rows,
@@ -49,7 +49,7 @@ const MonthlyTable = ({
     showVariableColumn = false,
     sourceFileIds,
     onViewSource,
-}: MonthlyTableProps) => {
+}: RentaTableProps) => {
     const [hoveredRow, setHoveredRow] = useState<string | null>(null)
     const [newRowLabels, setNewRowLabels] = useState<Record<string, string>>({})
     const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
@@ -535,4 +535,4 @@ const MonthlyTable = ({
     )
 }
 
-export default MonthlyTable
+export default RentaTable

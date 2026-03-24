@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react'
 import { Eye } from 'lucide-react'
 import EditableCell from '../common/editablecell'
 import DeleteRowButton from '../common/deletebutton'
-import EmptyStateRow from '../common/emptystaterow'
 import { T } from '../common/styles'
 import { useRowHover } from '../common/userowhover'
 import { useGridKeyboard } from '../common/usegridkeyboard'
@@ -243,8 +242,6 @@ const DeudasConsumoTable = ({
                         <td style={{ width: '90px' }}></td>
                         <td style={{ width: '40px' }}></td>
                     </tr>
-
-                    <EmptyStateRow show={activeRows.length === 0} colSpan={7} message="Sin deudas de consumo registradas" />
                 </tbody>
                 <tfoot>
                     <tr className={`${headerBg} font-semibold text-xs border-b border-rose-200`}>

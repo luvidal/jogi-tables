@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { ChevronUp, ChevronDown } from 'lucide-react'
-import EmptyStateRow from '../common/emptystaterow'
 import ViewSourceButton from '../common/viewsourcebutton'
 import { displayCurrencyCompact } from '../common/utils'
 import { T } from '../common/styles'
@@ -183,8 +182,6 @@ const TributarioTable = ({
                                 <td style={{ width: '40px' }}></td>
                             </tr>
                         ))}
-                        {/* Empty state */}
-                        <EmptyStateRow show={entries.length === 0} colSpan={5} message="Sin información tributaria" />
                     </tbody>
                 </table>
         </TableShell>

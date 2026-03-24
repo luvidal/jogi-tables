@@ -1,7 +1,6 @@
-import React, { useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import EditableCell from '../common/editablecell'
 import DeleteRowButton from '../common/deletebutton'
-import EmptyStateRow from '../common/emptystaterow'
 import { T } from '../common/styles'
 import { useFieldUpdate } from '../common/usefieldupdate'
 import { useRowHover } from '../common/userowhover'
@@ -12,38 +11,31 @@ import DeleteDialog from '../common/deletedialog'
 import RecycleBin from '../common/recyclebin'
 import type { VehiculoRow, VehiculosTableProps } from './types'
 
-const emptyRow = (): VehiculoRow => ({
-    id: `vh_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-    marca: '',
-    modelo: '',
-    monto: null,
-    anio: null,
-})
-
 const VehiculosTable = ({
     rows,
     onRowsChange,
     formatCurrency = defaultFormatCurrency,
     headerBg = 'bg-slate-50',
     headerText = 'text-slate-700',
-    emptyMessage = 'Sin vehículos registrados',
-    addLabel = '+ Agregar vehículo',
     title,
 }: VehiculosTableProps) => {
     const { getHoverProps, isHovered } = useRowHover()
     const { updateField } = useFieldUpdate(rows, onRowsChange)
+    const [newRow, setNewRow] = useState({ marca: '', modelo: '' })
     const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange)
     const visibleRowIds = useMemo(() => activeRows.map(r => r.id), [activeRows])
     const keyboard = useGridKeyboard({ visibleRowIds, colCount: 2 })
 
-    const addRow = () => {
+    const addRow = (overrides?: Partial<VehiculoRow>) => {
         const row: VehiculoRow = {
             id: `vh_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-            marca: '',
-            modelo: '',
+            marca: newRow.marca.trim(),
+            modelo: newRow.modelo.trim(),
             monto: null,
             anio: null,
+            ...overrides,
         }
+        setNewRow({ marca: '', modelo: '' })
         onRowsChange([...rows, row])
     }
 
@@ -123,18 +115,43 @@ const VehiculosTable = ({
                         )
                     })}
 
-                    <EmptyStateRow show={activeRows.length === 0} colSpan={5} message={emptyMessage} />
-
                     {/* Add row */}
                     <tr className="border-b border-dashed border-slate-100 bg-slate-50/20">
-                        <td colSpan={5} className="px-4 py-2.5 text-center">
-                            <button
-                                className="text-xs text-slate-600 hover:text-slate-700"
-                                onClick={addRow}
-                            >
-                                {addLabel}
-                            </button>
+                        <td className="px-2 py-2.5" style={{ width: '160px' }}>
+                            <input
+                                type="text"
+                                placeholder="Agregar vehículo..."
+                                value={newRow.marca}
+                                onChange={e => setNewRow(prev => ({ ...prev, marca: e.target.value }))}
+                                className={`w-full ${T.inputPlaceholder}`}
+                                onKeyDown={e => { if (e.key === 'Enter' && newRow.marca.trim()) addRow() }}
+                            />
                         </td>
+                        <td className="px-2 py-2.5" style={{ width: '140px' }}>
+                            <input
+                                type="text"
+                                placeholder="Modelo"
+                                value={newRow.modelo}
+                                onChange={e => setNewRow(prev => ({ ...prev, modelo: e.target.value }))}
+                                className={`w-full ${T.inputPlaceholder}`}
+                            />
+                        </td>
+                        <EditableCell
+                            value={null}
+                            onChange={v => addRow({ monto: v as number | null })}
+                            type="currency"
+                            hasData={false}
+                            width="120px"
+                        />
+                        <EditableCell
+                            value={null}
+                            onChange={v => addRow({ anio: v as number | null })}
+                            type="number"
+                            hasData={false}
+                            width="80px"
+                            align="center"
+                        />
+                        <td style={{ width: '40px' }}></td>
                     </tr>
                 </tbody>
                 <tfoot>
