@@ -3093,7 +3093,7 @@ var CurrencyToggle = ({ value, onChange, headerText }) => /* @__PURE__ */ jsxs("
     }
   )
 ] });
-var BienesRaicesTable = ({
+var PropiedadesTable = ({
   rows,
   onRowsChange,
   formatCurrency: formatCurrency4 = defaultFormatCurrency,
@@ -3511,7 +3511,7 @@ var BienesRaicesTable = ({
     deleteTargetId && /* @__PURE__ */ jsx(deletedialog_default, { count: 1, onConfirm: confirmDelete, onCancel: cancelDelete })
   ] });
 };
-var bienesraices_default = BienesRaicesTable;
+var propiedades_default = PropiedadesTable;
 var defaultColorScheme = {
   totalBg: "bg-cyan-50",
   totalBorder: "border-cyan-200",
@@ -3543,6 +3543,6 @@ var ActivosSummary = ({
 };
 var activossummary_default = ActivosSummary;
 
-export { activossummary_default as ActivosSummary, bienesraices_default as BienesRaicesTable, boletas_default as BoletasTable, deletedialog_default as DeleteDialog, deudasconsumo_default as DeudasConsumoTable, deudas_default as DeudasTable, finalresults_default as FinalResultsCompact, inversiones_default as InversionesTable, recyclebin_default2 as RecycleBin, SourceIcon, tableshell_default as TableShell, tributario_default as TributarioTable, vehiculos_default as VehiculosTable, applyAutoCompute, applyAutoConversions, renta_default as default, defaultFormatCurrency, displayCurrency, displayCurrencyCompact, generateLastNMonths, useSoftDelete };
+export { activossummary_default as ActivosSummary, boletas_default as BoletasTable, deletedialog_default as DeleteDialog, deudasconsumo_default as DeudasConsumoTable, deudas_default as DeudasTable, finalresults_default as FinalResultsCompact, inversiones_default as InversionesTable, propiedades_default as PropiedadesTable, recyclebin_default2 as RecycleBin, SourceIcon, tableshell_default as TableShell, tributario_default as TributarioTable, vehiculos_default as VehiculosTable, applyAutoCompute, applyAutoConversions, renta_default as default, defaultFormatCurrency, displayCurrency, displayCurrencyCompact, generateLastNMonths, useSoftDelete };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

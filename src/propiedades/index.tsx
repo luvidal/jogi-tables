@@ -11,7 +11,7 @@ import { defaultFormatCurrency } from '../common/utils'
 import { useSoftDelete } from '../common/usesoftdelete'
 import DeleteDialog from '../common/deletedialog'
 import RecycleBin from '../common/recyclebin'
-import type { BienRaizRow, BienesRaicesTableProps, HipotecarioOption } from './types'
+import type { PropiedadRow, PropiedadesTableProps, HipotecarioOption } from './types'
 
 const CurrencyToggle = ({ value, onChange, headerText }: { value: 'uf' | 'clp', onChange: (v: 'uf' | 'clp') => void, headerText: string }) => (
     <span className="inline-flex rounded-md overflow-hidden border border-amber-200 ml-2 text-[10px] leading-none align-middle">
@@ -26,7 +26,7 @@ const CurrencyToggle = ({ value, onChange, headerText }: { value: 'uf' | 'clp', 
     </span>
 )
 
-const BienesRaicesTable = ({
+const PropiedadesTable = ({
     rows,
     onRowsChange,
     formatCurrency = defaultFormatCurrency,
@@ -38,7 +38,7 @@ const BienesRaicesTable = ({
     onViewSource,
     title,
     hipotecarioOptions,
-}: BienesRaicesTableProps) => {
+}: PropiedadesTableProps) => {
     const { getHoverProps, isHovered: isRowHovered } = useRowHover()
     const [newRow, setNewRow] = useState({ direccion: '', comuna: '' })
     const [currency, setCurrency] = useState<'uf' | 'clp'>('uf')
@@ -69,7 +69,7 @@ const BienesRaicesTable = ({
         },
     ] : []
 
-    const updateField = (id: string, field: keyof BienRaizRow, value: string | number | null) => {
+    const updateField = (id: string, field: keyof PropiedadRow, value: string | number | null) => {
         onRowsChange(rows.map(r => {
             if (r.id !== id) return r
             let next = applyAutoConversions(r, field, value, conversionRules, {})
@@ -78,8 +78,8 @@ const BienesRaicesTable = ({
         }))
     }
 
-    const addRow = (overrides?: Partial<BienRaizRow>) => {
-        const row: BienRaizRow = {
+    const addRow = (overrides?: Partial<PropiedadRow>) => {
+        const row: PropiedadRow = {
             id: `br_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
             direccion: newRow.direccion.trim(),
             comuna: newRow.comuna.trim(),
@@ -134,7 +134,7 @@ const BienesRaicesTable = ({
         }))
     }
 
-    const isAutoComputed = (row: BienRaizRow, field: string): boolean => {
+    const isAutoComputed = (row: PropiedadRow, field: string): boolean => {
         if (!ufValue) return false
         if (field === 'valor_pesos' && row.valor_uf != null) return true
         if (field === 'saldo_deuda_pesos' && row.saldo_deuda_uf != null) return true
@@ -460,4 +460,4 @@ const BienesRaicesTable = ({
     )
 }
 
-export default BienesRaicesTable
+export default PropiedadesTable

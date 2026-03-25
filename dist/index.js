@@ -3101,7 +3101,7 @@ var CurrencyToggle = ({ value, onChange, headerText }) => /* @__PURE__ */ jsxRun
     }
   )
 ] });
-var BienesRaicesTable = ({
+var PropiedadesTable = ({
   rows,
   onRowsChange,
   formatCurrency: formatCurrency4 = defaultFormatCurrency,
@@ -3519,7 +3519,7 @@ var BienesRaicesTable = ({
     deleteTargetId && /* @__PURE__ */ jsxRuntime.jsx(deletedialog_default, { count: 1, onConfirm: confirmDelete, onCancel: cancelDelete })
   ] });
 };
-var bienesraices_default = BienesRaicesTable;
+var propiedades_default = PropiedadesTable;
 var defaultColorScheme = {
   totalBg: "bg-cyan-50",
   totalBorder: "border-cyan-200",
@@ -3552,13 +3552,13 @@ var ActivosSummary = ({
 var activossummary_default = ActivosSummary;
 
 exports.ActivosSummary = activossummary_default;
-exports.BienesRaicesTable = bienesraices_default;
 exports.BoletasTable = boletas_default;
 exports.DeleteDialog = deletedialog_default;
 exports.DeudasConsumoTable = deudasconsumo_default;
 exports.DeudasTable = deudas_default;
 exports.FinalResultsCompact = finalresults_default;
 exports.InversionesTable = inversiones_default;
+exports.PropiedadesTable = propiedades_default;
 exports.RecycleBin = recyclebin_default2;
 exports.SourceIcon = SourceIcon;
 exports.TableShell = tableshell_default;

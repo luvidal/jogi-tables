@@ -31,9 +31,9 @@ export type { InversionRow, InversionesTableProps } from './inversiones/types'
 export { default as DeudasConsumoTable } from './deudasconsumo'
 export type { DeudaConsumoRow, DeudasConsumoTableProps } from './deudasconsumo/types'
 
-// BienesRaicesTable
-export { default as BienesRaicesTable } from './bienesraices'
-export type { BienRaizRow, BienesRaicesTableProps, HipotecarioOption } from './bienesraices/types'
+// PropiedadesTable
+export { default as PropiedadesTable } from './propiedades'
+export type { PropiedadRow, PropiedadesTableProps, HipotecarioOption } from './propiedades/types'
 
 // ActivosSummary
 export { default as ActivosSummary } from './activossummary'

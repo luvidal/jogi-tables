@@ -1,6 +1,6 @@
 import type { SoftDeletable } from '../common/softdeletetypes'
 
-export type BienRaizRow = {
+export type PropiedadRow = {
   id: string
   direccion: string
   comuna: string
@@ -25,9 +25,9 @@ export interface HipotecarioOption {
   monto_cuota: number | null
 }
 
-export interface BienesRaicesTableProps {
-  rows: BienRaizRow[]
-  onRowsChange: (rows: BienRaizRow[]) => void
+export interface PropiedadesTableProps {
+  rows: PropiedadRow[]
+  onRowsChange: (rows: PropiedadRow[]) => void
   formatCurrency?: (value: number | null | undefined) => string
   ufValue?: number | null
   capRate?: number
