@@ -1,5 +1,5 @@
 import React4, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { Eye, ChevronUp, ChevronDown, Trash2, Undo2, GripVertical, ChevronRight, Ungroup, Check, X, TrendingUp, FoldVertical } from 'lucide-react';
+import { Eye, ChevronUp, ChevronDown, Trash2, Undo2, Info, GripVertical, ChevronRight, Ungroup, Check, X, TrendingUp, FoldVertical } from 'lucide-react';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { createPortal } from 'react-dom';
 
@@ -2981,23 +2981,43 @@ var DeudasConsumoTable = ({
                       editInitialValue: keyboard.isFocused(row.id, 1) ? keyboard.editInitialValue : void 0
                     }
                   ),
-                  /* @__PURE__ */ jsx(
-                    editablecell_default,
-                    {
-                      value: row.monto_cuota,
-                      onChange: (v) => updateField(row.id, "monto_cuota", v),
-                      type: "currency",
-                      hasData: row.monto_cuota !== null,
-                      width: "110px",
-                      className: cuotaClassName(row),
-                      focused: keyboard.isFocused(row.id, 2),
-                      onCellFocus: () => keyboard.focus(row.id, 2),
-                      onNavigate: keyboard.navigate,
-                      requestEdit: keyboard.isFocused(row.id, 2) ? keyboard.editTrigger : 0,
-                      requestClear: keyboard.isFocused(row.id, 2) ? keyboard.clearTrigger : 0,
-                      editInitialValue: keyboard.isFocused(row.id, 2) ? keyboard.editInitialValue : void 0
-                    }
-                  ),
+                  /* @__PURE__ */ jsxs("td", { className: "relative", style: { width: "110px" }, children: [
+                    /* @__PURE__ */ jsx(
+                      editablecell_default,
+                      {
+                        value: row.monto_cuota,
+                        onChange: (v) => updateField(row.id, "monto_cuota", v),
+                        type: "currency",
+                        hasData: row.monto_cuota !== null,
+                        width: "110px",
+                        className: cuotaClassName(row),
+                        focused: keyboard.isFocused(row.id, 2),
+                        onCellFocus: () => keyboard.focus(row.id, 2),
+                        onNavigate: keyboard.navigate,
+                        requestEdit: keyboard.isFocused(row.id, 2) ? keyboard.editTrigger : 0,
+                        requestClear: keyboard.isFocused(row.id, 2) ? keyboard.clearTrigger : 0,
+                        editInitialValue: keyboard.isFocused(row.id, 2) ? keyboard.editInitialValue : void 0,
+                        asDiv: true
+                      }
+                    ),
+                    isHovered && row.cuota_estimated && row.saldo_deuda_pesos != null && /* @__PURE__ */ jsx(
+                      "button",
+                      {
+                        className: "absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] p-0.5 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100",
+                        title: `Estimado: 5% de ${formatCurrency4(row.saldo_deuda_pesos)}`,
+                        children: /* @__PURE__ */ jsx(Info, { size: 13 })
+                      }
+                    ),
+                    isHovered && row.cuota_source_file_id && onViewSource && /* @__PURE__ */ jsx(
+                      "button",
+                      {
+                        onClick: () => onViewSource([row.cuota_source_file_id]),
+                        className: "absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] p-0.5 rounded text-rose-400 hover:text-rose-600 hover:bg-rose-100",
+                        title: "Ver documento fuente",
+                        children: /* @__PURE__ */ jsx(Eye, { size: 13 })
+                      }
+                    )
+                  ] }),
                   /* @__PURE__ */ jsx("td", { className: "text-center text-xs text-gray-500", style: { width: "90px" }, children: /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-center gap-0.5", children: [
                     /* @__PURE__ */ jsx(
                       editablecell_default,

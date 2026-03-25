@@ -8,6 +8,7 @@ export type DeudaConsumoRow = {
   saldo_deuda_pesos: number | null
   monto_cuota: number | null
   cuota_estimated?: boolean
+  cuota_source_file_id?: string
   cuotas_pagadas: number | null
   cuotas_total: number | null
   sourceFileId?: string

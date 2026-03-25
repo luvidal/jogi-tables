@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react'
-import { Eye } from 'lucide-react'
+import { Eye, Info } from 'lucide-react'
 import EditableCell from '../common/editablecell'
 import DeleteRowButton from '../common/deletebutton'
 import { T } from '../common/styles'
@@ -176,20 +176,40 @@ const DeudasConsumoTable = ({
                                     requestClear={keyboard.isFocused(row.id, 1) ? keyboard.clearTrigger : 0}
                                     editInitialValue={keyboard.isFocused(row.id, 1) ? keyboard.editInitialValue : undefined}
                                 />
-                                <EditableCell
-                                    value={row.monto_cuota}
-                                    onChange={v => updateField(row.id, 'monto_cuota', v as number | null)}
-                                    type="currency"
-                                    hasData={row.monto_cuota !== null}
-                                    width="110px"
-                                    className={cuotaClassName(row)}
-                                    focused={keyboard.isFocused(row.id, 2)}
-                                    onCellFocus={() => keyboard.focus(row.id, 2)}
-                                    onNavigate={keyboard.navigate}
-                                    requestEdit={keyboard.isFocused(row.id, 2) ? keyboard.editTrigger : 0}
-                                    requestClear={keyboard.isFocused(row.id, 2) ? keyboard.clearTrigger : 0}
-                                    editInitialValue={keyboard.isFocused(row.id, 2) ? keyboard.editInitialValue : undefined}
-                                />
+                                <td className="relative" style={{ width: '110px' }}>
+                                    <EditableCell
+                                        value={row.monto_cuota}
+                                        onChange={v => updateField(row.id, 'monto_cuota', v as number | null)}
+                                        type="currency"
+                                        hasData={row.monto_cuota !== null}
+                                        width="110px"
+                                        className={cuotaClassName(row)}
+                                        focused={keyboard.isFocused(row.id, 2)}
+                                        onCellFocus={() => keyboard.focus(row.id, 2)}
+                                        onNavigate={keyboard.navigate}
+                                        requestEdit={keyboard.isFocused(row.id, 2) ? keyboard.editTrigger : 0}
+                                        requestClear={keyboard.isFocused(row.id, 2) ? keyboard.clearTrigger : 0}
+                                        editInitialValue={keyboard.isFocused(row.id, 2) ? keyboard.editInitialValue : undefined}
+                                        asDiv
+                                    />
+                                    {isHovered && row.cuota_estimated && row.saldo_deuda_pesos != null && (
+                                        <button
+                                            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] p-0.5 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                                            title={`Estimado: 5% de ${formatCurrency(row.saldo_deuda_pesos)}`}
+                                        >
+                                            <Info size={13} />
+                                        </button>
+                                    )}
+                                    {isHovered && row.cuota_source_file_id && onViewSource && (
+                                        <button
+                                            onClick={() => onViewSource([row.cuota_source_file_id!])}
+                                            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] p-0.5 rounded text-rose-400 hover:text-rose-600 hover:bg-rose-100"
+                                            title="Ver documento fuente"
+                                        >
+                                            <Eye size={13} />
+                                        </button>
+                                    )}
+                                </td>
                                 <td className="text-center text-xs text-gray-500" style={{ width: '90px' }}>
                                     <div className="flex items-center justify-center gap-0.5">
                                         <EditableCell
