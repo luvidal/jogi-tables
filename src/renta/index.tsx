@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react'
-import { ChevronUp, ChevronDown } from 'lucide-react'
+import { ChevronUp, ChevronDown, Info } from 'lucide-react'
 import { T } from '../common/styles'
 import TableShell, { SourceIcon } from '../common/tableshell'
 import {
@@ -27,7 +27,71 @@ import { HeaderSelectionBar, ContextMenu } from './floatingaction'
 import { useKeyboard } from './usekeyboard'
 import { useDragReorder } from './usedragreorder'
 
-import type { RowData, RentaTableProps } from './types'
+import type { RowData, RentaTableProps, ReliquidacionBreakdown } from './types'
+
+// ============================================================================
+// Reliquidación info tooltip
+// ============================================================================
+
+const fmtK = (v: number) => {
+    const sign = v < 0 ? '-' : ''
+    const abs = Math.abs(v)
+    if (abs >= 1_000_000) return `${sign}$${(abs / 1_000_000).toFixed(1)}M`
+    if (abs >= 1_000) return `${sign}$${Math.round(abs / 1000)}k`
+    return `${sign}$${abs}`
+}
+
+const ReliqInfoTooltip = ({ data, type }: { data: ReliquidacionBreakdown; type: 'fija' | 'variable' }) => {
+    const lines = type === 'fija'
+        ? [
+            { label: 'Imponible fijo', value: data.imponibleFijo, sign: '+' as const },
+            { label: 'No imponible fijo', value: data.noImponibleFijo, sign: '+' as const },
+            { label: 'Cotiz. previsional', value: data.cotizPreviFija, sign: '-' as const },
+            { label: 'Cotiz. salud', value: data.cotizSaludFija, sign: '-' as const },
+            { label: 'Cotiz. cesantía', value: data.cotizCesantiaFija, sign: '-' as const },
+            { label: 'Impuesto (IUSC)', value: data.impuestoFijo, sign: '-' as const },
+            { label: 'Otros desc. fijos', value: data.descuentosOtrosFijos, sign: '-' as const },
+        ]
+        : [
+            { label: 'Líquido total', value: data.liquidoTotal, sign: '+' as const },
+            { label: 'Renta fija', value: data.rentaFija, sign: '-' as const },
+        ]
+
+    const result = type === 'fija' ? data.rentaFija : data.rentaVariable
+    const isFija = type === 'fija'
+
+    return (
+        <div className="hidden group-hover/reliq:block absolute bottom-full left-0 mb-2 z-50">
+            <div className="bg-white text-gray-700 text-[11px] rounded-lg shadow-lg border border-gray-200 px-3 py-2.5 whitespace-nowrap">
+                <table className="border-spacing-0 w-full">
+                    <tbody>
+                        <tr>
+                            <td colSpan={2} className={`pb-1.5 font-semibold text-[11px] text-left ${isFija ? 'text-sky-600' : 'text-amber-600'}`}>
+                                {isFija ? 'Cálculo Renta Fija' : 'Cálculo Renta Variable'}
+                            </td>
+                        </tr>
+                        {lines.filter(l => l.value !== 0).map((l, i) => (
+                            <tr key={i}>
+                                <td className="pr-4 py-0.5 text-gray-500 text-left">{l.label}</td>
+                                <td className="text-right py-0.5 tabular-nums text-gray-600">
+                                    {l.sign === '-' ? '−' : '+'}{fmtK(l.value)}
+                                </td>
+                            </tr>
+                        ))}
+                        <tr className={`border-t ${isFija ? 'border-sky-200' : 'border-amber-200'}`}>
+                            <td className={`pr-4 pt-1.5 font-semibold text-left ${isFija ? 'text-sky-700' : 'text-amber-700'}`}>
+                                {isFija ? 'Renta Fija' : 'Renta Variable'}
+                            </td>
+                            <td className={`text-right pt-1.5 font-semibold tabular-nums ${isFija ? 'text-sky-700' : 'text-amber-700'}`}>
+                                {fmtK(result)}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    )
+}
 
 // ============================================================================
 // Component
@@ -50,6 +114,7 @@ const RentaTable = ({
     showClassificationColumns = false,
     sourceFileIds,
     onViewSource,
+    reliquidacion,
 }: RentaTableProps) => {
     const [hoveredRow, setHoveredRow] = useState<string | null>(null)
     const [newRowLabels, setNewRowLabels] = useState<Record<string, string>>({})
@@ -499,13 +564,20 @@ const RentaTable = ({
                                         <td className="pl-4 pr-2 py-2" style={{ width: (showClassificationColumns || showVariableColumn) ? '140px' : '180px' }}>
                                             <span className={`${T.totalLabel} text-amber-700`}>Renta Variable</span>
                                         </td>
-                                        {showClassificationColumns && <><td style={{ width: '44px' }} /><td style={{ width: '36px' }} className="text-center"><span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400" /></td></>}
-                                        {showVariableColumn && !showClassificationColumns && <td style={{ width: '28px' }} className="text-center"><span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400" /></td>}
+                                        {showClassificationColumns && <><td style={{ width: '44px' }} /><td style={{ width: '36px' }} /></>}
+                                        {showVariableColumn && !showClassificationColumns && <td style={{ width: '28px' }} />}
                                         {monthsArray.map(p => {
                                             const value = rentaVariable[p.id] ?? 0
                                             const hasValue = value !== 0
+                                            const rliq = reliquidacion?.[p.id]
                                             return (
-                                                <td key={p.id} className="px-2 py-2 text-right" style={{ width: '110px' }}>
+                                                <td key={p.id} className="py-2 pr-2 text-right relative" style={{ width: '110px' }}>
+                                                    {rliq && hasValue && (
+                                                        <span className="group/reliq absolute cursor-help" style={{ top: '9px', left: '30px' }}>
+                                                            <Info size={12} className="text-amber-400 hover:text-amber-500" />
+                                                            <ReliqInfoTooltip data={rliq} type="variable" />
+                                                        </span>
+                                                    )}
                                                     <span className={`${T.totalValue} tabular-nums ${hasValue ? 'text-amber-700' : 'text-gray-300'}`}>
                                                         {hasValue ? fmtSigned(value) : '—'}
                                                     </span>
@@ -519,15 +591,22 @@ const RentaTable = ({
                                         <td className="pl-4 pr-2 py-2" style={{ width: (showClassificationColumns || showVariableColumn) ? '140px' : '180px' }}>
                                             <span className={`${T.totalLabel} text-sky-700`}>Renta Fija</span>
                                         </td>
-                                        {showClassificationColumns && <><td style={{ width: '44px' }} /><td style={{ width: '36px' }} className="text-center"><span className="inline-block w-1.5 h-1.5 rounded-full bg-sky-400" /></td></>}
-                                        {showVariableColumn && !showClassificationColumns && <td style={{ width: '28px' }} className="text-center"><span className="inline-block w-1.5 h-1.5 rounded-full bg-sky-400" /></td>}
+                                        {showClassificationColumns && <><td style={{ width: '44px' }} /><td style={{ width: '36px' }} /></>}
+                                        {showVariableColumn && !showClassificationColumns && <td style={{ width: '28px' }} />}
                                         {monthsArray.map(p => {
                                             const liquida = calculateTotal(p.id, rows)
                                             const variable = rentaVariable[p.id] ?? 0
                                             const fija = liquida - variable
                                             const hasValue = fija !== 0
+                                            const rliq = reliquidacion?.[p.id]
                                             return (
-                                                <td key={p.id} className="px-2 py-2 text-right" style={{ width: '110px' }}>
+                                                <td key={p.id} className="py-2 pr-2 text-right relative" style={{ width: '110px' }}>
+                                                    {rliq && hasValue && (
+                                                        <span className="group/reliq absolute cursor-help" style={{ top: '9px', left: '30px' }}>
+                                                            <Info size={12} className="text-sky-400 hover:text-sky-500" />
+                                                            <ReliqInfoTooltip data={rliq} type="fija" />
+                                                        </span>
+                                                    )}
                                                     <span className={`${T.totalValue} tabular-nums ${hasValue ? 'text-blue-700' : 'text-gray-300'}`}>
                                                         {hasValue ? fmtSigned(fija) : '—'}
                                                     </span>

@@ -72,6 +72,25 @@ export interface RentaTableProps {
     // Source file viewing
     sourceFileIds?: string[]  // Source files for the whole table (shown in header)
     onViewSource?: (fileIds: string[]) => void
+
+    // Reliquidación breakdown per month (drives info icons on summary rows)
+    reliquidacion?: Record<string, ReliquidacionBreakdown>
+}
+
+/** Reliquidación breakdown for a single month (passed from host app) */
+export interface ReliquidacionBreakdown {
+    rentaFija: number
+    rentaVariable: number
+    imponibleFijo: number
+    imponibleVariable: number
+    noImponibleFijo: number
+    noImponibleVariable: number
+    cotizPreviFija: number
+    cotizSaludFija: number
+    cotizCesantiaFija: number
+    impuestoFijo: number
+    descuentosOtrosFijos: number
+    liquidoTotal: number
 }
 
 export type SectionDef = { type: RowType; placeholder: string }

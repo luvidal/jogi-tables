@@ -1,5 +1,5 @@
 import React4, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { Eye, ChevronUp, ChevronDown, Trash2, Undo2, GripVertical, Info, X, ChevronRight, Ungroup, Check, FoldVertical } from 'lucide-react';
+import { Eye, Info, ChevronUp, ChevronDown, Trash2, Undo2, GripVertical, X, ChevronRight, Ungroup, Check, FoldVertical } from 'lucide-react';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { createPortal } from 'react-dom';
 
@@ -1378,6 +1378,43 @@ function isSameFamily(a, b) {
   const isAdd = (t) => t === "add" || t === "income";
   return isAdd(a.type) === isAdd(b.type);
 }
+var fmtK = (v) => {
+  const sign = v < 0 ? "-" : "";
+  const abs = Math.abs(v);
+  if (abs >= 1e6) return `${sign}$${(abs / 1e6).toFixed(1)}M`;
+  if (abs >= 1e3) return `${sign}$${Math.round(abs / 1e3)}k`;
+  return `${sign}$${abs}`;
+};
+var ReliqInfoTooltip = ({ data, type }) => {
+  const lines = type === "fija" ? [
+    { label: "Imponible fijo", value: data.imponibleFijo, sign: "+" },
+    { label: "No imponible fijo", value: data.noImponibleFijo, sign: "+" },
+    { label: "Cotiz. previsional", value: data.cotizPreviFija, sign: "-" },
+    { label: "Cotiz. salud", value: data.cotizSaludFija, sign: "-" },
+    { label: "Cotiz. cesant\xEDa", value: data.cotizCesantiaFija, sign: "-" },
+    { label: "Impuesto (IUSC)", value: data.impuestoFijo, sign: "-" },
+    { label: "Otros desc. fijos", value: data.descuentosOtrosFijos, sign: "-" }
+  ] : [
+    { label: "L\xEDquido total", value: data.liquidoTotal, sign: "+" },
+    { label: "Renta fija", value: data.rentaFija, sign: "-" }
+  ];
+  const result = type === "fija" ? data.rentaFija : data.rentaVariable;
+  const isFija = type === "fija";
+  return /* @__PURE__ */ jsx("div", { className: "hidden group-hover/reliq:block absolute bottom-full left-0 mb-2 z-50", children: /* @__PURE__ */ jsx("div", { className: "bg-white text-gray-700 text-[11px] rounded-lg shadow-lg border border-gray-200 px-3 py-2.5 whitespace-nowrap", children: /* @__PURE__ */ jsx("table", { className: "border-spacing-0 w-full", children: /* @__PURE__ */ jsxs("tbody", { children: [
+    /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { colSpan: 2, className: `pb-1.5 font-semibold text-[11px] text-left ${isFija ? "text-sky-600" : "text-amber-600"}`, children: isFija ? "C\xE1lculo Renta Fija" : "C\xE1lculo Renta Variable" }) }),
+    lines.filter((l) => l.value !== 0).map((l, i) => /* @__PURE__ */ jsxs("tr", { children: [
+      /* @__PURE__ */ jsx("td", { className: "pr-4 py-0.5 text-gray-500 text-left", children: l.label }),
+      /* @__PURE__ */ jsxs("td", { className: "text-right py-0.5 tabular-nums text-gray-600", children: [
+        l.sign === "-" ? "\u2212" : "+",
+        fmtK(l.value)
+      ] })
+    ] }, i)),
+    /* @__PURE__ */ jsxs("tr", { className: `border-t ${isFija ? "border-sky-200" : "border-amber-200"}`, children: [
+      /* @__PURE__ */ jsx("td", { className: `pr-4 pt-1.5 font-semibold text-left ${isFija ? "text-sky-700" : "text-amber-700"}`, children: isFija ? "Renta Fija" : "Renta Variable" }),
+      /* @__PURE__ */ jsx("td", { className: `text-right pt-1.5 font-semibold tabular-nums ${isFija ? "text-sky-700" : "text-amber-700"}`, children: fmtK(result) })
+    ] })
+  ] }) }) }) });
+};
 var RentaTable = ({
   title,
   months = 3,
@@ -1394,7 +1431,8 @@ var RentaTable = ({
   showVariableColumn = false,
   showClassificationColumns = false,
   sourceFileIds,
-  onViewSource
+  onViewSource,
+  reliquidacion
 }) => {
   const [hoveredRow, setHoveredRow] = useState(null);
   const [newRowLabels, setNewRowLabels] = useState({});
@@ -1777,13 +1815,20 @@ var RentaTable = ({
               /* @__PURE__ */ jsx("td", { className: "pl-4 pr-2 py-2", style: { width: showClassificationColumns || showVariableColumn ? "140px" : "180px" }, children: /* @__PURE__ */ jsx("span", { className: `${T.totalLabel} text-amber-700`, children: "Renta Variable" }) }),
               showClassificationColumns && /* @__PURE__ */ jsxs(Fragment, { children: [
                 /* @__PURE__ */ jsx("td", { style: { width: "44px" } }),
-                /* @__PURE__ */ jsx("td", { style: { width: "36px" }, className: "text-center", children: /* @__PURE__ */ jsx("span", { className: "inline-block w-1.5 h-1.5 rounded-full bg-amber-400" }) })
+                /* @__PURE__ */ jsx("td", { style: { width: "36px" } })
               ] }),
-              showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsx("td", { style: { width: "28px" }, className: "text-center", children: /* @__PURE__ */ jsx("span", { className: "inline-block w-1.5 h-1.5 rounded-full bg-amber-400" }) }),
+              showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsx("td", { style: { width: "28px" } }),
               monthsArray.map((p) => {
                 const value = rentaVariable[p.id] ?? 0;
                 const hasValue = value !== 0;
-                return /* @__PURE__ */ jsx("td", { className: "px-2 py-2 text-right", style: { width: "110px" }, children: /* @__PURE__ */ jsx("span", { className: `${T.totalValue} tabular-nums ${hasValue ? "text-amber-700" : "text-gray-300"}`, children: hasValue ? fmtSigned(value) : "\u2014" }) }, p.id);
+                const rliq = reliquidacion?.[p.id];
+                return /* @__PURE__ */ jsxs("td", { className: "py-2 pr-2 text-right relative", style: { width: "110px" }, children: [
+                  rliq && hasValue && /* @__PURE__ */ jsxs("span", { className: "group/reliq absolute cursor-help", style: { top: "9px", left: "30px" }, children: [
+                    /* @__PURE__ */ jsx(Info, { size: 12, className: "text-amber-400 hover:text-amber-500" }),
+                    /* @__PURE__ */ jsx(ReliqInfoTooltip, { data: rliq, type: "variable" })
+                  ] }),
+                  /* @__PURE__ */ jsx("span", { className: `${T.totalValue} tabular-nums ${hasValue ? "text-amber-700" : "text-gray-300"}`, children: hasValue ? fmtSigned(value) : "\u2014" })
+                ] }, p.id);
               }),
               /* @__PURE__ */ jsx("td", { style: { width: "40px" } })
             ] }),
@@ -1791,15 +1836,22 @@ var RentaTable = ({
               /* @__PURE__ */ jsx("td", { className: "pl-4 pr-2 py-2", style: { width: showClassificationColumns || showVariableColumn ? "140px" : "180px" }, children: /* @__PURE__ */ jsx("span", { className: `${T.totalLabel} text-sky-700`, children: "Renta Fija" }) }),
               showClassificationColumns && /* @__PURE__ */ jsxs(Fragment, { children: [
                 /* @__PURE__ */ jsx("td", { style: { width: "44px" } }),
-                /* @__PURE__ */ jsx("td", { style: { width: "36px" }, className: "text-center", children: /* @__PURE__ */ jsx("span", { className: "inline-block w-1.5 h-1.5 rounded-full bg-sky-400" }) })
+                /* @__PURE__ */ jsx("td", { style: { width: "36px" } })
               ] }),
-              showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsx("td", { style: { width: "28px" }, className: "text-center", children: /* @__PURE__ */ jsx("span", { className: "inline-block w-1.5 h-1.5 rounded-full bg-sky-400" }) }),
+              showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsx("td", { style: { width: "28px" } }),
               monthsArray.map((p) => {
                 const liquida = calculateTotal(p.id, rows);
                 const variable = rentaVariable[p.id] ?? 0;
                 const fija = liquida - variable;
                 const hasValue = fija !== 0;
-                return /* @__PURE__ */ jsx("td", { className: "px-2 py-2 text-right", style: { width: "110px" }, children: /* @__PURE__ */ jsx("span", { className: `${T.totalValue} tabular-nums ${hasValue ? "text-blue-700" : "text-gray-300"}`, children: hasValue ? fmtSigned(fija) : "\u2014" }) }, p.id);
+                const rliq = reliquidacion?.[p.id];
+                return /* @__PURE__ */ jsxs("td", { className: "py-2 pr-2 text-right relative", style: { width: "110px" }, children: [
+                  rliq && hasValue && /* @__PURE__ */ jsxs("span", { className: "group/reliq absolute cursor-help", style: { top: "9px", left: "30px" }, children: [
+                    /* @__PURE__ */ jsx(Info, { size: 12, className: "text-sky-400 hover:text-sky-500" }),
+                    /* @__PURE__ */ jsx(ReliqInfoTooltip, { data: rliq, type: "fija" })
+                  ] }),
+                  /* @__PURE__ */ jsx("span", { className: `${T.totalValue} tabular-nums ${hasValue ? "text-blue-700" : "text-gray-300"}`, children: hasValue ? fmtSigned(fija) : "\u2014" })
+                ] }, p.id);
               }),
               /* @__PURE__ */ jsx("td", { style: { width: "40px" } })
             ] })

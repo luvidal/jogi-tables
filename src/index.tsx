@@ -1,6 +1,6 @@
 // RentaTable
 export { default } from './renta'
-export type { Month, RowData, RowType, RentaTableProps } from './renta/types'
+export type { Month, RowData, RowType, RentaTableProps, ReliquidacionBreakdown } from './renta/types'
 export { generateLastNMonths } from './renta/helpers'
 
 // DeudasTable
