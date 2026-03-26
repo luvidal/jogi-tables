@@ -64,7 +64,8 @@ const GroupRow = ({
             onDragLeave={onDragLeave}
             onDrop={onDrop}
         >
-            <td className="pl-1 pr-2 py-1.5 text-gray-700 overflow-hidden" style={{ width: '180px' }}>
+            {showVariableColumn && <td style={{ width: '20px' }} />}
+            <td className="pl-1 pr-2 py-1.5 text-gray-700 overflow-hidden" style={{ width: showVariableColumn ? '160px' : '180px' }}>
                 <div className="flex items-center gap-0.5 min-w-0">
                     {isHovered && onDragStart && (
                         <span

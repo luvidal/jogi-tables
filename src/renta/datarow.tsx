@@ -1,5 +1,5 @@
 import React from 'react'
-import { GripVertical, X, Eye, TrendingUp } from 'lucide-react'
+import { GripVertical, X, Eye } from 'lucide-react'
 import EditableCell from '../common/editablecell'
 import { T } from '../common/styles'
 import { isSubtractType } from './helpers'
@@ -84,7 +84,6 @@ const DataRow = ({
 }: DataRowProps) => {
     const indented = !!row.groupId
     const subtract = isSubtractType(row.type)
-    const varBorder = row.isVariable ? 'border-l-4 border-l-amber-400' : ''
     const rowBg = selected
         ? 'bg-emerald-50/60'
         : row.isVariable
@@ -105,7 +104,7 @@ const DataRow = ({
 
     return (
         <tr
-            className={`border-b border-gray-100 ${rowBg} ${varBorder} ${isDragging ? 'opacity-40' : ''} ${dropBorder} group`}
+            className={`border-b border-gray-100 ${rowBg} ${isDragging ? 'opacity-40' : ''} ${dropBorder} group`}
             onClick={handleRowClick}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
@@ -114,7 +113,21 @@ const DataRow = ({
             onDragLeave={onDragLeave}
             onDrop={onDrop}
         >
-            <td className={`pl-1 pr-2 py-1.5 text-gray-700 ${T.cellLabel}`} style={{ width: '180px' }}>
+            {showVariableColumn && (
+                <td
+                    className={`px-0 py-0 cursor-pointer select-none text-center ${
+                        row.isVariable
+                            ? 'bg-amber-200 text-amber-700 hover:bg-amber-300'
+                            : 'bg-blue-200 text-blue-700 hover:bg-blue-300'
+                    }`}
+                    style={{ width: '20px', fontSize: '9px', fontWeight: 600, lineHeight: 1, letterSpacing: '0.02em' }}
+                    onClick={(e) => { e.stopPropagation(); onToggleVariable?.() }}
+                    title={row.isVariable ? 'Renta Variable — click para cambiar a fija' : 'Renta Fija — click para cambiar a variable'}
+                >
+                    {row.isVariable ? 'RV' : 'RF'}
+                </td>
+            )}
+            <td className={`pl-1 pr-2 py-1.5 text-gray-700 ${T.cellLabel}`} style={{ width: showVariableColumn ? '160px' : '180px' }}>
                 <div className={`flex items-center gap-0.5 min-w-0 ${indented ? 'pl-4' : ''}`}>
                     {isHovered && onDragStart && !anySelected && (
                         <span
@@ -180,18 +193,6 @@ const DataRow = ({
             <td style={{ width: '40px' }} className="text-center">
                 {isHovered && !anySelected && (
                     <div className="flex items-center justify-center gap-0.5">
-                        {showVariableColumn && (
-                            <button
-                                onClick={onToggleVariable}
-                                className={`p-0.5 rounded transition-colors ${row.isVariable
-                                    ? 'text-amber-500 hover:text-amber-700 hover:bg-amber-100'
-                                    : 'text-gray-300 hover:text-amber-500 hover:bg-amber-100'
-                                }`}
-                                title={row.isVariable ? 'Quitar de renta variable' : 'Marcar como renta variable'}
-                            >
-                                <TrendingUp size={14} />
-                            </button>
-                        )}
                         <button
                             onClick={onRemove}
                             className="p-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-100"

@@ -52,7 +52,8 @@ const RecycleBin = ({ deletedRows, months, onRestore, formatValue, showVariableC
 
                                 return (
                                     <tr key={row.id} className="border-b border-gray-100 opacity-75 group">
-                                        <td className={`pl-1 pr-2 py-1.5 text-gray-500 ${T.cellLabel}`} style={{ width: '180px' }}>
+                                        {showVariableColumn && <td style={{ width: '20px' }} />}
+                                        <td className={`pl-1 pr-2 py-1.5 text-gray-500 ${T.cellLabel}`} style={{ width: showVariableColumn ? '160px' : '180px' }}>
                                             <div className="flex items-center gap-1 min-w-0">
                                                 <button
                                                     onClick={() => onRestore(row.id)}

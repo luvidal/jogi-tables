@@ -479,7 +479,6 @@ var DataRow = ({
 }) => {
   const indented = !!row.groupId;
   const subtract = isSubtractType(row.type);
-  const varBorder = row.isVariable ? "border-l-4 border-l-amber-400" : "";
   const rowBg = selected ? "bg-emerald-50/60" : row.isVariable ? subtract ? "bg-amber-50/60 hover:bg-amber-100/50" : "bg-amber-50/40 hover:bg-amber-100/40" : subtract ? "bg-red-50/50 hover:bg-red-100/50" : "hover:bg-gray-50";
   const showCheckbox = selectable && (anySelected || isHovered);
   const dropBorder = dropIndicator === "above" ? "border-t-2 border-t-blue-400" : dropIndicator === "below" ? "border-b-2 border-b-blue-400" : "";
@@ -494,7 +493,7 @@ var DataRow = ({
   return /* @__PURE__ */ jsxRuntime.jsxs(
     "tr",
     {
-      className: `border-b border-gray-100 ${rowBg} ${varBorder} ${isDragging ? "opacity-40" : ""} ${dropBorder} group`,
+      className: `border-b border-gray-100 ${rowBg} ${isDragging ? "opacity-40" : ""} ${dropBorder} group`,
       onClick: handleRowClick,
       onMouseEnter,
       onMouseLeave,
@@ -503,7 +502,20 @@ var DataRow = ({
       onDragLeave,
       onDrop,
       children: [
-        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `pl-1 pr-2 py-1.5 text-gray-700 ${T.cellLabel}`, style: { width: "180px" }, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `flex items-center gap-0.5 min-w-0 ${indented ? "pl-4" : ""}`, children: [
+        showVariableColumn && /* @__PURE__ */ jsxRuntime.jsx(
+          "td",
+          {
+            className: `px-0 py-0 cursor-pointer select-none text-center ${row.isVariable ? "bg-amber-200 text-amber-700 hover:bg-amber-300" : "bg-blue-200 text-blue-700 hover:bg-blue-300"}`,
+            style: { width: "20px", fontSize: "9px", fontWeight: 600, lineHeight: 1, letterSpacing: "0.02em" },
+            onClick: (e) => {
+              e.stopPropagation();
+              onToggleVariable?.();
+            },
+            title: row.isVariable ? "Renta Variable \u2014 click para cambiar a fija" : "Renta Fija \u2014 click para cambiar a variable",
+            children: row.isVariable ? "RV" : "RF"
+          }
+        ),
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `pl-1 pr-2 py-1.5 text-gray-700 ${T.cellLabel}`, style: { width: showVariableColumn ? "160px" : "180px" }, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `flex items-center gap-0.5 min-w-0 ${indented ? "pl-4" : ""}`, children: [
           isHovered && onDragStart && !anySelected && /* @__PURE__ */ jsxRuntime.jsx(
             "span",
             {
@@ -569,26 +581,15 @@ var DataRow = ({
             p.id
           );
         }),
-        /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" }, className: "text-center", children: isHovered && !anySelected && /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center justify-center gap-0.5", children: [
-          showVariableColumn && /* @__PURE__ */ jsxRuntime.jsx(
-            "button",
-            {
-              onClick: onToggleVariable,
-              className: `p-0.5 rounded transition-colors ${row.isVariable ? "text-amber-500 hover:text-amber-700 hover:bg-amber-100" : "text-gray-300 hover:text-amber-500 hover:bg-amber-100"}`,
-              title: row.isVariable ? "Quitar de renta variable" : "Marcar como renta variable",
-              children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.TrendingUp, { size: 14 })
-            }
-          ),
-          /* @__PURE__ */ jsxRuntime.jsx(
-            "button",
-            {
-              onClick: onRemove,
-              className: "p-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-100",
-              title: "Eliminar fila",
-              children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.X, { size: 14 })
-            }
-          )
-        ] }) })
+        /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" }, className: "text-center", children: isHovered && !anySelected && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "flex items-center justify-center gap-0.5", children: /* @__PURE__ */ jsxRuntime.jsx(
+          "button",
+          {
+            onClick: onRemove,
+            className: "p-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-100",
+            title: "Eliminar fila",
+            children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.X, { size: 14 })
+          }
+        ) }) })
       ]
     }
   );
@@ -606,7 +607,8 @@ var AddRow = ({
   const subtract = isSubtractType(section.type);
   const bgClass = subtract ? "bg-red-50/30 border-red-100" : "bg-gray-50/30 border-gray-100";
   return /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: `border-b border-dashed ${bgClass}`, children: [
-    /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-4 py-1.5", style: { width: "180px" }, children: /* @__PURE__ */ jsxRuntime.jsx(
+    showVariableColumn && /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "20px" } }),
+    /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-4 py-1.5", style: { width: showVariableColumn ? "160px" : "180px" }, children: /* @__PURE__ */ jsxRuntime.jsx(
       "input",
       {
         type: "text",
@@ -672,7 +674,8 @@ var GroupRow = ({
       onDragLeave,
       onDrop,
       children: [
-        /* @__PURE__ */ jsxRuntime.jsx("td", { className: "pl-1 pr-2 py-1.5 text-gray-700 overflow-hidden", style: { width: "180px" }, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-0.5 min-w-0", children: [
+        showVariableColumn && /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "20px" } }),
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: "pl-1 pr-2 py-1.5 text-gray-700 overflow-hidden", style: { width: showVariableColumn ? "160px" : "180px" }, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-0.5 min-w-0", children: [
           isHovered && onDragStart && /* @__PURE__ */ jsxRuntime.jsx(
             "span",
             {
@@ -852,7 +855,8 @@ var RecycleBin = ({ deletedRows, months, onRestore, formatValue, showVariableCol
     expanded && /* @__PURE__ */ jsxRuntime.jsx("table", { className: T.table, style: { tableLayout: "fixed" }, children: /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: deletedRows.map((row) => {
       const subtract = isSubtractType(row.type);
       return /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-b border-gray-100 opacity-75 group", children: [
-        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `pl-1 pr-2 py-1.5 text-gray-500 ${T.cellLabel}`, style: { width: "180px" }, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-1 min-w-0", children: [
+        showVariableColumn && /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "20px" } }),
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `pl-1 pr-2 py-1.5 text-gray-500 ${T.cellLabel}`, style: { width: showVariableColumn ? "160px" : "180px" }, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-1 min-w-0", children: [
           /* @__PURE__ */ jsxRuntime.jsx(
             "button",
             {
@@ -1009,7 +1013,7 @@ var HeaderSelectionBar = ({ selectedCount, canGroup, monthCount, naming, onNamin
   return /* @__PURE__ */ jsxRuntime.jsx(
     "td",
     {
-      colSpan: monthCount + 2,
+      colSpan: monthCount + 2 + (showVariableColumn ? 1 : 0),
       className: "px-4 py-2.5",
       onClick: (e) => e.stopPropagation(),
       children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "flex items-center gap-2", children: naming ? /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-1.5", children: [
@@ -1571,7 +1575,8 @@ var RentaTable = ({
           showVariableColumn
         }
       ) : /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-        /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-4 py-2.5 text-left", style: { width: "180px" }, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-2", children: [
+        showVariableColumn && /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "20px" } }),
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-4 py-2.5 text-left", style: { width: showVariableColumn ? "160px" : "180px" }, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-2", children: [
           !forceExpanded && (isExpanded ? /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ChevronUp, { size: 16, className: headerText }) : /* @__PURE__ */ jsxRuntime.jsx(lucideReact.ChevronDown, { size: 16, className: headerText })),
           /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${headerText} ${T.headerTitle}`, children: title }),
           /* @__PURE__ */ jsxRuntime.jsx(SourceIcon, { fileIds: sourceFileIds, onViewSource, className: headerText })
@@ -1622,7 +1627,8 @@ var RentaTable = ({
               const isSubtract = isSubtractType(section.type);
               const label = isSubtract ? "Total descuentos" : "Total haberes";
               return /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: `border-b-2 ${isSubtract ? "border-b-rose-200 bg-red-50/30" : "border-b-emerald-200 bg-emerald-50/30"}`, children: [
-                /* @__PURE__ */ jsxRuntime.jsx("td", { className: "pl-4 pr-2 py-2 text-gray-700", style: { width: "180px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalLabel} ${isSubtract ? "text-rose-700" : "text-emerald-700"}`, children: label }) }),
+                showVariableColumn && /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "20px" } }),
+                /* @__PURE__ */ jsxRuntime.jsx("td", { className: "pl-4 pr-2 py-2 text-gray-700", style: { width: showVariableColumn ? "160px" : "180px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalLabel} ${isSubtract ? "text-rose-700" : "text-emerald-700"}`, children: label }) }),
                 monthsArray.map((p) => {
                   const value = subtotals[p.id] ?? 0;
                   const hasValue = value !== 0;
@@ -1684,17 +1690,9 @@ var RentaTable = ({
           const rentaVariable = computeRentaVariable(rows, monthsArray);
           const fmtSigned = (v) => v < 0 ? `-${formatValue(-v)}` : formatValue(v);
           return /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-            /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-t-2 border-t-blue-200 bg-blue-50", children: [
-              /* @__PURE__ */ jsxRuntime.jsx("td", { className: "pl-4 pr-2 py-2", style: { width: "180px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalLabel} text-blue-800`, children: "Renta L\xEDquida" }) }),
-              monthsArray.map((p) => {
-                const value = calculateTotal(p.id, rows);
-                const hasValue = value !== 0;
-                return /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-2 py-2 text-right", style: { width: "110px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalValue} tabular-nums font-semibold ${hasValue ? "text-blue-800" : "text-gray-300"}`, children: hasValue ? fmtSigned(value) : "\u2014" }) }, p.id);
-              }),
-              /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" } })
-            ] }),
-            /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-b border-gray-100 bg-amber-50/50", children: [
-              /* @__PURE__ */ jsxRuntime.jsx("td", { className: "pl-4 pr-2 py-2", style: { width: "180px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalLabel} text-amber-700`, children: "Renta Variable" }) }),
+            /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-t-2 border-t-gray-200 border-b border-gray-100 bg-amber-50/50", children: [
+              showVariableColumn && /* @__PURE__ */ jsxRuntime.jsx("td", { className: "bg-amber-200", style: { width: "20px" } }),
+              /* @__PURE__ */ jsxRuntime.jsx("td", { className: "pl-4 pr-2 py-2", style: { width: showVariableColumn ? "160px" : "180px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalLabel} text-amber-700`, children: "Renta Variable" }) }),
               monthsArray.map((p) => {
                 const value = rentaVariable[p.id] ?? 0;
                 const hasValue = value !== 0;
@@ -1702,14 +1700,15 @@ var RentaTable = ({
               }),
               /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" } })
             ] }),
-            /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-b border-gray-200 bg-emerald-50/50", children: [
-              /* @__PURE__ */ jsxRuntime.jsx("td", { className: "pl-4 pr-2 py-2", style: { width: "180px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalLabel} text-emerald-700`, children: "Renta Fija" }) }),
+            /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-b border-gray-200 bg-blue-50/50", children: [
+              showVariableColumn && /* @__PURE__ */ jsxRuntime.jsx("td", { className: "bg-blue-200", style: { width: "20px" } }),
+              /* @__PURE__ */ jsxRuntime.jsx("td", { className: "pl-4 pr-2 py-2", style: { width: showVariableColumn ? "160px" : "180px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalLabel} text-blue-700`, children: "Renta Fija" }) }),
               monthsArray.map((p) => {
                 const liquida = calculateTotal(p.id, rows);
                 const variable = rentaVariable[p.id] ?? 0;
                 const fija = liquida - variable;
                 const hasValue = fija !== 0;
-                return /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-2 py-2 text-right", style: { width: "110px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalValue} tabular-nums ${hasValue ? "text-emerald-700" : "text-gray-300"}`, children: hasValue ? fmtSigned(fija) : "\u2014" }) }, p.id);
+                return /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-2 py-2 text-right", style: { width: "110px" }, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalValue} tabular-nums ${hasValue ? "text-blue-700" : "text-gray-300"}`, children: hasValue ? fmtSigned(fija) : "\u2014" }) }, p.id);
               }),
               /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" } })
             ] })
@@ -2833,6 +2832,65 @@ function applyAutoCompute(row, editedField, rules, params) {
   }
   return result;
 }
+var useDragReorder2 = () => {
+  const [dragRowId, setDragRowId] = React4.useState(null);
+  const [dropTargetId, setDropTargetId] = React4.useState(null);
+  const [dropPosition, setDropPosition] = React4.useState(null);
+  const handleDragStart = React4.useCallback((rowId) => (e) => {
+    setDragRowId(rowId);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", rowId);
+  }, []);
+  const handleDragOver = React4.useCallback((rowId) => (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (rowId === dragRowId) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+    setDropTargetId(rowId);
+    setDropPosition(e.clientY < midY ? "above" : "below");
+  }, [dragRowId]);
+  const handleDrop = React4.useCallback((rows, onRowsChange) => (e) => {
+    e.preventDefault();
+    const sourceId = e.dataTransfer.getData("text/plain");
+    if (!sourceId || !dropTargetId || sourceId === dropTargetId) {
+      resetState();
+      return;
+    }
+    const sourceIdx = rows.findIndex((r) => r.id === sourceId);
+    const targetIdx = rows.findIndex((r) => r.id === dropTargetId);
+    if (sourceIdx === -1 || targetIdx === -1) {
+      resetState();
+      return;
+    }
+    const result = rows.filter((r) => r.id !== sourceId);
+    const insertIdx = dropPosition === "below" ? result.findIndex((r) => r.id === dropTargetId) + 1 : result.findIndex((r) => r.id === dropTargetId);
+    result.splice(insertIdx, 0, rows[sourceIdx]);
+    onRowsChange(result);
+    resetState();
+  }, [dropTargetId, dropPosition]);
+  const handleDragEnd = React4.useCallback(() => {
+    resetState();
+  }, []);
+  function resetState() {
+    setDragRowId(null);
+    setDropTargetId(null);
+    setDropPosition(null);
+  }
+  return {
+    dragRowId,
+    dropTargetId,
+    dropPosition,
+    handleDragStart,
+    handleDragOver,
+    handleDragLeave: React4.useCallback(() => {
+      setDropTargetId(null);
+      setDropPosition(null);
+    }, []),
+    handleDrop,
+    handleDragEnd
+  };
+};
 var LINEAS_TC_PATTERN = /l[ií]nea|tarjeta|tc/i;
 var DeudasConsumoTable = ({
   rows,
@@ -2844,11 +2902,34 @@ var DeudasConsumoTable = ({
   headerText = "text-rose-700",
   onViewSource
 }) => {
-  const { getHoverProps, isHovered: isRowHovered } = useRowHover();
+  const [hoveredRow, setHoveredRow] = React4.useState(null);
+  const [selectedRows, setSelectedRows] = React4.useState(/* @__PURE__ */ new Set());
   const [newRow, setNewRow] = React4.useState({ institucion: "", tipo_deuda: "" });
   const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange);
   const visibleRowIds = React4.useMemo(() => activeRows.map((r) => r.id), [activeRows]);
   const keyboard = useGridKeyboard({ visibleRowIds, colCount: 5 });
+  const drag = useDragReorder2();
+  const anySelected = selectedRows.size > 0;
+  const toggleSelect = React4.useCallback((rowId) => {
+    setSelectedRows((prev) => {
+      const next = new Set(prev);
+      if (next.has(rowId)) next.delete(rowId);
+      else next.add(rowId);
+      return next;
+    });
+  }, []);
+  const clearSelection = React4.useCallback(() => setSelectedRows(/* @__PURE__ */ new Set()), []);
+  const requestDeleteSelected = React4.useCallback(() => {
+    for (const id of selectedRows) requestDelete(id);
+    clearSelection();
+  }, [selectedRows, requestDelete, clearSelection]);
+  const handleRowClick = React4.useCallback((e, rowId) => {
+    if (!(e.metaKey || e.ctrlKey)) return;
+    const target = e.target;
+    if (target.closest('input, button, [role="button"]')) return;
+    e.preventDefault();
+    toggleSelect(rowId);
+  }, [toggleSelect]);
   const conversionRules = ufValue ? [
     { source: "saldo_deuda_uf", target: "saldo_deuda_pesos", formula: (v) => v * ufValue, precision: 0 },
     { source: "saldo_deuda_pesos", target: "saldo_deuda_uf", formula: (v) => v / ufValue, precision: 2 }
@@ -2906,7 +2987,33 @@ var DeudasConsumoTable = ({
   return /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
     /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "overflow-x-auto", onKeyDown: keyboard.handleContainerKeyDown, tabIndex: 0, children: [
       /* @__PURE__ */ jsxRuntime.jsxs("table", { className: T.table, style: { tableLayout: "fixed" }, children: [
-        /* @__PURE__ */ jsxRuntime.jsx("thead", { children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: `${headerBg} border-t border-rose-200 ${headerText}`, children: [
+        /* @__PURE__ */ jsxRuntime.jsx("thead", { children: /* @__PURE__ */ jsxRuntime.jsx("tr", { className: `${headerBg} border-t border-rose-200 ${headerText}`, children: anySelected ? /* @__PURE__ */ jsxRuntime.jsx("th", { colSpan: 7, className: "px-4 py-1.5 text-left", onClick: (e) => e.stopPropagation(), children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-2", children: [
+          /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "text-xs text-rose-600", children: [
+            selectedRows.size,
+            " fila",
+            selectedRows.size !== 1 ? "s" : ""
+          ] }),
+          /* @__PURE__ */ jsxRuntime.jsxs(
+            "button",
+            {
+              onClick: requestDeleteSelected,
+              className: "text-xs px-3 py-1 rounded-full text-red-600 hover:bg-red-100 transition-colors flex items-center gap-1",
+              title: "Eliminar filas seleccionadas",
+              children: [
+                /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Trash2, { size: 12 }),
+                "Eliminar"
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntime.jsx(
+            "button",
+            {
+              onClick: clearSelection,
+              className: "text-xs px-2 py-1 rounded-full text-gray-500 hover:bg-gray-200 transition-colors",
+              children: "Cancelar"
+            }
+          )
+        ] }) }) : /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
           /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-2 py-1.5 text-left ${T.th} ${headerText}`, style: { width: "160px" }, children: "Instituci\xF3n" }),
           /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-2 py-1.5 text-left ${T.th} ${headerText}`, style: { width: "120px" }, children: "Tipo Deuda" }),
           /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-2 py-1.5 text-right ${T.th} ${headerText}`, style: { width: "100px" }, children: "Saldo UF" }),
@@ -2914,38 +3021,68 @@ var DeudasConsumoTable = ({
           /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-2 py-1.5 text-right ${T.th} ${headerText}`, style: { width: "110px" }, children: "Cuota $" }),
           /* @__PURE__ */ jsxRuntime.jsx("th", { className: `px-2 py-1.5 text-center ${T.th} ${headerText}`, style: { width: "90px" }, children: "Cuotas" }),
           /* @__PURE__ */ jsxRuntime.jsx("th", { style: { width: "40px" } })
-        ] }) }),
+        ] }) }) }),
         /* @__PURE__ */ jsxRuntime.jsxs("tbody", { children: [
           activeRows.map((row) => {
-            const isHovered = isRowHovered(row.id);
+            const isHovered = hoveredRow === row.id;
+            const selected = selectedRows.has(row.id);
+            const showCheckbox = anySelected || isHovered;
+            const isDragging = drag.dragRowId === row.id;
+            const dropBorder = drag.dropTargetId === row.id ? drag.dropPosition === "above" ? "border-t-2 border-t-blue-400" : "border-b-2 border-b-blue-400" : "";
             return /* @__PURE__ */ jsxRuntime.jsxs(
               "tr",
               {
-                className: "border-b border-gray-100 hover:bg-gray-50",
-                ...getHoverProps(row.id),
+                className: `border-b border-gray-100 ${selected ? "bg-rose-50/60" : "hover:bg-gray-50"} ${isDragging ? "opacity-40" : ""} ${dropBorder}`,
+                onMouseEnter: () => setHoveredRow(row.id),
+                onMouseLeave: () => setHoveredRow(null),
+                onClick: (e) => handleRowClick(e, row.id),
+                onDragOver: drag.handleDragOver(row.id),
+                onDragLeave: drag.handleDragLeave,
+                onDrop: drag.handleDrop(rows, onRowsChange),
                 children: [
-                  /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-2 py-2.5 ${T.cellLabel}`, style: { width: "160px" }, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-1 min-w-0", children: [
-                    /* @__PURE__ */ jsxRuntime.jsx(deletebutton_default, { onClick: () => requestDelete(row.id), isVisible: isHovered }),
-                    row.sourceFileId && onViewSource && /* @__PURE__ */ jsxRuntime.jsx(
+                  /* @__PURE__ */ jsxRuntime.jsxs("td", { className: `pl-1 pr-2 py-2.5 ${T.cellLabel} relative`, style: { width: "160px" }, children: [
+                    /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-0.5 min-w-0", children: [
+                      isHovered && !anySelected && /* @__PURE__ */ jsxRuntime.jsx(
+                        "span",
+                        {
+                          draggable: true,
+                          onDragStart: drag.handleDragStart(row.id),
+                          onDragEnd: drag.handleDragEnd,
+                          className: "shrink-0 cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500",
+                          title: "Arrastrar para reordenar",
+                          children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.GripVertical, { size: 14 })
+                        }
+                      ),
+                      showCheckbox ? /* @__PURE__ */ jsxRuntime.jsx(
+                        "input",
+                        {
+                          type: "checkbox",
+                          checked: selected,
+                          onChange: () => toggleSelect(row.id),
+                          className: "shrink-0 w-3.5 h-3.5 rounded border-gray-300 text-rose-600 focus:ring-rose-500 cursor-pointer"
+                        }
+                      ) : null,
+                      /* @__PURE__ */ jsxRuntime.jsx(
+                        "input",
+                        {
+                          type: "text",
+                          value: row.institucion,
+                          onChange: (e) => updateField(row.id, "institucion", e.target.value),
+                          className: `flex-1 min-w-0 ${T.inputLabel} ${isHovered || showCheckbox ? "" : "pl-1"}`,
+                          placeholder: "Instituci\xF3n"
+                        }
+                      )
+                    ] }),
+                    isHovered && row.sourceFileId && onViewSource && /* @__PURE__ */ jsxRuntime.jsx(
                       "button",
                       {
                         onClick: () => onViewSource([row.sourceFileId]),
-                        className: `p-0.5 rounded transition-all shrink-0 ${isHovered ? "opacity-100 text-rose-400 hover:text-rose-600 hover:bg-rose-100" : "opacity-0"}`,
+                        className: "absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] p-0.5 rounded text-rose-400 hover:text-rose-600 hover:bg-rose-100",
                         title: "Ver documento fuente",
                         children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Eye, { size: 14 })
                       }
-                    ),
-                    /* @__PURE__ */ jsxRuntime.jsx(
-                      "input",
-                      {
-                        type: "text",
-                        value: row.institucion,
-                        onChange: (e) => updateField(row.id, "institucion", e.target.value),
-                        className: `flex-1 min-w-0 ${T.inputLabel} pl-1`,
-                        placeholder: "Instituci\xF3n"
-                      }
                     )
-                  ] }) }),
+                  ] }),
                   /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-2 py-2.5", style: { width: "120px" }, children: /* @__PURE__ */ jsxRuntime.jsx(
                     "input",
                     {
@@ -3064,14 +3201,22 @@ var DeudasConsumoTable = ({
                       }
                     )
                   ] }) }),
-                  /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" } })
+                  /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" }, className: "text-center", children: isHovered && !anySelected && /* @__PURE__ */ jsxRuntime.jsx(
+                    "button",
+                    {
+                      onClick: () => requestDelete(row.id),
+                      className: "p-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-100",
+                      title: "Eliminar",
+                      children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.X, { size: 14 })
+                    }
+                  ) })
                 ]
               },
               row.id
             );
           }),
           /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-b border-dashed border-rose-100 bg-rose-50/20", children: [
-            /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-4 py-2.5", style: { width: "160px" }, children: /* @__PURE__ */ jsxRuntime.jsx(
+            /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-2 py-2.5", style: { width: "160px" }, children: /* @__PURE__ */ jsxRuntime.jsx(
               "input",
               {
                 type: "text",

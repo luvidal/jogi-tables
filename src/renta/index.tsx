@@ -324,7 +324,8 @@ const RentaTable = ({
                                     />
                                 ) : (
                                     <>
-                                        <td className="px-4 py-2.5 text-left" style={{ width: '180px' }}>
+                                        {showVariableColumn && <td style={{ width: '20px' }} />}
+                                        <td className="px-4 py-2.5 text-left" style={{ width: showVariableColumn ? '160px' : '180px' }}>
                                             <div className="flex items-center gap-2">
                                                 {!forceExpanded && (
                                                     isExpanded ? <ChevronUp size={16} className={headerText} /> : <ChevronDown size={16} className={headerText} />
@@ -398,7 +399,8 @@ const RentaTable = ({
                                         const label = isSubtract ? 'Total descuentos' : 'Total haberes'
                                         return (
                                             <tr className={`border-b-2 ${isSubtract ? 'border-b-rose-200 bg-red-50/30' : 'border-b-emerald-200 bg-emerald-50/30'}`}>
-                                                <td className="pl-4 pr-2 py-2 text-gray-700" style={{ width: '180px' }}>
+                                                {showVariableColumn && <td style={{ width: '20px' }} />}
+                                                <td className="pl-4 pr-2 py-2 text-gray-700" style={{ width: showVariableColumn ? '160px' : '180px' }}>
                                                     <span className={`${T.totalLabel} ${isSubtract ? 'text-rose-700' : 'text-emerald-700'}`}>{label}</span>
                                                 </td>
                                                 {monthsArray.map(p => {
@@ -470,27 +472,10 @@ const RentaTable = ({
                             const fmtSigned = (v: number) => v < 0 ? `-${formatValue(-v)}` : formatValue(v)
                             return (
                                 <>
-                                    {/* Renta Líquida = Total Haberes - Total Descuentos */}
-                                    <tr className="border-t-2 border-t-blue-200 bg-blue-50">
-                                        <td className="pl-4 pr-2 py-2" style={{ width: '180px' }}>
-                                            <span className={`${T.totalLabel} text-blue-800`}>Renta Líquida</span>
-                                        </td>
-                                        {monthsArray.map(p => {
-                                            const value = calculateTotal(p.id, rows)
-                                            const hasValue = value !== 0
-                                            return (
-                                                <td key={p.id} className="px-2 py-2 text-right" style={{ width: '110px' }}>
-                                                    <span className={`${T.totalValue} tabular-nums font-semibold ${hasValue ? 'text-blue-800' : 'text-gray-300'}`}>
-                                                        {hasValue ? fmtSigned(value) : '—'}
-                                                    </span>
-                                                </td>
-                                            )
-                                        })}
-                                        <td style={{ width: '40px' }} />
-                                    </tr>
                                     {/* Renta Variable = sum of variable-flagged items */}
-                                    <tr className="border-b border-gray-100 bg-amber-50/50">
-                                        <td className="pl-4 pr-2 py-2" style={{ width: '180px' }}>
+                                    <tr className="border-t-2 border-t-gray-200 border-b border-gray-100 bg-amber-50/50">
+                                        {showVariableColumn && <td className="bg-amber-200" style={{ width: '20px' }} />}
+                                        <td className="pl-4 pr-2 py-2" style={{ width: showVariableColumn ? '160px' : '180px' }}>
                                             <span className={`${T.totalLabel} text-amber-700`}>Renta Variable</span>
                                         </td>
                                         {monthsArray.map(p => {
@@ -507,9 +492,10 @@ const RentaTable = ({
                                         <td style={{ width: '40px' }} />
                                     </tr>
                                     {/* Renta Fija = Renta Líquida - Renta Variable */}
-                                    <tr className="border-b border-gray-200 bg-emerald-50/50">
-                                        <td className="pl-4 pr-2 py-2" style={{ width: '180px' }}>
-                                            <span className={`${T.totalLabel} text-emerald-700`}>Renta Fija</span>
+                                    <tr className="border-b border-gray-200 bg-blue-50/50">
+                                        {showVariableColumn && <td className="bg-blue-200" style={{ width: '20px' }} />}
+                                        <td className="pl-4 pr-2 py-2" style={{ width: showVariableColumn ? '160px' : '180px' }}>
+                                            <span className={`${T.totalLabel} text-blue-700`}>Renta Fija</span>
                                         </td>
                                         {monthsArray.map(p => {
                                             const liquida = calculateTotal(p.id, rows)
@@ -518,7 +504,7 @@ const RentaTable = ({
                                             const hasValue = fija !== 0
                                             return (
                                                 <td key={p.id} className="px-2 py-2 text-right" style={{ width: '110px' }}>
-                                                    <span className={`${T.totalValue} tabular-nums ${hasValue ? 'text-emerald-700' : 'text-gray-300'}`}>
+                                                    <span className={`${T.totalValue} tabular-nums ${hasValue ? 'text-blue-700' : 'text-gray-300'}`}>
                                                         {hasValue ? fmtSigned(fija) : '—'}
                                                     </span>
                                                 </td>

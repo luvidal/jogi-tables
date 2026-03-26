@@ -128,7 +128,7 @@ export const HeaderSelectionBar = ({ selectedCount, canGroup, monthCount, naming
 
     return (
         <td
-            colSpan={monthCount + 2}
+            colSpan={monthCount + 2 + (showVariableColumn ? 1 : 0)}
             className="px-4 py-2.5"
             onClick={(e) => e.stopPropagation()}
         >

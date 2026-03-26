@@ -1,14 +1,13 @@
-import React, { useState, useMemo } from 'react'
-import { Eye, Info } from 'lucide-react'
+import React, { useState, useMemo, useCallback } from 'react'
+import { GripVertical, X, Eye, Info, Trash2 } from 'lucide-react'
 import EditableCell from '../common/editablecell'
-import DeleteRowButton from '../common/deletebutton'
 import { T } from '../common/styles'
-import { useRowHover } from '../common/userowhover'
 import { useGridKeyboard } from '../common/usegridkeyboard'
 import { applyAutoConversions, applyAutoCompute } from '../common/autoconvert'
 import type { AutoConvertRule, AutoComputeRule } from '../common/autoconvert'
 import { defaultFormatCurrency } from '../common/utils'
 import { useSoftDelete } from '../common/usesoftdelete'
+import { useDragReorder } from '../common/usedragreorder'
 import DeleteDialog from '../common/deletedialog'
 import RecycleBin from '../common/recyclebin'
 import type { DeudaConsumoRow, DeudasConsumoTableProps } from './types'
@@ -25,11 +24,40 @@ const DeudasConsumoTable = ({
     headerText = 'text-rose-700',
     onViewSource,
 }: DeudasConsumoTableProps) => {
-    const { getHoverProps, isHovered: isRowHovered } = useRowHover()
+    const [hoveredRow, setHoveredRow] = useState<string | null>(null)
+    const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
     const [newRow, setNewRow] = useState({ institucion: '', tipo_deuda: '' })
     const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange)
     const visibleRowIds = useMemo(() => activeRows.map(r => r.id), [activeRows])
     const keyboard = useGridKeyboard({ visibleRowIds, colCount: 5 })
+    const drag = useDragReorder()
+
+    const anySelected = selectedRows.size > 0
+
+    // Selection
+    const toggleSelect = useCallback((rowId: string) => {
+        setSelectedRows(prev => {
+            const next = new Set(prev)
+            if (next.has(rowId)) next.delete(rowId)
+            else next.add(rowId)
+            return next
+        })
+    }, [])
+
+    const clearSelection = useCallback(() => setSelectedRows(new Set()), [])
+
+    const requestDeleteSelected = useCallback(() => {
+        for (const id of selectedRows) requestDelete(id)
+        clearSelection()
+    }, [selectedRows, requestDelete, clearSelection])
+
+    const handleRowClick = useCallback((e: React.MouseEvent, rowId: string) => {
+        if (!(e.metaKey || e.ctrlKey)) return
+        const target = e.target as HTMLElement
+        if (target.closest('input, button, [role="button"]')) return
+        e.preventDefault()
+        toggleSelect(rowId)
+    }, [toggleSelect])
 
     // Auto-conversion rules: UF↔CLP
     const conversionRules: AutoConvertRule[] = ufValue ? [
@@ -101,44 +129,99 @@ const DeudasConsumoTable = ({
             <table className={T.table} style={{ tableLayout: 'fixed' }}>
                 <thead>
                     <tr className={`${headerBg} border-t border-rose-200 ${headerText}`}>
-                        <th className={`px-2 py-1.5 text-left ${T.th} ${headerText}`} style={{ width: '160px' }}>Institución</th>
-                        <th className={`px-2 py-1.5 text-left ${T.th} ${headerText}`} style={{ width: '120px' }}>Tipo Deuda</th>
-                        <th className={`px-2 py-1.5 text-right ${T.th} ${headerText}`} style={{ width: '100px' }}>Saldo UF</th>
-                        <th className={`px-2 py-1.5 text-right ${T.th} ${headerText}`} style={{ width: '120px' }}>Saldo $</th>
-                        <th className={`px-2 py-1.5 text-right ${T.th} ${headerText}`} style={{ width: '110px' }}>Cuota $</th>
-                        <th className={`px-2 py-1.5 text-center ${T.th} ${headerText}`} style={{ width: '90px' }}>Cuotas</th>
-                        <th style={{ width: '40px' }}></th>
+                        {anySelected ? (
+                            <th colSpan={7} className="px-4 py-1.5 text-left" onClick={e => e.stopPropagation()}>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs text-rose-600">
+                                        {selectedRows.size} fila{selectedRows.size !== 1 ? 's' : ''}
+                                    </span>
+                                    <button
+                                        onClick={requestDeleteSelected}
+                                        className="text-xs px-3 py-1 rounded-full text-red-600 hover:bg-red-100 transition-colors flex items-center gap-1"
+                                        title="Eliminar filas seleccionadas"
+                                    >
+                                        <Trash2 size={12} />
+                                        Eliminar
+                                    </button>
+                                    <button
+                                        onClick={clearSelection}
+                                        className="text-xs px-2 py-1 rounded-full text-gray-500 hover:bg-gray-200 transition-colors"
+                                    >
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </th>
+                        ) : (
+                            <>
+                                <th className={`px-2 py-1.5 text-left ${T.th} ${headerText}`} style={{ width: '160px' }}>Institución</th>
+                                <th className={`px-2 py-1.5 text-left ${T.th} ${headerText}`} style={{ width: '120px' }}>Tipo Deuda</th>
+                                <th className={`px-2 py-1.5 text-right ${T.th} ${headerText}`} style={{ width: '100px' }}>Saldo UF</th>
+                                <th className={`px-2 py-1.5 text-right ${T.th} ${headerText}`} style={{ width: '120px' }}>Saldo $</th>
+                                <th className={`px-2 py-1.5 text-right ${T.th} ${headerText}`} style={{ width: '110px' }}>Cuota $</th>
+                                <th className={`px-2 py-1.5 text-center ${T.th} ${headerText}`} style={{ width: '90px' }}>Cuotas</th>
+                                <th style={{ width: '40px' }}></th>
+                            </>
+                        )}
                     </tr>
                 </thead>
                 <tbody>
                     {activeRows.map(row => {
-                        const isHovered = isRowHovered(row.id)
+                        const isHovered = hoveredRow === row.id
+                        const selected = selectedRows.has(row.id)
+                        const showCheckbox = anySelected || isHovered
+                        const isDragging = drag.dragRowId === row.id
+                        const dropBorder = drag.dropTargetId === row.id
+                            ? drag.dropPosition === 'above' ? 'border-t-2 border-t-blue-400' : 'border-b-2 border-b-blue-400'
+                            : ''
                         return (
                             <tr
                                 key={row.id}
-                                className="border-b border-gray-100 hover:bg-gray-50"
-                                {...getHoverProps(row.id)}
+                                className={`border-b border-gray-100 ${selected ? 'bg-rose-50/60' : 'hover:bg-gray-50'} ${isDragging ? 'opacity-40' : ''} ${dropBorder}`}
+                                onMouseEnter={() => setHoveredRow(row.id)}
+                                onMouseLeave={() => setHoveredRow(null)}
+                                onClick={e => handleRowClick(e, row.id)}
+                                onDragOver={drag.handleDragOver(row.id)}
+                                onDragLeave={drag.handleDragLeave}
+                                onDrop={drag.handleDrop(rows, onRowsChange)}
                             >
-                                <td className={`px-2 py-2.5 ${T.cellLabel}`} style={{ width: '160px' }}>
-                                    <div className="flex items-center gap-1 min-w-0">
-                                        <DeleteRowButton onClick={() => requestDelete(row.id)} isVisible={isHovered} />
-                                        {row.sourceFileId && onViewSource && (
-                                            <button
-                                                onClick={() => onViewSource([row.sourceFileId!])}
-                                                className={`p-0.5 rounded transition-all shrink-0 ${isHovered ? 'opacity-100 text-rose-400 hover:text-rose-600 hover:bg-rose-100' : 'opacity-0'}`}
-                                                title="Ver documento fuente"
+                                <td className={`pl-1 pr-2 py-2.5 ${T.cellLabel} relative`} style={{ width: '160px' }}>
+                                    <div className="flex items-center gap-0.5 min-w-0">
+                                        {isHovered && !anySelected && (
+                                            <span
+                                                draggable
+                                                onDragStart={drag.handleDragStart(row.id)}
+                                                onDragEnd={drag.handleDragEnd}
+                                                className="shrink-0 cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500"
+                                                title="Arrastrar para reordenar"
                                             >
-                                                <Eye size={14} />
-                                            </button>
+                                                <GripVertical size={14} />
+                                            </span>
                                         )}
+                                        {showCheckbox ? (
+                                            <input
+                                                type="checkbox"
+                                                checked={selected}
+                                                onChange={() => toggleSelect(row.id)}
+                                                className="shrink-0 w-3.5 h-3.5 rounded border-gray-300 text-rose-600 focus:ring-rose-500 cursor-pointer"
+                                            />
+                                        ) : null}
                                         <input
                                             type="text"
                                             value={row.institucion}
                                             onChange={e => updateField(row.id, 'institucion', e.target.value)}
-                                            className={`flex-1 min-w-0 ${T.inputLabel} pl-1`}
+                                            className={`flex-1 min-w-0 ${T.inputLabel} ${isHovered || showCheckbox ? '' : 'pl-1'}`}
                                             placeholder="Institución"
                                         />
                                     </div>
+                                    {isHovered && row.sourceFileId && onViewSource && (
+                                        <button
+                                            onClick={() => onViewSource([row.sourceFileId!])}
+                                            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] p-0.5 rounded text-rose-400 hover:text-rose-600 hover:bg-rose-100"
+                                            title="Ver documento fuente"
+                                        >
+                                            <Eye size={14} />
+                                        </button>
+                                    )}
                                 </td>
                                 <td className="px-2 py-2.5" style={{ width: '120px' }}>
                                     <input
@@ -226,8 +309,8 @@ const DeudasConsumoTable = ({
                                             onCellFocus={() => keyboard.focus(row.id, 3)}
                                             onNavigate={keyboard.navigate}
                                             requestEdit={keyboard.isFocused(row.id, 3) ? keyboard.editTrigger : 0}
-                                    requestClear={keyboard.isFocused(row.id, 3) ? keyboard.clearTrigger : 0}
-                                    editInitialValue={keyboard.isFocused(row.id, 3) ? keyboard.editInitialValue : undefined}
+                                            requestClear={keyboard.isFocused(row.id, 3) ? keyboard.clearTrigger : 0}
+                                            editInitialValue={keyboard.isFocused(row.id, 3) ? keyboard.editInitialValue : undefined}
                                         />
                                         <span className="text-gray-400">/</span>
                                         <EditableCell
@@ -242,19 +325,29 @@ const DeudasConsumoTable = ({
                                             onCellFocus={() => keyboard.focus(row.id, 4)}
                                             onNavigate={keyboard.navigate}
                                             requestEdit={keyboard.isFocused(row.id, 4) ? keyboard.editTrigger : 0}
-                                    requestClear={keyboard.isFocused(row.id, 4) ? keyboard.clearTrigger : 0}
-                                    editInitialValue={keyboard.isFocused(row.id, 4) ? keyboard.editInitialValue : undefined}
+                                            requestClear={keyboard.isFocused(row.id, 4) ? keyboard.clearTrigger : 0}
+                                            editInitialValue={keyboard.isFocused(row.id, 4) ? keyboard.editInitialValue : undefined}
                                         />
                                     </div>
                                 </td>
-                                <td style={{ width: '40px' }}></td>
+                                <td style={{ width: '40px' }} className="text-center">
+                                    {isHovered && !anySelected && (
+                                        <button
+                                            onClick={() => requestDelete(row.id)}
+                                            className="p-0.5 rounded text-red-400 hover:text-red-600 hover:bg-red-100"
+                                            title="Eliminar"
+                                        >
+                                            <X size={14} />
+                                        </button>
+                                    )}
+                                </td>
                             </tr>
                         )
                     })}
 
                     {/* Add row */}
                     <tr className="border-b border-dashed border-rose-100 bg-rose-50/20">
-                        <td className="px-4 py-2.5" style={{ width: '160px' }}>
+                        <td className="px-2 py-2.5" style={{ width: '160px' }}>
                             <input
                                 type="text"
                                 placeholder="Agregar deuda..."

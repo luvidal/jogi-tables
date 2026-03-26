@@ -30,7 +30,8 @@ const AddRow = ({
 
     return (
         <tr className={`border-b border-dashed ${bgClass}`}>
-            <td className="px-4 py-1.5" style={{ width: '180px' }}>
+            {showVariableColumn && <td style={{ width: '20px' }} />}
+            <td className="px-4 py-1.5" style={{ width: showVariableColumn ? '160px' : '180px' }}>
                 <input
                     type="text"
                     placeholder={section.placeholder}
