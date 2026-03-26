@@ -29,7 +29,7 @@ const DeudasConsumoTable = ({
     const [newRow, setNewRow] = useState({ institucion: '', tipo_deuda: '' })
     const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange)
     const visibleRowIds = useMemo(() => activeRows.map(r => r.id), [activeRows])
-    const keyboard = useGridKeyboard({ visibleRowIds, colCount: 5 })
+    const keyboard = useGridKeyboard({ visibleRowIds, colCount: 6 })
     const drag = useDragReorder()
 
     const anySelected = selectedRows.size > 0
@@ -65,19 +65,19 @@ const DeudasConsumoTable = ({
         { source: 'saldo_deuda_pesos', target: 'saldo_deuda_uf', formula: (v) => v / ufValue, precision: 2 },
     ] : []
 
-    // Auto-compute: 5% castigo for líneas/TC, and 5% fallback for estimated cuotas
+    // Auto-compute: castigo for líneas/TC, and castigo fallback for estimated cuotas
     const computeRules: AutoComputeRule[] = [
         {
             target: 'monto_cuota',
-            depends: ['saldo_deuda_uf', 'saldo_deuda_pesos', 'tipo_deuda'],
+            depends: ['saldo_deuda_uf', 'saldo_deuda_pesos', 'tipo_deuda', 'castigo_pct'],
             condition: (row) => LINEAS_TC_PATTERN.test(row.tipo_deuda) && row.saldo_deuda_pesos != null,
-            formula: (row) => Math.round((row.saldo_deuda_pesos ?? 0) * castigo),
+            formula: (row) => Math.round((row.saldo_deuda_pesos ?? 0) * (row.castigo_pct ?? castigo)),
         },
         {
             target: 'monto_cuota',
-            depends: ['saldo_deuda_uf', 'saldo_deuda_pesos'],
+            depends: ['saldo_deuda_uf', 'saldo_deuda_pesos', 'castigo_pct'],
             condition: (row) => row.cuota_estimated === true && !LINEAS_TC_PATTERN.test(row.tipo_deuda) && row.saldo_deuda_pesos != null,
-            formula: (row) => Math.round((row.saldo_deuda_pesos ?? 0) * castigo),
+            formula: (row) => Math.round((row.saldo_deuda_pesos ?? 0) * (row.castigo_pct ?? castigo)),
         },
     ]
 
@@ -86,8 +86,8 @@ const DeudasConsumoTable = ({
             if (r.id !== id) return r
             let next = applyAutoConversions(r, field, value, conversionRules, {})
             next = applyAutoCompute(next, field, computeRules, {})
-            // Clear estimated flag when user manually edits cuota
-            if (field === 'monto_cuota') next = { ...next, cuota_estimated: false }
+            // Clear estimated flag and castigo when user manually edits cuota
+            if (field === 'monto_cuota') next = { ...next, cuota_estimated: false, castigo_pct: undefined }
             return next
         }))
     }
@@ -130,7 +130,7 @@ const DeudasConsumoTable = ({
                 <thead>
                     <tr className={`${headerBg} border-t border-rose-200 ${headerText}`}>
                         {anySelected ? (
-                            <th colSpan={7} className="px-4 py-1.5 text-left" onClick={e => e.stopPropagation()}>
+                            <th colSpan={8} className="px-4 py-1.5 text-left" onClick={e => e.stopPropagation()}>
                                 <div className="flex items-center gap-2">
                                     <span className="text-xs text-rose-600">
                                         {selectedRows.size} fila{selectedRows.size !== 1 ? 's' : ''}
@@ -158,6 +158,7 @@ const DeudasConsumoTable = ({
                                 <th className={`px-2 py-1.5 text-right ${T.th} ${headerText}`} style={{ width: '100px' }}>Saldo UF</th>
                                 <th className={`px-2 py-1.5 text-right ${T.th} ${headerText}`} style={{ width: '120px' }}>Saldo $</th>
                                 <th className={`px-2 py-1.5 text-right ${T.th} ${headerText}`} style={{ width: '110px' }}>Cuota $</th>
+                                <th className={`px-2 py-1.5 text-center ${T.th} ${headerText}`} style={{ width: '50px' }}>%</th>
                                 <th className={`px-2 py-1.5 text-center ${T.th} ${headerText}`} style={{ width: '90px' }}>Cuotas</th>
                                 <th style={{ width: '40px' }}></th>
                             </>
@@ -275,13 +276,13 @@ const DeudasConsumoTable = ({
                                         editInitialValue={keyboard.isFocused(row.id, 2) ? keyboard.editInitialValue : undefined}
                                         asDiv
                                     />
-                                    {isHovered && row.cuota_estimated && row.saldo_deuda_pesos != null && (
+                                    {isHovered && row.cuota_estimated && row.saldo_deuda_pesos != null && !row.castigo_pct && (
                                         <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] group/info">
                                             <button className="p-0.5 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100">
                                                 <Info size={13} />
                                             </button>
                                             <div className="hidden group-hover/info:block absolute bottom-full right-0 mb-1 px-2 py-1 rounded bg-gray-800 text-white text-[10px] whitespace-nowrap z-50 shadow-lg">
-                                                Estimado: 5% de {formatCurrency(row.saldo_deuda_pesos)}
+                                                Estimado: {Math.round((row.castigo_pct ?? castigo) * 100)}% de {formatCurrency(row.saldo_deuda_pesos)}
                                             </div>
                                         </div>
                                     )}
@@ -295,6 +296,28 @@ const DeudasConsumoTable = ({
                                         </button>
                                     )}
                                 </td>
+                                <td className="text-center" style={{ width: '50px' }}>
+                                    {row.cuota_estimated ? (
+                                        <EditableCell
+                                            value={row.castigo_pct != null ? Math.round(row.castigo_pct * 100) : Math.round(castigo * 100)}
+                                            onChange={v => updateField(row.id, 'castigo_pct', v != null ? (v as number) / 100 : castigo)}
+                                            type="number"
+                                            hasData={true}
+                                            width="50px"
+                                            align="center"
+                                            className="italic text-gray-400"
+                                            asDiv
+                                            focused={keyboard.isFocused(row.id, 3)}
+                                            onCellFocus={() => keyboard.focus(row.id, 3)}
+                                            onNavigate={keyboard.navigate}
+                                            requestEdit={keyboard.isFocused(row.id, 3) ? keyboard.editTrigger : 0}
+                                            requestClear={keyboard.isFocused(row.id, 3) ? keyboard.clearTrigger : 0}
+                                            editInitialValue={keyboard.isFocused(row.id, 3) ? keyboard.editInitialValue : undefined}
+                                        />
+                                    ) : (
+                                        <span className="text-[11px] text-gray-300">—</span>
+                                    )}
+                                </td>
                                 <td className="text-center text-xs text-gray-500" style={{ width: '90px' }}>
                                     <div className="flex items-center justify-center gap-0.5">
                                         <EditableCell
@@ -305,12 +328,12 @@ const DeudasConsumoTable = ({
                                             width="35px"
                                             align="center"
                                             asDiv
-                                            focused={keyboard.isFocused(row.id, 3)}
-                                            onCellFocus={() => keyboard.focus(row.id, 3)}
+                                            focused={keyboard.isFocused(row.id, 4)}
+                                            onCellFocus={() => keyboard.focus(row.id, 4)}
                                             onNavigate={keyboard.navigate}
-                                            requestEdit={keyboard.isFocused(row.id, 3) ? keyboard.editTrigger : 0}
-                                            requestClear={keyboard.isFocused(row.id, 3) ? keyboard.clearTrigger : 0}
-                                            editInitialValue={keyboard.isFocused(row.id, 3) ? keyboard.editInitialValue : undefined}
+                                            requestEdit={keyboard.isFocused(row.id, 4) ? keyboard.editTrigger : 0}
+                                            requestClear={keyboard.isFocused(row.id, 4) ? keyboard.clearTrigger : 0}
+                                            editInitialValue={keyboard.isFocused(row.id, 4) ? keyboard.editInitialValue : undefined}
                                         />
                                         <span className="text-gray-400">/</span>
                                         <EditableCell
@@ -321,12 +344,12 @@ const DeudasConsumoTable = ({
                                             width="35px"
                                             align="center"
                                             asDiv
-                                            focused={keyboard.isFocused(row.id, 4)}
-                                            onCellFocus={() => keyboard.focus(row.id, 4)}
+                                            focused={keyboard.isFocused(row.id, 5)}
+                                            onCellFocus={() => keyboard.focus(row.id, 5)}
                                             onNavigate={keyboard.navigate}
-                                            requestEdit={keyboard.isFocused(row.id, 4) ? keyboard.editTrigger : 0}
-                                            requestClear={keyboard.isFocused(row.id, 4) ? keyboard.clearTrigger : 0}
-                                            editInitialValue={keyboard.isFocused(row.id, 4) ? keyboard.editInitialValue : undefined}
+                                            requestEdit={keyboard.isFocused(row.id, 5) ? keyboard.editTrigger : 0}
+                                            requestClear={keyboard.isFocused(row.id, 5) ? keyboard.clearTrigger : 0}
+                                            editInitialValue={keyboard.isFocused(row.id, 5) ? keyboard.editInitialValue : undefined}
                                         />
                                     </div>
                                 </td>
@@ -369,6 +392,7 @@ const DeudasConsumoTable = ({
                         <td style={{ width: '100px' }}></td>
                         <td style={{ width: '120px' }}></td>
                         <td style={{ width: '110px' }}></td>
+                        <td style={{ width: '50px' }}></td>
                         <td style={{ width: '90px' }}></td>
                         <td style={{ width: '40px' }}></td>
                     </tr>
@@ -382,7 +406,7 @@ const DeudasConsumoTable = ({
                         <td className={`px-2 py-1.5 text-right ${headerText} ${T.totalValue}`}>
                             {totalMontoCuota ? formatCurrency(totalMontoCuota) : '—'}
                         </td>
-                        <td colSpan={2}></td>
+                        <td colSpan={3}></td>
                     </tr>
                 </tfoot>
             </table>

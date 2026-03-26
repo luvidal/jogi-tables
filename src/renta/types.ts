@@ -15,8 +15,9 @@ export type RowData = {
     collapsed?: boolean    // group headers only: whether children are hidden
     // Ordering
     order?: number         // explicit sort position within its type section
-    // Variable flag
+    // Classification flags
     isVariable?: boolean   // true = variable income/deduction (drives Renta Variable calc)
+    naturaleza?: 'Imponible' | 'No imponible' | 'Legal' | 'Otro'  // AI-classified, analyst-editable
     // Soft-delete
     deletedAt?: string     // ISO timestamp — presence means row is in recycle bin
     deletionReason?: string // User-provided reason for deletion
@@ -63,6 +64,10 @@ export interface RentaTableProps {
 
     // Variable column — shows "Var?" checkbox per row + summary rows (Renta Líquida/Variable/Fija)
     showVariableColumn?: boolean
+
+    // Classification columns — shows Tipo (naturaleza) and Renta (RF/RV) columns
+    // When true, replaces showVariableColumn with two wider, more intuitive columns
+    showClassificationColumns?: boolean
 
     // Source file viewing
     sourceFileIds?: string[]  // Source files for the whole table (shown in header)

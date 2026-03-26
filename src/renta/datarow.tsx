@@ -5,6 +5,27 @@ import { T } from '../common/styles'
 import { isSubtractType } from './helpers'
 import type { RowData, Month } from './types'
 
+type NaturalezaType = 'Imponible' | 'No imponible' | 'Legal' | 'Otro' | undefined
+
+const naturalezaPill = (n: NaturalezaType): { label: string; style: string } => {
+    switch (n) {
+        case 'Imponible': return { label: 'IMP', style: 'bg-blue-50 text-blue-600 border border-blue-200' }
+        case 'No imponible': return { label: 'NO IMP', style: 'bg-gray-50 text-gray-500 border border-gray-200' }
+        case 'Legal': return { label: 'LEGAL', style: 'bg-green-50 text-green-600 border border-green-200' }
+        case 'Otro': return { label: 'OTRO', style: 'bg-slate-50 text-slate-500 border border-slate-200' }
+        default: return { label: '—', style: 'bg-gray-50 text-gray-300 border border-gray-100' }
+    }
+}
+
+const rentaPill = (isVariable: boolean | undefined, naturaleza: NaturalezaType): { label: string; style: string } => {
+    if (naturaleza === 'Legal') return { label: '—', style: 'bg-gray-50 text-gray-300 border border-gray-100' }
+    return isVariable
+        ? { label: 'RV', style: 'bg-amber-50 text-amber-600 border border-amber-200' }
+        : { label: 'RF', style: 'bg-sky-50 text-sky-600 border border-sky-200' }
+}
+
+const PILL = 'rounded-sm py-0.5 text-[9px] font-semibold cursor-pointer select-none transition-opacity hover:opacity-70 block leading-tight whitespace-nowrap text-center mx-auto px-1.5'
+
 interface DataRowProps {
     row: RowData
     months: Month[]
@@ -35,6 +56,9 @@ interface DataRowProps {
     /** Variable column */
     showVariableColumn?: boolean
     onToggleVariable?: () => void
+    /** Classification columns (Tipo + Renta) */
+    showClassificationColumns?: boolean
+    onToggleNaturaleza?: () => void
     /** Drag reorder: is this row being dragged */
     isDragging?: boolean
     /** Drag reorder: is this the drop target, and position */
@@ -74,6 +98,8 @@ const DataRow = ({
     editInitialValue,
     showVariableColumn = false,
     onToggleVariable,
+    showClassificationColumns = false,
+    onToggleNaturaleza,
     isDragging = false,
     dropIndicator,
     onDragStart,
@@ -113,21 +139,7 @@ const DataRow = ({
             onDragLeave={onDragLeave}
             onDrop={onDrop}
         >
-            {showVariableColumn && (
-                <td
-                    className={`px-0 py-0 cursor-pointer select-none text-center ${
-                        row.isVariable
-                            ? 'bg-amber-200 text-amber-700 hover:bg-amber-300'
-                            : 'bg-blue-200 text-blue-700 hover:bg-blue-300'
-                    }`}
-                    style={{ width: '20px', fontSize: '9px', fontWeight: 600, lineHeight: 1, letterSpacing: '0.02em' }}
-                    onClick={(e) => { e.stopPropagation(); onToggleVariable?.() }}
-                    title={row.isVariable ? 'Renta Variable — click para cambiar a fija' : 'Renta Fija — click para cambiar a variable'}
-                >
-                    {row.isVariable ? 'RV' : 'RF'}
-                </td>
-            )}
-            <td className={`pl-1 pr-2 py-1.5 text-gray-700 ${T.cellLabel}`} style={{ width: showVariableColumn ? '160px' : '180px' }}>
+            <td className={`pl-1 pr-2 py-1.5 text-gray-700 ${T.cellLabel}`} style={{ width: (showClassificationColumns || showVariableColumn) ? '140px' : '180px' }}>
                 <div className={`flex items-center gap-0.5 min-w-0 ${indented ? 'pl-4' : ''}`}>
                     {isHovered && onDragStart && !anySelected && (
                         <span
@@ -169,6 +181,37 @@ const DataRow = ({
                     )}
                 </div>
             </td>
+            {showClassificationColumns && (() => {
+                const tipo = naturalezaPill(row.naturaleza)
+                const renta = rentaPill(row.isVariable, row.naturaleza)
+                return (
+                    <>
+                        <td className="px-0.5 py-1 text-center" style={{ width: '44px' }}
+                            onClick={(e) => { e.stopPropagation(); onToggleNaturaleza?.() }}
+                            title={`${row.naturaleza || 'Sin tipo'} — click para cambiar`}
+                        >
+                            <span className={`${PILL} ${tipo.style}`}>{tipo.label}</span>
+                        </td>
+                        <td className="px-0.5 py-1 text-center" style={{ width: '36px' }}
+                            onClick={(e) => { e.stopPropagation(); if (row.naturaleza !== 'Legal') onToggleVariable?.() }}
+                            title={row.naturaleza === 'Legal' ? 'Descuento legal' : row.isVariable ? 'Variable — click para cambiar a Fija' : 'Fija — click para cambiar a Variable'}
+                        >
+                            <span className={`${PILL} ${renta.style}`}>{renta.label}</span>
+                        </td>
+                    </>
+                )
+            })()}
+            {showVariableColumn && !showClassificationColumns && (() => {
+                const renta = rentaPill(row.isVariable, undefined)
+                return (
+                    <td className="px-0.5 py-1 text-center" style={{ width: '28px' }}
+                        onClick={(e) => { e.stopPropagation(); onToggleVariable?.() }}
+                        title={row.isVariable ? 'Variable — click para cambiar a Fija' : 'Fija — click para cambiar a Variable'}
+                    >
+                        <span className={`${PILL} ${renta.style}`}>{renta.label}</span>
+                    </td>
+                )
+            })()}
             {months.map((p, mi) => {
                 const cellFocused = isCellFocused?.(mi) ?? false
                 return (

@@ -12,6 +12,7 @@ interface AddRowProps {
     onAddRow: (label: string) => void
     onAddRowWithValue: (monthId: string, value: number | null) => void
     showVariableColumn?: boolean
+    showClassificationColumns?: boolean
 }
 
 const AddRow = ({
@@ -22,6 +23,7 @@ const AddRow = ({
     onAddRow,
     onAddRowWithValue,
     showVariableColumn = false,
+    showClassificationColumns = false,
 }: AddRowProps) => {
     const subtract = isSubtractType(section.type)
     const bgClass = subtract
@@ -30,8 +32,7 @@ const AddRow = ({
 
     return (
         <tr className={`border-b border-dashed ${bgClass}`}>
-            {showVariableColumn && <td style={{ width: '20px' }} />}
-            <td className="px-4 py-1.5" style={{ width: showVariableColumn ? '160px' : '180px' }}>
+            <td className="px-4 py-1.5" style={{ width: (showClassificationColumns || showVariableColumn) ? '140px' : '180px' }}>
                 <input
                     type="text"
                     placeholder={section.placeholder}
@@ -45,6 +46,8 @@ const AddRow = ({
                     }}
                 />
             </td>
+            {showClassificationColumns && <><td style={{ width: '44px' }} /><td style={{ width: '36px' }} /></>}
+            {showVariableColumn && !showClassificationColumns && <td style={{ width: '28px' }} />}
             {months.map((p) => (
                 <EditableCell
                     key={p.id}

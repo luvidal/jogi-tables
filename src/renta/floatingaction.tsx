@@ -98,9 +98,10 @@ interface HeaderSelectionBarProps {
     onDeleteSelected: () => void
     onCancel: () => void
     showVariableColumn?: boolean
+    showClassificationColumns?: boolean
 }
 
-export const HeaderSelectionBar = ({ selectedCount, canGroup, monthCount, naming, onNamingChange, onGroup, onDeleteSelected, onCancel, showVariableColumn = false }: HeaderSelectionBarProps) => {
+export const HeaderSelectionBar = ({ selectedCount, canGroup, monthCount, naming, onNamingChange, onGroup, onDeleteSelected, onCancel, showVariableColumn = false, showClassificationColumns = false }: HeaderSelectionBarProps) => {
     const [groupName, setGroupName] = useState('')
     const inputRef = useRef<HTMLInputElement>(null)
 
@@ -128,7 +129,7 @@ export const HeaderSelectionBar = ({ selectedCount, canGroup, monthCount, naming
 
     return (
         <td
-            colSpan={monthCount + 2 + (showVariableColumn ? 1 : 0)}
+            colSpan={monthCount + 2 + (showClassificationColumns ? 2 : showVariableColumn ? 1 : 0)}
             className="px-4 py-2.5"
             onClick={(e) => e.stopPropagation()}
         >

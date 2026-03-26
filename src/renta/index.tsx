@@ -47,6 +47,7 @@ const RentaTable = ({
     formatValue = defaultFormatValue,
     calculateTotal = defaultCalculateTotal,
     showVariableColumn = false,
+    showClassificationColumns = false,
     sourceFileIds,
     onViewSource,
 }: RentaTableProps) => {
@@ -215,6 +216,20 @@ const RentaTable = ({
         onRowsChange(rows.map(r => r.id === rowId ? { ...r, isVariable: !r.isVariable } : r))
     }, [rows, onRowsChange])
 
+    const toggleNaturaleza = useCallback((rowId: string) => {
+        onRowsChange(rows.map(r => {
+            if (r.id !== rowId) return r
+            const isIncome = isAddType(r.type)
+            const cycle: string[] = isIncome
+                ? ['Imponible', 'No imponible']
+                : ['Legal', 'Otro']
+            const current = r.naturaleza || cycle[0]
+            const idx = cycle.indexOf(current)
+            const next = cycle[(idx + 1) % cycle.length]
+            return { ...r, naturaleza: next as RowData['naturaleza'] }
+        }))
+    }, [rows, onRowsChange])
+
     const addRow = useCallback((type: typeof rows[0]['type'], label: string) => {
         if (!label.trim()) return
         const newRow: RowData = { id: `row_${type}_${Date.now()}`, label: label.trim(), type, values: {} }
@@ -277,7 +292,9 @@ const RentaTable = ({
             onValueChange={(monthId, value) => updateRowValue(r.id, monthId, value)}
             onViewSource={onViewSource}
             showVariableColumn={showVariableColumn}
+            showClassificationColumns={showClassificationColumns}
             onToggleVariable={() => toggleVariable(r.id)}
+            onToggleNaturaleza={() => toggleNaturaleza(r.id)}
             isCellFocused={(mi) => keyboard.isFocused(r.id, mi)}
             onCellFocus={(mi) => keyboard.focus(r.id, mi)}
             onNavigate={keyboard.navigate}
@@ -321,11 +338,11 @@ const RentaTable = ({
                                         onDeleteSelected={requestDeleteSelected}
                                         onCancel={() => { clearSelection(); setNaming(false) }}
                                         showVariableColumn={showVariableColumn}
+                                        showClassificationColumns={showClassificationColumns}
                                     />
                                 ) : (
                                     <>
-                                        {showVariableColumn && <td style={{ width: '20px' }} />}
-                                        <td className="px-4 py-2.5 text-left" style={{ width: showVariableColumn ? '160px' : '180px' }}>
+                                        <td className="px-4 py-2.5 text-left" style={{ width: (showClassificationColumns || showVariableColumn) ? '140px' : '180px' }}>
                                             <div className="flex items-center gap-2">
                                                 {!forceExpanded && (
                                                     isExpanded ? <ChevronUp size={16} className={headerText} /> : <ChevronDown size={16} className={headerText} />
@@ -334,6 +351,8 @@ const RentaTable = ({
                                                 <SourceIcon fileIds={sourceFileIds} onViewSource={onViewSource} className={headerText} />
                                             </div>
                                         </td>
+                                        {showClassificationColumns && <><td style={{ width: '44px' }} className="text-center"><span className={`${headerText} text-[9px] font-semibold opacity-60`}>Tipo</span></td><td style={{ width: '36px' }} className="text-center"><span className={`${headerText} text-[9px] font-semibold opacity-60`}>Renta</span></td></>}
+                                        {showVariableColumn && !showClassificationColumns && <td style={{ width: '28px' }} />}
                                         {monthsArray.map((p) => {
                                             const total = calculateTotal(p.id, rows)
                                             const hasValue = total !== 0
@@ -399,10 +418,11 @@ const RentaTable = ({
                                         const label = isSubtract ? 'Total descuentos' : 'Total haberes'
                                         return (
                                             <tr className={`border-b-2 ${isSubtract ? 'border-b-rose-200 bg-red-50/30' : 'border-b-emerald-200 bg-emerald-50/30'}`}>
-                                                {showVariableColumn && <td style={{ width: '20px' }} />}
-                                                <td className="pl-4 pr-2 py-2 text-gray-700" style={{ width: showVariableColumn ? '160px' : '180px' }}>
+                                                <td className="pl-4 pr-2 py-2 text-gray-700" style={{ width: (showClassificationColumns || showVariableColumn) ? '140px' : '180px' }}>
                                                     <span className={`${T.totalLabel} ${isSubtract ? 'text-rose-700' : 'text-emerald-700'}`}>{label}</span>
                                                 </td>
+                                                {showClassificationColumns && <><td style={{ width: '44px' }} /><td style={{ width: '36px' }} /></>}
+                                                {showVariableColumn && !showClassificationColumns && <td style={{ width: '28px' }} />}
                                                 {monthsArray.map(p => {
                                                     const value = subtotals[p.id] ?? 0
                                                     const hasValue = value !== 0
@@ -438,6 +458,7 @@ const RentaTable = ({
                                                         onUngroup={() => handleUngroup(group.id)}
                                                         onLabelChange={(label) => updateRowLabel(group.id, label)}
                                                         showVariableColumn={showVariableColumn}
+                                                        showClassificationColumns={showClassificationColumns}
                                                         isDragging={drag.dragRowId === group.id}
                                                         dropIndicator={drag.dropTargetId === group.id ? drag.dropPosition : null}
                                                         onDragStart={drag.handleDragStart(group.id)}
@@ -460,12 +481,13 @@ const RentaTable = ({
                                         onAddRow={(label) => addRow(section.type, label)}
                                         onAddRowWithValue={(monthId, value) => addRowWithValue(section.type, monthId, value)}
                                         showVariableColumn={showVariableColumn}
+                                        showClassificationColumns={showClassificationColumns}
                                     />
                                 </React.Fragment>
                             )
                         })}
                         {/* Summary rows — Renta Líquida, Renta Variable, Renta Fija */}
-                        {showVariableColumn && effectiveSections.length > 1 && (() => {
+                        {(showVariableColumn || showClassificationColumns) && effectiveSections.length > 1 && (() => {
                             const rentaVariable = computeRentaVariable(rows, monthsArray)
                             // formatValue strips negatives (displayCurrencyCompact uses Math.abs).
                             // Summary rows can be negative, so we prefix the sign manually.
@@ -473,11 +495,12 @@ const RentaTable = ({
                             return (
                                 <>
                                     {/* Renta Variable = sum of variable-flagged items */}
-                                    <tr className="border-t-2 border-t-gray-200 border-b border-gray-100 bg-amber-50/50">
-                                        {showVariableColumn && <td className="bg-amber-200" style={{ width: '20px' }} />}
-                                        <td className="pl-4 pr-2 py-2" style={{ width: showVariableColumn ? '160px' : '180px' }}>
+                                    <tr className="border-t-2 border-t-gray-200 border-b border-gray-100 bg-amber-50/30">
+                                        <td className="pl-4 pr-2 py-2" style={{ width: (showClassificationColumns || showVariableColumn) ? '140px' : '180px' }}>
                                             <span className={`${T.totalLabel} text-amber-700`}>Renta Variable</span>
                                         </td>
+                                        {showClassificationColumns && <><td style={{ width: '44px' }} /><td style={{ width: '36px' }} className="text-center"><span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400" /></td></>}
+                                        {showVariableColumn && !showClassificationColumns && <td style={{ width: '28px' }} className="text-center"><span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400" /></td>}
                                         {monthsArray.map(p => {
                                             const value = rentaVariable[p.id] ?? 0
                                             const hasValue = value !== 0
@@ -492,11 +515,12 @@ const RentaTable = ({
                                         <td style={{ width: '40px' }} />
                                     </tr>
                                     {/* Renta Fija = Renta Líquida - Renta Variable */}
-                                    <tr className="border-b border-gray-200 bg-blue-50/50">
-                                        {showVariableColumn && <td className="bg-blue-200" style={{ width: '20px' }} />}
-                                        <td className="pl-4 pr-2 py-2" style={{ width: showVariableColumn ? '160px' : '180px' }}>
-                                            <span className={`${T.totalLabel} text-blue-700`}>Renta Fija</span>
+                                    <tr className="border-b border-gray-200 bg-sky-50/30">
+                                        <td className="pl-4 pr-2 py-2" style={{ width: (showClassificationColumns || showVariableColumn) ? '140px' : '180px' }}>
+                                            <span className={`${T.totalLabel} text-sky-700`}>Renta Fija</span>
                                         </td>
+                                        {showClassificationColumns && <><td style={{ width: '44px' }} /><td style={{ width: '36px' }} className="text-center"><span className="inline-block w-1.5 h-1.5 rounded-full bg-sky-400" /></td></>}
+                                        {showVariableColumn && !showClassificationColumns && <td style={{ width: '28px' }} className="text-center"><span className="inline-block w-1.5 h-1.5 rounded-full bg-sky-400" /></td>}
                                         {monthsArray.map(p => {
                                             const liquida = calculateTotal(p.id, rows)
                                             const variable = rentaVariable[p.id] ?? 0

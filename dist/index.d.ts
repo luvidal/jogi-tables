@@ -14,6 +14,7 @@ type RowData = {
     collapsed?: boolean;
     order?: number;
     isVariable?: boolean;
+    naturaleza?: 'Imponible' | 'No imponible' | 'Legal' | 'Otro';
     deletedAt?: string;
     deletionReason?: string;
 };
@@ -39,11 +40,12 @@ interface RentaTableProps {
     formatValue?: (value: number | null | undefined) => string;
     calculateTotal?: (monthId: string, rows: RowData[]) => number;
     showVariableColumn?: boolean;
+    showClassificationColumns?: boolean;
     sourceFileIds?: string[];
     onViewSource?: (fileIds: string[]) => void;
 }
 
-declare const RentaTable: ({ title, months, rows, onRowsChange, sections, headerBg, headerText, defaultCollapsed, forceExpanded, flush, formatValue, calculateTotal, showVariableColumn, sourceFileIds, onViewSource, }: RentaTableProps) => react_jsx_runtime.JSX.Element;
+declare const RentaTable: ({ title, months, rows, onRowsChange, sections, headerBg, headerText, defaultCollapsed, forceExpanded, flush, formatValue, calculateTotal, showVariableColumn, showClassificationColumns, sourceFileIds, onViewSource, }: RentaTableProps) => react_jsx_runtime.JSX.Element;
 
 declare const generateLastNMonths: (count: number) => Month[];
 
@@ -219,6 +221,7 @@ type DeudaConsumoRow = {
     saldo_deuda_pesos: number | null;
     monto_cuota: number | null;
     cuota_estimated?: boolean;
+    castigo_pct?: number;
     cuota_source_file_id?: string;
     cuotas_pagadas: number | null;
     cuotas_total: number | null;
