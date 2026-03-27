@@ -21,6 +21,8 @@ export const T = {
     empty: 'text-xs text-gray-400 italic',
     cardLabel: 'text-xs font-medium',
     cardValue: 'text-xs font-semibold',
+    rowBorder: 'border-b border-gray-100',
+    rowHover: 'hover:bg-gray-50',
     // Shared row primitives (used across summary, data-entry, and read-only tables)
     row: 'border-b border-gray-100',
     rowTotal: 'border-b bg-gray-50/80 border-gray-200',

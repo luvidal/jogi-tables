@@ -5,12 +5,13 @@ import { T } from '../common/styles'
 import { useGridKeyboard } from '../common/usegridkeyboard'
 import { applyAutoConversions, applyAutoCompute } from '../common/autoconvert'
 import type { AutoConvertRule, AutoComputeRule } from '../common/autoconvert'
-import { defaultFormatCurrency } from '../common/utils'
+import { defaultFormatCurrency, generateId } from '../common/utils'
 import { useSoftDelete } from '../common/usesoftdelete'
 import { useDragReorder } from '../common/usedragreorder'
 import DeleteDialog from '../common/deletedialog'
 import DeleteRowButton from '../common/deletebutton'
 import RecycleBin from '../common/recyclebin'
+import { useRowHover } from '../common/userowhover'
 import type { DeudaRow, DeudasTableProps } from './types'
 
 const LINEAS_TC_PATTERN = /l[ií]nea|tarjeta|tc/i
@@ -25,7 +26,7 @@ const DeudasTable = ({
     headerText = 'text-rose-700',
     onViewSource,
 }: DeudasTableProps) => {
-    const [hoveredRow, setHoveredRow] = useState<string | null>(null)
+    const { getHoverProps, isHovered: isRowHovered } = useRowHover()
     const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
     const [newRow, setNewRow] = useState({ institucion: '', tipo_deuda: '' })
     const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange)
@@ -96,7 +97,7 @@ const DeudasTable = ({
     const addRow = () => {
         if (!newRow.institucion.trim()) return
         const row: DeudaRow = {
-            id: `dc_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+            id: generateId('dc'),
             institucion: newRow.institucion.trim(),
             tipo_deuda: newRow.tipo_deuda.trim(),
             saldo_deuda_uf: null,
@@ -168,9 +169,9 @@ const DeudasTable = ({
                 </thead>
                 <tbody>
                     {activeRows.map(row => {
-                        const isHovered = hoveredRow === row.id
+                        const hovered = isRowHovered(row.id)
                         const selected = selectedRows.has(row.id)
-                        const showCheckbox = anySelected || isHovered
+                        const showCheckbox = anySelected || hovered
                         const isDragging = drag.dragRowId === row.id
                         const dropBorder = drag.dropTargetId === row.id
                             ? drag.dropPosition === 'above' ? 'border-t-2 border-t-blue-400' : 'border-b-2 border-b-blue-400'
@@ -178,9 +179,8 @@ const DeudasTable = ({
                         return (
                             <tr
                                 key={row.id}
-                                className={`border-b border-gray-100 ${selected ? 'bg-rose-50/60' : 'hover:bg-gray-50'} ${isDragging ? 'opacity-40' : ''} ${dropBorder}`}
-                                onMouseEnter={() => setHoveredRow(row.id)}
-                                onMouseLeave={() => setHoveredRow(null)}
+                                className={`${T.rowBorder} ${selected ? 'bg-rose-50/60' : T.rowHover} ${isDragging ? 'opacity-40' : ''} ${dropBorder}`}
+                                {...getHoverProps(row.id)}
                                 onClick={e => handleRowClick(e, row.id)}
                                 onDragOver={drag.handleDragOver(row.id)}
                                 onDragLeave={drag.handleDragLeave}
@@ -188,7 +188,7 @@ const DeudasTable = ({
                             >
                                 <td className={`pl-1 pr-2 py-2.5 ${T.cellLabel} relative`} style={{ width: '160px' }}>
                                     <div className="flex items-center gap-0.5 min-w-0">
-                                        {isHovered && !anySelected && (
+                                        {hovered && !anySelected && (
                                             <span
                                                 draggable
                                                 onDragStart={drag.handleDragStart(row.id)}
@@ -211,11 +211,11 @@ const DeudasTable = ({
                                             type="text"
                                             value={row.institucion}
                                             onChange={e => updateField(row.id, 'institucion', e.target.value)}
-                                            className={`flex-1 min-w-0 ${T.inputLabel} ${isHovered || showCheckbox ? '' : 'pl-1'}`}
+                                            className={`flex-1 min-w-0 ${T.inputLabel} ${hovered || showCheckbox ? '' : 'pl-1'}`}
                                             placeholder="Institución"
                                         />
                                     </div>
-                                    {isHovered && row.sourceFileId && onViewSource && (
+                                    {hovered && row.sourceFileId && onViewSource && (
                                         <button
                                             onClick={() => onViewSource([row.sourceFileId!])}
                                             className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] p-0.5 rounded text-rose-400 hover:text-rose-600 hover:bg-rose-100"
@@ -277,7 +277,7 @@ const DeudasTable = ({
                                         editInitialValue={keyboard.isFocused(row.id, 2) ? keyboard.editInitialValue : undefined}
                                         asDiv
                                     />
-                                    {isHovered && row.cuota_estimated && row.saldo_deuda_pesos != null && !row.castigo_pct && (
+                                    {hovered && row.cuota_estimated && row.saldo_deuda_pesos != null && !row.castigo_pct && (
                                         <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] group/info">
                                             <button className="p-0.5 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100">
                                                 <Info size={13} />
@@ -287,7 +287,7 @@ const DeudasTable = ({
                                             </div>
                                         </div>
                                     )}
-                                    {isHovered && row.cuota_source_file_id && onViewSource && (
+                                    {hovered && row.cuota_source_file_id && onViewSource && (
                                         <button
                                             onClick={() => onViewSource([row.cuota_source_file_id!])}
                                             className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] p-0.5 rounded text-rose-400 hover:text-rose-600 hover:bg-rose-100"
@@ -355,7 +355,7 @@ const DeudasTable = ({
                                     </div>
                                 </td>
                                 <td style={{ width: '40px' }} className="text-center">
-                                    <DeleteRowButton onClick={() => requestDelete(row.id)} isVisible={isHovered && !anySelected} />
+                                    <DeleteRowButton onClick={() => requestDelete(row.id)} isVisible={hovered && !anySelected} />
                                 </td>
                             </tr>
                         )

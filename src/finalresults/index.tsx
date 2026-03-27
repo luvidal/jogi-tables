@@ -40,9 +40,6 @@ export interface FinalResultsCompactProps {
     prompt?: (options: PromptOptions) => Promise<string | null>
 }
 
-const formatCurrency = (value: number | null | undefined): string => {
-    return displayCurrencyCompact(value)
-}
 
 const RiskBadge = ({ value, thresholds }: { value: number | null | undefined, thresholds: { warning: number, danger: number } }) => {
     if (value === null || value === undefined) return null
@@ -185,7 +182,7 @@ const FinalResultsCompact = ({
                     <div className="border-t border-emerald-300 pt-2 mt-2 flex items-center justify-between">
                         <span className={`${T.footerLabel} text-emerald-800 text-xs`}>TOTAL</span>
                         <span className={`text-emerald-800 ${T.footerValue}`}>
-                            {formatCurrency(displayTotal > 0 ? displayTotal : null)}
+                            {displayCurrencyCompact(displayTotal > 0 ? displayTotal : null)}
                         </span>
                     </div>
                 </div>
@@ -216,14 +213,14 @@ const FinalResultsCompact = ({
                     <div className="flex items-center justify-between">
                         <span className={T.muted}>Deudas</span>
                         <span className={`text-orange-600 ${T.cardValue}`}>
-                            {formatCurrency(totalDebts > 0 ? totalDebts : null)}
+                            {displayCurrencyCompact(totalDebts > 0 ? totalDebts : null)}
                         </span>
                     </div>
 
                     <div className="border-t border-sky-300 pt-2 mt-2 flex items-center justify-between">
                         <span className={`${T.footerLabel} text-sky-800 text-xs`}>TOTAL</span>
                         <span className={`text-sky-800 ${T.footerValue}`}>
-                            {formatCurrency((dividendo + totalDebts) > 0 ? dividendo + totalDebts : null)}
+                            {displayCurrencyCompact((dividendo + totalDebts) > 0 ? dividendo + totalDebts : null)}
                         </span>
                     </div>
                 </div>

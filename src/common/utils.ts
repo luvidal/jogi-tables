@@ -1,5 +1,28 @@
 // Currency formatting — inlined from jogi's lib/reports/utils.ts
 
+export const generateId = (prefix: string) =>
+    `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`
+
+export const formatDeletedDate = (iso: string): string => {
+    const d = new Date(iso)
+    const now = new Date()
+    const diffMs = now.getTime() - d.getTime()
+    const diffMin = Math.floor(diffMs / 60000)
+    if (diffMin < 1) return 'hace un momento'
+    if (diffMin < 60) return `hace ${diffMin} min`
+    const diffHrs = Math.floor(diffMin / 60)
+    if (diffHrs < 24) return `hace ${diffHrs}h`
+    const diffDays = Math.floor(diffHrs / 24)
+    if (diffDays < 7) return `hace ${diffDays}d`
+    return d.toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })
+}
+
+export const MONTH_LABELS: Record<string, string> = {
+    enero: 'Enero', febrero: 'Febrero', marzo: 'Marzo', abril: 'Abril',
+    mayo: 'Mayo', junio: 'Junio', julio: 'Julio', agosto: 'Agosto',
+    septiembre: 'Septiembre', octubre: 'Octubre', noviembre: 'Noviembre', diciembre: 'Diciembre',
+}
+
 export const displayCurrency = (value: number | undefined | null): string => {
     if (value === undefined || value === null) return ''
     return `$ ${value.toLocaleString('es-CL')}`

@@ -27,31 +27,42 @@ npm run test:watch   # Run tests in watch mode
 src/
 ├── index.tsx              # Re-export hub (no component code)
 ├── common/                # Shared components, hooks, utils — see common/README.md
-│   ├── styles.ts          # T object — Tailwind class tokens
-│   ├── utils.ts           # displayCurrency, displayCurrencyCompact
+│   ├── styles.ts          # T object — Tailwind class tokens (incl. rowBorder, rowHover)
+│   ├── utils.ts           # displayCurrency, displayCurrencyCompact, generateId, formatDeletedDate, MONTH_LABELS
 │   ├── editablecell.tsx   # Inline-editable table cell
+│   ├── currencytoggle.tsx # UF/$ toggle button
+│   ├── recyclebin.tsx     # Recycle bin footer (table-based, optional renderCells)
 │   ├── usegridkeyboard.ts # Grid keyboard navigation hook (arrow keys, Tab, Enter, Escape)
+│   ├── userowhover.ts    # Row hover state hook
 │   └── usemobile.ts       # useIsMobile hook
-├── monthly/               # MonthlyTable — see monthly/README.md
-│   ├── index.tsx          # MonthlyTable component
-│   ├── types.ts           # RowData, Month, RowType, SectionDef, MonthlyTableProps
+├── renta/                 # RentaTable (monthly spreadsheet) — see renta/README.md
+│   ├── index.tsx          # RentaTable component
+│   ├── types.ts           # RowData, Month, RowType, SectionDef, RentaTableProps
 │   ├── helpers.ts         # generateLastNMonths, grouping, totals
 │   ├── datarow.tsx        # Single editable data row
 │   ├── addrow.tsx         # "Add new row" input row
 │   ├── grouprow.tsx       # Collapsible group header
 │   ├── floatingaction.tsx # HeaderSelectionBar + ContextMenu
-│   ├── usekeyboard.ts    # Grid keyboard navigation hook
-│   ├── usedragreorder.ts # Drag-and-drop reorder hook
-│   ├── deletedialog.tsx   # Soft-delete confirmation modal
-│   └── recyclebin.tsx     # Recycle bin footer
-├── debts/                 # DebtsTable — see debts/README.md
+│   ├── usekeyboard.ts    # Grid keyboard navigation hook wrapper
+│   └── usedragreorder.ts # Drag-and-drop reorder hook
+├── assets/                # AssetTable — generic column-driven CRUD table
+│   ├── assettable.tsx     # AssetTable component
+│   └── types.ts           # ColumnDef, AssetTableProps, AssetRow
+├── vehiculos/             # VehiculosTable (thin wrapper around AssetTable)
+│   ├── index.tsx
+│   └── types.ts
+├── inversiones/           # InversionesTable (thin wrapper around AssetTable)
+│   ├── index.tsx
+│   └── types.ts
+├── propiedades/           # PropiedadesTable (AssetTable + UF/$ toggle)
+│   ├── index.tsx
+│   └── types.ts
+├── deudas/                # DeudasTable — see deudas/README.md
 │   └── index.tsx
 ├── boletas/               # BoletasTable — see boletas/README.md
 │   └── index.tsx
 ├── tributario/            # TributarioTable — see tributario/README.md
 │   └── index.tsx
-└── assets/                # AssetTable — see assets/README.md
-    └── index.tsx
 
 dev/
 ├── index.html             # Visual test page entry point
@@ -108,20 +119,26 @@ Month, RowData, RowType, MonthlyTableProps
 generateLastNMonths
 
 // Table components (named exports)
-DebtsTable, BoletasTable, TributarioTable, AssetTable
+DebtsTable, BoletasTable, TributarioTable
+VehiculosTable, InversionesTable, PropiedadesTable
+AssetTable  // generic column-driven CRUD table
 
 // Table type exports
 DebtEntry, DebtsTableProps
 BoletaMonth, BoletasTableProps
 TributarioEntry, TributarioTableProps
-AssetRowData, AssetTableProps
+VehiculoRow, VehiculosTableProps
+InversionRow, InversionesTableProps
+PropiedadRow, PropiedadesTableProps
+ColumnDef, AssetTableProps
 
 // Common components (named exports)
-DeleteDialog, RecycleBin, TableShell, SourceIcon
+DeleteDialog, RecycleBin, TableShell, SourceIcon, EditableCell, CurrencyToggle
 
 // Common hooks/utils (named exports)
 useSoftDelete, applyAutoConversions, applyAutoCompute
 defaultFormatCurrency, displayCurrency, displayCurrencyCompact
+generateId, formatDeletedDate, MONTH_LABELS
 
 // Common type exports
 SoftDeletable, TableShellProps, AutoConvertRule, AutoComputeRule
@@ -146,9 +163,17 @@ export type { BoletaMonth, BoletasTableProps } from '@avd/financetables'
 export { TributarioTable as default } from '@avd/financetables'
 export type { TributarioEntry, TributarioTableProps } from '@avd/financetables'
 
-// jogi/lib/reports/asset-table.tsx → assettable.tsx
-export { AssetTable as default } from '@avd/financetables'
-export type { AssetRowData, AssetTableProps } from '@avd/financetables'
+// jogi/lib/reports/vehiculostable.tsx
+export { VehiculosTable as default } from '@avd/financetables'
+export type { VehiculoRow, VehiculosTableProps } from '@avd/financetables'
+
+// jogi/lib/reports/inversionestable.tsx
+export { InversionesTable as default } from '@avd/financetables'
+export type { InversionRow, InversionesTableProps } from '@avd/financetables'
+
+// jogi/lib/reports/propiedadestable.tsx
+export { PropiedadesTable as default } from '@avd/financetables'
+export type { PropiedadRow, PropiedadesTableProps } from '@avd/financetables'
 ```
 
 ```ts

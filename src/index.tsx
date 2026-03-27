@@ -29,7 +29,11 @@ export type { InversionRow, InversionesTableProps } from './inversiones/types'
 
 // PropiedadesTable
 export { default as PropiedadesTable } from './propiedades'
-export type { PropiedadRow, PropiedadesTableProps, HipotecarioOption } from './propiedades/types'
+export type { PropiedadRow, PropiedadesTableProps } from './propiedades/types'
+
+// AssetTable (generic column-driven CRUD table used by vehiculos, inversiones, propiedades)
+export { default as AssetTable } from './assets/assettable'
+export type { ColumnDef, AssetTableProps } from './assets/types'
 
 // ActivosSummary
 export { default as ActivosSummary } from './activossummary'
@@ -49,4 +53,5 @@ export { default as TableShell, SourceIcon } from './common/tableshell'
 export type { TableShellProps } from './common/tableshell'
 export { applyAutoConversions, applyAutoCompute } from './common/autoconvert'
 export type { AutoConvertRule, AutoComputeRule } from './common/autoconvert'
-export { defaultFormatCurrency, displayCurrency, displayCurrencyCompact } from './common/utils'
+export { defaultFormatCurrency, displayCurrency, displayCurrencyCompact, generateId, formatDeletedDate, MONTH_LABELS } from './common/utils'
+export { default as CurrencyToggle } from './common/currencytoggle'

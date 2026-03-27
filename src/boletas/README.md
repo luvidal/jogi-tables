@@ -19,8 +19,10 @@ Boletas de honorarios table with monthly breakdown (read-only display with accor
 ## Dependencies
 
 - `../common/tableshell` — `TableShell` accordion wrapper + `SourceIcon` (see [Adding a New Table](#adding-a-new-table))
-- `../common/utils` — `displayCurrencyCompact` for currency formatting
+- `../common/utils` — `displayCurrencyCompact` for currency formatting, `MONTH_LABELS` for month name display
 - `../common/styles` — `T` object for Tailwind classes
+- `../common/userowhover` — `useRowHover()` for row hover state
+- `../common/deletebutton` — `DeleteRowButton` for month removal
 
 ## Props
 

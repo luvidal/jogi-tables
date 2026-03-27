@@ -1,174 +1,33 @@
-import React, { useState, useMemo } from 'react'
-import EditableCell from '../common/editablecell'
-import DeleteRowButton from '../common/deletebutton'
-import { T } from '../common/styles'
-import { useFieldUpdate } from '../common/usefieldupdate'
-import { useRowHover } from '../common/userowhover'
-import { useGridKeyboard } from '../common/usegridkeyboard'
-import { defaultFormatCurrency } from '../common/utils'
-import { useSoftDelete } from '../common/usesoftdelete'
-import DeleteDialog from '../common/deletedialog'
-import RecycleBin from '../common/recyclebin'
+import AssetTable from '../assets/assettable'
+import type { ColumnDef } from '../assets/types'
 import type { VehiculoRow, VehiculosTableProps } from './types'
+
+const columns: ColumnDef[] = [
+    { key: 'marca', label: 'Marca', type: 'text', width: '160px', isLabel: true, placeholder: 'Marca' },
+    { key: 'modelo', label: 'Modelo', type: 'text', width: '140px', placeholder: 'Modelo' },
+    { key: 'monto', label: 'Monto $', type: 'currency', width: '120px' },
+    { key: 'anio', label: 'Año', type: 'number', width: '80px', align: 'center' },
+]
 
 const VehiculosTable = ({
     rows,
     onRowsChange,
-    formatCurrency = defaultFormatCurrency,
+    formatCurrency,
     headerBg = 'bg-slate-50',
     headerText = 'text-slate-700',
     title,
-}: VehiculosTableProps) => {
-    const { getHoverProps, isHovered } = useRowHover()
-    const { updateField } = useFieldUpdate(rows, onRowsChange)
-    const [newRow, setNewRow] = useState({ marca: '', modelo: '' })
-    const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange)
-    const visibleRowIds = useMemo(() => activeRows.map(r => r.id), [activeRows])
-    const keyboard = useGridKeyboard({ visibleRowIds, colCount: 2 })
-
-    const addRow = (overrides?: Partial<VehiculoRow>) => {
-        const row: VehiculoRow = {
-            id: `vh_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-            marca: newRow.marca.trim(),
-            modelo: newRow.modelo.trim(),
-            monto: null,
-            anio: null,
-            ...overrides,
-        }
-        setNewRow({ marca: '', modelo: '' })
-        onRowsChange([...rows, row])
-    }
-
-    const totalMonto = activeRows.reduce((s, r) => s + (r.monto || 0), 0)
-
-    return (<>
-        <div className="overflow-x-auto" onKeyDown={keyboard.handleContainerKeyDown} tabIndex={0}>
-            <table className={T.table} style={{ tableLayout: 'fixed' }}>
-                <thead>
-                    <tr className={`${headerBg} border-t border-slate-200 ${headerText}`}>
-                        <th className={`px-2 py-1.5 text-left ${T.th} ${headerText}`} style={{ width: '160px' }}>{title || 'Marca'}</th>
-                        <th className={`px-2 py-1.5 text-left ${T.th} ${headerText}`} style={{ width: '140px' }}>Modelo</th>
-                        <th className={`px-2 py-1.5 text-right ${T.th} ${headerText}`} style={{ width: '120px' }}>Monto $</th>
-                        <th className={`px-2 py-1.5 text-center ${T.th} ${headerText}`} style={{ width: '80px' }}>Año</th>
-                        <th style={{ width: '40px' }}></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {activeRows.map(row => {
-                        const hovered = isHovered(row.id)
-                        return (
-                            <tr
-                                key={row.id}
-                                className="border-b border-gray-100 hover:bg-gray-50"
-                                {...getHoverProps(row.id)}
-                            >
-                                <td className={`px-2 py-2.5 ${T.cellLabel}`} style={{ width: '160px' }}>
-                                    <div className="flex items-center gap-1 min-w-0">
-                                        <DeleteRowButton onClick={() => requestDelete(row.id)} isVisible={hovered} />
-                                        <input
-                                            type="text"
-                                            value={row.marca}
-                                            onChange={e => updateField(row.id, 'marca', e.target.value)}
-                                            className={`flex-1 min-w-0 ${T.inputLabel} pl-1`}
-                                            placeholder="Marca"
-                                        />
-                                    </div>
-                                </td>
-                                <td className="px-2 py-2.5" style={{ width: '140px' }}>
-                                    <input
-                                        type="text"
-                                        value={row.modelo}
-                                        onChange={e => updateField(row.id, 'modelo', e.target.value)}
-                                        className={`w-full ${T.input} pl-1`}
-                                        placeholder="Modelo"
-                                    />
-                                </td>
-                                <EditableCell
-                                    value={row.monto}
-                                    onChange={v => updateField(row.id, 'monto', v as number | null)}
-                                    type="currency"
-                                    hasData={row.monto !== null}
-                                    width="120px"
-                                    focused={keyboard.isFocused(row.id, 0)}
-                                    onCellFocus={() => keyboard.focus(row.id, 0)}
-                                    onNavigate={keyboard.navigate}
-                                    requestEdit={keyboard.isFocused(row.id, 0) ? keyboard.editTrigger : 0}
-                                    requestClear={keyboard.isFocused(row.id, 0) ? keyboard.clearTrigger : 0}
-                                    editInitialValue={keyboard.isFocused(row.id, 0) ? keyboard.editInitialValue : undefined}
-                                />
-                                <EditableCell
-                                    value={row.anio}
-                                    onChange={v => updateField(row.id, 'anio', v as number | null)}
-                                    type="number"
-                                    hasData={row.anio !== null}
-                                    width="80px"
-                                    align="center"
-                                    focused={keyboard.isFocused(row.id, 1)}
-                                    onCellFocus={() => keyboard.focus(row.id, 1)}
-                                    onNavigate={keyboard.navigate}
-                                    requestEdit={keyboard.isFocused(row.id, 1) ? keyboard.editTrigger : 0}
-                                    requestClear={keyboard.isFocused(row.id, 1) ? keyboard.clearTrigger : 0}
-                                    editInitialValue={keyboard.isFocused(row.id, 1) ? keyboard.editInitialValue : undefined}
-                                />
-                                <td style={{ width: '40px' }}></td>
-                            </tr>
-                        )
-                    })}
-
-                    {/* Add row */}
-                    <tr className="border-b border-dashed border-slate-100 bg-slate-50/20">
-                        <td className="px-2 py-2.5" style={{ width: '160px' }}>
-                            <input
-                                type="text"
-                                placeholder="Agregar vehículo..."
-                                value={newRow.marca}
-                                onChange={e => setNewRow(prev => ({ ...prev, marca: e.target.value }))}
-                                className={`w-full ${T.inputPlaceholder}`}
-                                onKeyDown={e => { if (e.key === 'Enter' && newRow.marca.trim()) addRow() }}
-                            />
-                        </td>
-                        <td className="px-2 py-2.5" style={{ width: '140px' }}>
-                            <input
-                                type="text"
-                                placeholder="Modelo"
-                                value={newRow.modelo}
-                                onChange={e => setNewRow(prev => ({ ...prev, modelo: e.target.value }))}
-                                className={`w-full ${T.inputPlaceholder}`}
-                            />
-                        </td>
-                        <EditableCell
-                            value={null}
-                            onChange={v => addRow({ monto: v as number | null })}
-                            type="currency"
-                            hasData={false}
-                            width="120px"
-                        />
-                        <EditableCell
-                            value={null}
-                            onChange={v => addRow({ anio: v as number | null })}
-                            type="number"
-                            hasData={false}
-                            width="80px"
-                            align="center"
-                        />
-                        <td style={{ width: '40px' }}></td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr className={`${headerBg} font-semibold text-xs border-b border-slate-200`}>
-                        <td colSpan={2} className={`px-2 py-1.5 ${headerText} ${T.totalLabel}`}>TOTAL</td>
-                        <td className={`px-2 py-1.5 text-right ${headerText} ${T.totalValue}`}>
-                            {totalMonto ? formatCurrency(totalMonto) : '—'}
-                        </td>
-                        <td colSpan={2}></td>
-                    </tr>
-                </tfoot>
-            </table>
-            <RecycleBin deletedRows={deletedRows} getLabel={(r) => r.marca} onRestore={restoreRow} />
-        </div>
-        {deleteTargetId && <DeleteDialog count={1} onConfirm={confirmDelete} onCancel={cancelDelete} />}
-    </>
-    )
-}
+}: VehiculosTableProps) => (
+    <AssetTable<VehiculoRow>
+        columns={columns}
+        rows={rows}
+        onRowsChange={onRowsChange}
+        idPrefix="vh"
+        addPlaceholder="Agregar vehículo..."
+        formatCurrency={formatCurrency}
+        headerBg={headerBg}
+        headerText={headerText}
+        title={title}
+    />
+)
 
 export default VehiculosTable

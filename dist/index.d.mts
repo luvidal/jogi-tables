@@ -233,21 +233,7 @@ type PropiedadRow = {
     valor_pesos: number | null;
     arriendo_real: number | null;
     arriendo_futuro: number | null;
-    institucion: string;
-    tipo_deuda: string;
-    saldo_deuda_uf: number | null;
-    saldo_deuda_pesos: number | null;
-    monto_cuota: number | null;
-    cuotas_pagadas: number | null;
-    cuotas_total: number | null;
-    sourceFileId?: string;
 } & SoftDeletable;
-interface HipotecarioOption {
-    entidad: string;
-    saldo_pesos: number | null;
-    saldo_uf: number | null;
-    monto_cuota: number | null;
-}
 interface PropiedadesTableProps {
     rows: PropiedadRow[];
     onRowsChange: (rows: PropiedadRow[]) => void;
@@ -257,13 +243,71 @@ interface PropiedadesTableProps {
     factorDescuento?: number;
     headerBg?: string;
     headerText?: string;
-    onViewSource?: (fileIds: string[]) => void;
     title?: React.ReactNode;
-    /** CMF hipotecario entries available for matching to properties via dropdown */
-    hipotecarioOptions?: HipotecarioOption[];
 }
 
-declare const PropiedadesTable: ({ rows, onRowsChange, formatCurrency, ufValue, capRate, factorDescuento, headerBg, headerText, onViewSource, title, hipotecarioOptions, }: PropiedadesTableProps) => react_jsx_runtime.JSX.Element;
+declare const PropiedadesTable: ({ rows, onRowsChange, formatCurrency, ufValue, capRate, factorDescuento, headerBg, headerText, title, }: PropiedadesTableProps) => react_jsx_runtime.JSX.Element;
+
+type AutoConvertRule = {
+    source: string;
+    target: string;
+    formula: (value: number, params: Record<string, number>) => number;
+    precision?: number;
+};
+type AutoComputeRule = {
+    target: string;
+    depends: string[];
+    condition?: (row: Record<string, any>) => boolean;
+    formula: (row: Record<string, any>, params: Record<string, number>) => number | null;
+};
+/**
+ * Apply auto-conversions after a field edit.
+ * Given the edited field and its new value, applies matching conversion rules
+ * (e.g. UF→CLP or CLP→UF) and returns the updated row.
+ */
+declare function applyAutoConversions<T extends Record<string, any>>(row: T, editedField: string, editedValue: any, rules: AutoConvertRule[], params: Record<string, number>): T;
+/**
+ * Apply auto-compute rules after a field edit.
+ * Checks which compute rules depend on the edited field, evaluates conditions,
+ * and applies formulas to compute derived values.
+ */
+declare function applyAutoCompute<T extends Record<string, any>>(row: T, editedField: string, rules: AutoComputeRule[], params: Record<string, number>): T;
+
+type AssetRow = {
+    id: string;
+} & SoftDeletable & Record<string, unknown>;
+interface ColumnDef {
+    key: string;
+    label: string;
+    type: 'text' | 'currency' | 'number';
+    width: string;
+    align?: 'left' | 'right' | 'center';
+    placeholder?: string;
+    isLabel?: boolean;
+    /** Key of the paired UF/CLP field shown when currency toggle switches */
+    ufPair?: string;
+    /** Return class to apply when cell value is auto-computed */
+    autoComputedClass?: (row: Record<string, unknown>) => string;
+}
+interface AssetTableProps<T extends AssetRow = AssetRow> {
+    columns: ColumnDef[];
+    rows: T[];
+    onRowsChange: (rows: T[]) => void;
+    idPrefix: string;
+    addPlaceholder?: string;
+    formatCurrency?: (value: number | null | undefined) => string;
+    headerBg?: string;
+    headerText?: string;
+    title?: React.ReactNode;
+    /** UF value — enables UF/$ toggle when columns have ufPair */
+    ufValue?: number | null;
+    /** Auto-conversion rules (UF↔CLP) */
+    conversionRules?: AutoConvertRule[];
+    /** Auto-compute rules */
+    computeRules?: AutoComputeRule[];
+}
+
+declare function AssetTable<T extends AssetRow>({ columns, rows, onRowsChange, idPrefix, addPlaceholder, formatCurrency, headerBg, headerText, title, ufValue, conversionRules, computeRules, }: AssetTableProps<T>): react_jsx_runtime.JSX.Element;
 
 interface ActivosSummaryItem {
     label: string;
@@ -361,8 +405,9 @@ interface RecycleBinProps<T extends RecycleBinRow> {
     deletedRows: T[];
     getLabel: (row: T) => string;
     onRestore: (id: string) => void;
+    renderCells?: (row: T) => React.ReactNode;
 }
-declare function RecycleBin<T extends RecycleBinRow>({ deletedRows, getLabel, onRestore }: RecycleBinProps<T>): react_jsx_runtime.JSX.Element | null;
+declare function RecycleBin<T extends RecycleBinRow>({ deletedRows, getLabel, onRestore, renderCells }: RecycleBinProps<T>): react_jsx_runtime.JSX.Element | null;
 
 type SoftDeletableRow = {
     id: string;
@@ -400,31 +445,9 @@ interface TableShellProps {
 }
 declare const TableShell: ({ headerBg, defaultCollapsed, forceExpanded, disableToggle, flush, renderHeader, children, renderAfterContent, contentClassName, contentProps, }: TableShellProps) => react_jsx_runtime.JSX.Element;
 
-type AutoConvertRule = {
-    source: string;
-    target: string;
-    formula: (value: number, params: Record<string, number>) => number;
-    precision?: number;
-};
-type AutoComputeRule = {
-    target: string;
-    depends: string[];
-    condition?: (row: Record<string, any>) => boolean;
-    formula: (row: Record<string, any>, params: Record<string, number>) => number | null;
-};
-/**
- * Apply auto-conversions after a field edit.
- * Given the edited field and its new value, applies matching conversion rules
- * (e.g. UF→CLP or CLP→UF) and returns the updated row.
- */
-declare function applyAutoConversions<T extends Record<string, any>>(row: T, editedField: string, editedValue: any, rules: AutoConvertRule[], params: Record<string, number>): T;
-/**
- * Apply auto-compute rules after a field edit.
- * Checks which compute rules depend on the edited field, evaluates conditions,
- * and applies formulas to compute derived values.
- */
-declare function applyAutoCompute<T extends Record<string, any>>(row: T, editedField: string, rules: AutoComputeRule[], params: Record<string, number>): T;
-
+declare const generateId: (prefix: string) => string;
+declare const formatDeletedDate: (iso: string) => string;
+declare const MONTH_LABELS: Record<string, string>;
 declare const displayCurrency: (value: number | undefined | null) => string;
 /**
  * Compact currency: rounds to nearest thousand and displays without decimals.
@@ -437,4 +460,9 @@ declare const displayCurrency: (value: number | undefined | null) => string;
 declare const defaultFormatCurrency: (value: number | null | undefined) => string;
 declare const displayCurrencyCompact: (value: number | undefined | null, isDeduction?: boolean) => string;
 
-export { ActivosSummary, type ActivosSummaryItem, type ActivosSummaryProps, type AutoComputeRule, type AutoConvertRule, type BoletaMonth, BoletasTable, type BoletasTableProps, type CodeudorIncomeInfo, DeleteDialog, type DeudaRow, DeudasTable, type DeudasTableProps, EditableCell, FinalResultsCompact, type FinalResultsCompactProps, type FinalResultsValues, type HipotecarioOption, type InversionRow, InversionesTable, type InversionesTableProps, type Month, type PromptOptions, type PropiedadRow, PropiedadesTable, type PropiedadesTableProps, RecycleBin, type ReliquidacionBreakdown, type RentaTableProps, type RowData, type RowType, type SoftDeletable, SourceIcon, type SummaryRow, type SummaryRowFormat, type SummaryRowType, SummaryTable, type SummaryTableProps, TableShell, type TableShellProps, type TributarioEntry, TributarioTable, type TributarioTableProps, type VehiculoRow, VehiculosTable, type VehiculosTableProps, applyAutoCompute, applyAutoConversions, RentaTable as default, defaultFormatCurrency, displayCurrency, displayCurrencyCompact, generateLastNMonths, useSoftDelete };
+declare const CurrencyToggle: ({ value, onChange }: {
+    value: "uf" | "clp";
+    onChange: (v: "uf" | "clp") => void;
+}) => react_jsx_runtime.JSX.Element;
+
+export { ActivosSummary, type ActivosSummaryItem, type ActivosSummaryProps, AssetTable, type AssetTableProps, type AutoComputeRule, type AutoConvertRule, type BoletaMonth, BoletasTable, type BoletasTableProps, type CodeudorIncomeInfo, type ColumnDef, CurrencyToggle, DeleteDialog, type DeudaRow, DeudasTable, type DeudasTableProps, EditableCell, FinalResultsCompact, type FinalResultsCompactProps, type FinalResultsValues, type InversionRow, InversionesTable, type InversionesTableProps, MONTH_LABELS, type Month, type PromptOptions, type PropiedadRow, PropiedadesTable, type PropiedadesTableProps, RecycleBin, type ReliquidacionBreakdown, type RentaTableProps, type RowData, type RowType, type SoftDeletable, SourceIcon, type SummaryRow, type SummaryRowFormat, type SummaryRowType, SummaryTable, type SummaryTableProps, TableShell, type TableShellProps, type TributarioEntry, TributarioTable, type TributarioTableProps, type VehiculoRow, VehiculosTable, type VehiculosTableProps, applyAutoCompute, applyAutoConversions, RentaTable as default, defaultFormatCurrency, displayCurrency, displayCurrencyCompact, formatDeletedDate, generateId, generateLastNMonths, useSoftDelete };

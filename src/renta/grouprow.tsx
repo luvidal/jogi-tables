@@ -11,8 +11,7 @@ interface GroupRowProps {
     isHovered: boolean
     forceExpanded: boolean
     formatValue: (value: number | null | undefined) => string
-    onMouseEnter: () => void
-    onMouseLeave: () => void
+    hoverProps: Record<string, unknown>
     onToggleCollapse: () => void
     onUngroup: () => void
     onLabelChange: (label: string) => void
@@ -36,8 +35,7 @@ const GroupRow = ({
     isHovered,
     forceExpanded,
     formatValue,
-    onMouseEnter,
-    onMouseLeave,
+    hoverProps,
     onToggleCollapse,
     onUngroup,
     onLabelChange,
@@ -60,8 +58,7 @@ const GroupRow = ({
     return (
         <tr
             className={`border-b border-gray-200 ${subtract ? 'bg-red-50/30' : 'bg-gray-50/50'} ${isDragging ? 'opacity-40' : ''} ${dropBorder} group`}
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
+            {...hoverProps}
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
             onDrop={onDrop}

@@ -42,9 +42,6 @@ export interface TributarioTableProps {
 // Helpers
 // ============================================================================
 
-const formatCurrency = (value: number | null | undefined): string => {
-    return displayCurrencyCompact(value)
-}
 
 // ============================================================================
 // Component
@@ -98,13 +95,13 @@ const TributarioTable = ({
                                         <td className="px-3 py-3 text-right" style={{ width: '140px' }}>
                                             <span className={`${headerText} ${T.headerStatLabel}`}>Ingresos: </span>
                                             <span className={`${T.headerStat} ${totalIngresos > 0 ? 'text-emerald-600' : 'text-gray-400'}`}>
-                                                {totalIngresos > 0 ? formatCurrency(totalIngresos) : '—'}
+                                                {totalIngresos > 0 ? displayCurrencyCompact(totalIngresos) : '—'}
                                             </span>
                                         </td>
                                         <td className="px-3 py-3 text-right" style={{ width: '140px' }}>
                                             <span className={`${headerText} ${T.headerStatLabel}`}>Egresos: </span>
                                             <span className={`${T.headerStat} ${totalEgresos > 0 ? headerText : 'text-gray-400'}`}>
-                                                {totalEgresos > 0 ? formatCurrency(totalEgresos) : '—'}
+                                                {totalEgresos > 0 ? displayCurrencyCompact(totalEgresos) : '—'}
                                             </span>
                                         </td>
                                     </>
@@ -153,10 +150,10 @@ const TributarioTable = ({
                                     {entry.year ? `Año ${entry.year}` : '—'}
                                 </td>
                                 <td className="px-3 py-2.5 text-right text-emerald-700 font-medium" style={{ width: '140px' }}>
-                                    {formatCurrency(entry.ingresos)}
+                                    {displayCurrencyCompact(entry.ingresos)}
                                 </td>
                                 <td className="px-3 py-2.5 text-right text-amber-700 font-medium" style={{ width: '140px' }}>
-                                    {formatCurrency(entry.egresos)}
+                                    {displayCurrencyCompact(entry.egresos)}
                                 </td>
                                 <td style={{ width: '40px' }}></td>
                             </tr>

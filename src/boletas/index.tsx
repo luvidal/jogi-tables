@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { ChevronUp, ChevronDown } from 'lucide-react'
-import { displayCurrencyCompact } from '../common/utils'
+import { displayCurrencyCompact, MONTH_LABELS } from '../common/utils'
 import { T } from '../common/styles'
 import TableShell, { SourceIcon } from '../common/tableshell'
 import DeleteRowButton from '../common/deletebutton'
+import { useRowHover } from '../common/userowhover'
 
 // ============================================================================
 // Types
@@ -43,15 +44,6 @@ export interface BoletasTableProps {
 // Helpers
 // ============================================================================
 
-const formatCurrency = (value: number | null | undefined): string => {
-    return displayCurrencyCompact(value)
-}
-
-const MONTH_LABELS: Record<string, string> = {
-    enero: 'Enero', febrero: 'Febrero', marzo: 'Marzo', abril: 'Abril',
-    mayo: 'Mayo', junio: 'Junio', julio: 'Julio', agosto: 'Agosto',
-    septiembre: 'Septiembre', octubre: 'Octubre', noviembre: 'Noviembre', diciembre: 'Diciembre',
-}
 
 // ============================================================================
 // Component
@@ -70,7 +62,7 @@ const BoletasTable = ({
     onViewSource,
     onRemoveMonth,
 }: BoletasTableProps) => {
-    const [hoveredRow, setHoveredRow] = useState<number | null>(null)
+    const { getHoverProps, isHovered } = useRowHover()
     const monthsWithData = months.filter(m => m.hasData)
     const totalLiquido = totales?.total_liquido ?? monthsWithData.reduce((s, m) => s + (m.liquido || 0), 0)
     const totalBoletas = totales?.boletas_vigentes ?? monthsWithData.reduce((s, m) => s + (m.boletas || 0), 0)
@@ -98,11 +90,11 @@ const BoletasTable = ({
                             </span>
                             <span className={headerText}>
                                 <span className={`${T.headerStatLabel}`}>Líquido: </span>
-                                <span className={T.headerStat}>{formatCurrency(totalLiquido)}</span>
+                                <span className={T.headerStat}>{displayCurrencyCompact(totalLiquido)}</span>
                             </span>
                             <span className={headerText}>
                                 <span className={`${T.headerStatLabel}`}>Promedio: </span>
-                                <span className={T.headerStat}>{formatCurrency(Math.round(promedioMensual))}</span>
+                                <span className={T.headerStat}>{displayCurrencyCompact(Math.round(promedioMensual))}</span>
                             </span>
                         </div>
                         {!forceExpanded && (
@@ -127,9 +119,8 @@ const BoletasTable = ({
                         {months.map((m, i) => (
                             <tr
                                 key={i}
-                                className={`border-b border-gray-100 ${m.hasData ? 'hover:bg-emerald-50/30' : ''}`}
-                                onMouseEnter={() => setHoveredRow(i)}
-                                onMouseLeave={() => setHoveredRow(null)}
+                                className={`${T.rowBorder} ${m.hasData ? 'hover:bg-emerald-50/30' : ''}`}
+                                {...getHoverProps(i)}
                             >
                                 <td className={`px-4 py-2.5 font-medium ${T.cellLabel} ${m.hasData ? 'text-gray-700' : 'text-gray-300'}`} style={{ width: '140px' }}>
                                     <span className="truncate block">{MONTH_LABELS[m.mes] || m.mes}</span>
@@ -138,20 +129,20 @@ const BoletasTable = ({
                                     {m.hasData ? (m.boletas ?? '') : ''}
                                 </td>
                                 <td className="px-3 py-2.5 text-right text-gray-800" style={{ width: '130px' }}>
-                                    {m.hasData ? formatCurrency(m.bruto) : ''}
+                                    {m.hasData ? displayCurrencyCompact(m.bruto) : ''}
                                 </td>
                                 <td className="px-3 py-2.5 text-right text-red-700" style={{ width: '130px' }}>
-                                    {m.hasData ? formatCurrency(m.retencion) : ''}
+                                    {m.hasData ? displayCurrencyCompact(m.retencion) : ''}
                                 </td>
                                 <td className="px-4 py-2.5 text-right font-medium text-emerald-700" style={{ width: '130px' }}>
-                                    {m.hasData ? formatCurrency(m.liquido) : ''}
+                                    {m.hasData ? displayCurrencyCompact(m.liquido) : ''}
                                 </td>
                                 {onRemoveMonth && (
                                     <td style={{ width: '36px' }} className="text-center">
                                         {m.hasData && (
                                             <DeleteRowButton
                                                 onClick={() => onRemoveMonth(m.periodo)}
-                                                isVisible={hoveredRow === i}
+                                                isVisible={isHovered(i)}
                                             />
                                         )}
                                     </td>
@@ -166,16 +157,16 @@ const BoletasTable = ({
                                 {totalBoletas}
                             </td>
                             <td className={`px-3 py-3 text-right ${T.footerValue} text-emerald-700`} style={{ width: '130px' }}>
-                                {formatCurrency(totales?.honorario_bruto ?? monthsWithData.reduce((s, m) => s + (m.bruto || 0), 0))}
+                                {displayCurrencyCompact(totales?.honorario_bruto ?? monthsWithData.reduce((s, m) => s + (m.bruto || 0), 0))}
                             </td>
                             <td className={`px-3 py-3 text-right ${T.footerValue} text-red-700`} style={{ width: '130px' }}>
-                                {formatCurrency(
+                                {displayCurrencyCompact(
                                     (totales?.retencion_terceros ?? 0) + (totales?.retencion_contribuyente ?? 0)
                                     || monthsWithData.reduce((s, m) => s + (m.retencion || 0), 0)
                                 )}
                             </td>
                             <td className={`px-4 py-3 text-right ${T.footerValue} text-emerald-700`} style={{ width: '130px' }}>
-                                {formatCurrency(totalLiquido)}
+                                {displayCurrencyCompact(totalLiquido)}
                             </td>
                             {onRemoveMonth && <td style={{ width: '36px' }} />}
                         </tr>

@@ -1,5 +1,5 @@
 import React4, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import { Eye, Info, ChevronUp, ChevronDown, Trash2, Undo2, GripVertical, ChevronRight, Ungroup, Check, X, FoldVertical } from 'lucide-react';
+import { Eye, Trash2, ChevronUp, ChevronDown, Undo2, Info, GripVertical, ChevronRight, Ungroup, Check, X, FoldVertical } from 'lucide-react';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { createPortal } from 'react-dom';
 
@@ -23,9 +23,10 @@ var T = {
   footerLabel: "font-bold",
   footerValue: "font-bold",
   muted: "text-xs text-gray-600",
-  empty: "text-xs text-gray-400 italic",
   cardLabel: "text-xs font-medium",
   cardValue: "text-xs font-semibold",
+  rowBorder: "border-b border-gray-100",
+  rowHover: "hover:bg-gray-50",
   // Shared row primitives (used across summary, data-entry, and read-only tables)
   row: "border-b border-gray-100",
   rowTotal: "border-b bg-gray-50/80 border-gray-200",
@@ -101,6 +102,34 @@ var TableShell = ({
 var tableshell_default = TableShell;
 
 // src/common/utils.ts
+var generateId = (prefix) => `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+var formatDeletedDate = (iso) => {
+  const d = new Date(iso);
+  const now = /* @__PURE__ */ new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const diffMin = Math.floor(diffMs / 6e4);
+  if (diffMin < 1) return "hace un momento";
+  if (diffMin < 60) return `hace ${diffMin} min`;
+  const diffHrs = Math.floor(diffMin / 60);
+  if (diffHrs < 24) return `hace ${diffHrs}h`;
+  const diffDays = Math.floor(diffHrs / 24);
+  if (diffDays < 7) return `hace ${diffDays}d`;
+  return d.toLocaleDateString("es-CL", { day: "numeric", month: "short" });
+};
+var MONTH_LABELS = {
+  enero: "Enero",
+  febrero: "Febrero",
+  marzo: "Marzo",
+  abril: "Abril",
+  mayo: "Mayo",
+  junio: "Junio",
+  julio: "Julio",
+  agosto: "Agosto",
+  septiembre: "Septiembre",
+  octubre: "Octubre",
+  noviembre: "Noviembre",
+  diciembre: "Diciembre"
+};
 var displayCurrency = (value) => {
   if (value === void 0 || value === null) return "";
   return `$ ${value.toLocaleString("es-CL")}`;
@@ -489,8 +518,7 @@ var DataRow = ({
   selected = false,
   anySelected = false,
   selectable = false,
-  onMouseEnter,
-  onMouseLeave,
+  hoverProps,
   onRemove,
   onToggleSelect,
   onContextMenu,
@@ -533,8 +561,7 @@ var DataRow = ({
     {
       className: `border-b border-gray-100 ${rowBg} ${isDragging ? "opacity-40" : ""} ${dropBorder} group`,
       onClick: handleRowClick,
-      onMouseEnter,
-      onMouseLeave,
+      ...hoverProps,
       onContextMenu,
       onDragOver,
       onDragLeave,
@@ -716,8 +743,7 @@ var GroupRow = ({
   isHovered,
   forceExpanded,
   formatValue,
-  onMouseEnter,
-  onMouseLeave,
+  hoverProps,
   onToggleCollapse,
   onUngroup,
   onLabelChange,
@@ -739,8 +765,7 @@ var GroupRow = ({
     "tr",
     {
       className: `border-b border-gray-200 ${subtract ? "bg-red-50/30" : "bg-gray-50/50"} ${isDragging ? "opacity-40" : ""} ${dropBorder} group`,
-      onMouseEnter,
-      onMouseLeave,
+      ...hoverProps,
       onDragOver,
       onDragLeave,
       onDrop,
@@ -894,20 +919,7 @@ var DeleteDialog = ({ count, onConfirm, onCancel }) => {
   return dialog;
 };
 var deletedialog_default = DeleteDialog;
-var formatDeletedDate = (iso) => {
-  const d = new Date(iso);
-  const now = /* @__PURE__ */ new Date();
-  const diffMs = now.getTime() - d.getTime();
-  const diffMin = Math.floor(diffMs / 6e4);
-  if (diffMin < 1) return "hace un momento";
-  if (diffMin < 60) return `hace ${diffMin} min`;
-  const diffHrs = Math.floor(diffMin / 60);
-  if (diffHrs < 24) return `hace ${diffHrs}h`;
-  const diffDays = Math.floor(diffHrs / 24);
-  if (diffDays < 7) return `hace ${diffDays}d`;
-  return d.toLocaleDateString("es-CL", { day: "numeric", month: "short" });
-};
-var RecycleBin = ({ deletedRows, months, onRestore, formatValue, showVariableColumn = false }) => {
+function RecycleBin({ deletedRows, getLabel, onRestore, renderCells }) {
   const [expanded, setExpanded] = useState(false);
   if (deletedRows.length === 0) return null;
   return /* @__PURE__ */ jsxs("div", { className: "border-t border-gray-200 bg-gray-50/50", children: [
@@ -927,53 +939,36 @@ var RecycleBin = ({ deletedRows, months, onRestore, formatValue, showVariableCol
         ]
       }
     ),
-    expanded && /* @__PURE__ */ jsx("table", { className: T.table, style: { tableLayout: "fixed" }, children: /* @__PURE__ */ jsx("tbody", { children: deletedRows.map((row) => {
-      const subtract = isSubtractType(row.type);
-      return /* @__PURE__ */ jsxs("tr", { className: "border-b border-gray-100 opacity-75 group", children: [
-        showVariableColumn && /* @__PURE__ */ jsx("td", { style: { width: "20px" } }),
-        /* @__PURE__ */ jsx("td", { className: `pl-1 pr-2 py-1.5 text-gray-500 ${T.cellLabel}`, style: { width: showVariableColumn ? "160px" : "180px" }, children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1 min-w-0", children: [
+    expanded && /* @__PURE__ */ jsx("table", { className: T.table, style: { tableLayout: "fixed" }, children: /* @__PURE__ */ jsx("tbody", { children: deletedRows.map((row) => /* @__PURE__ */ jsxs("tr", { className: `${T.rowBorder} opacity-75`, children: [
+      /* @__PURE__ */ jsx("td", { className: `pl-1 pr-2 py-1.5 text-gray-500 ${T.cellLabel}`, children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1 min-w-0", children: [
+        /* @__PURE__ */ jsx(
+          "button",
+          {
+            onClick: () => onRestore(row.id),
+            className: "shrink-0 p-1 rounded text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors",
+            title: "Restaurar",
+            children: /* @__PURE__ */ jsx(Undo2, { size: 13 })
+          }
+        ),
+        /* @__PURE__ */ jsxs("div", { className: "min-w-0 flex-1", children: [
           /* @__PURE__ */ jsx(
-            "button",
+            "span",
             {
-              onClick: () => onRestore(row.id),
-              className: "shrink-0 p-1 rounded text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors",
-              title: "Restaurar",
-              children: /* @__PURE__ */ jsx(Undo2, { size: 13 })
+              className: `${T.rowLabel} line-through text-gray-400 truncate block`,
+              title: getLabel(row),
+              children: getLabel(row)
             }
           ),
-          /* @__PURE__ */ jsxs("div", { className: "min-w-0 flex-1", children: [
-            /* @__PURE__ */ jsx(
-              "span",
-              {
-                className: `${T.rowLabel} line-through text-gray-400 truncate block`,
-                title: row.label,
-                children: row.label
-              }
-            ),
-            row.deletedAt && /* @__PURE__ */ jsxs("span", { className: "text-[10px] text-gray-400 truncate block", title: row.deletionReason, children: [
-              formatDeletedDate(row.deletedAt),
-              row.deletionReason && ` \xB7 ${row.deletionReason}`
-            ] })
+          row.deletedAt && /* @__PURE__ */ jsxs("span", { className: "text-[10px] text-gray-400 truncate block", title: row.deletionReason, children: [
+            formatDeletedDate(row.deletedAt),
+            row.deletionReason && ` \xB7 ${row.deletionReason}`
           ] })
-        ] }) }),
-        months.map((m) => {
-          const v = row.values[m.id];
-          const hasValue = v != null;
-          return /* @__PURE__ */ jsx(
-            "td",
-            {
-              className: "px-2 py-1.5 text-right tabular-nums",
-              style: { width: "110px" },
-              children: /* @__PURE__ */ jsx("span", { className: `${T.totalValue} ${hasValue ? subtract ? "text-rose-300" : "text-gray-400" : "text-gray-200"}`, children: hasValue ? formatValue(v) : "\u2014" })
-            },
-            m.id
-          );
-        }),
-        /* @__PURE__ */ jsx("td", { style: { width: "40px" } })
-      ] }, row.id);
-    }) }) })
+        ] })
+      ] }) }),
+      renderCells && renderCells(row)
+    ] }, row.id)) }) })
   ] });
-};
+}
 var recyclebin_default = RecycleBin;
 var ContextMenu = ({ x, y, canGroup, selectedCount, onGroup, onDeleteSelected, onCancel, onClose }) => {
   const ref = useRef(null);
@@ -1395,6 +1390,15 @@ function isSameFamily(a, b) {
   const isAdd = (t) => t === "add" || t === "income";
   return isAdd(a.type) === isAdd(b.type);
 }
+function useRowHover() {
+  const [hoveredRow, setHoveredRow] = useState(null);
+  const getHoverProps = useCallback((id) => ({
+    onMouseEnter: () => setHoveredRow(id),
+    onMouseLeave: () => setHoveredRow(null)
+  }), []);
+  const isHovered = useCallback((id) => hoveredRow === id, [hoveredRow]);
+  return { hoveredRow, getHoverProps, isHovered };
+}
 var fmtK = (v) => {
   const sign = v < 0 ? "-" : "";
   const abs = Math.abs(v);
@@ -1451,7 +1455,7 @@ var RentaTable = ({
   onViewSource,
   reliquidacion
 }) => {
-  const [hoveredRow, setHoveredRow] = useState(null);
+  const { getHoverProps, isHovered: isRowHovered } = useRowHover();
   const [newRowLabels, setNewRowLabels] = useState({});
   const [selectedRows, setSelectedRows] = useState(/* @__PURE__ */ new Set());
   const [contextMenu, setContextMenu] = useState(null);
@@ -1640,12 +1644,11 @@ var RentaTable = ({
     {
       row: r,
       months: monthsArray,
-      isHovered: hoveredRow === r.id,
+      isHovered: isRowHovered(r.id),
       selected: selectedRows.has(r.id),
       anySelected,
       selectable: !r.isGroup,
-      onMouseEnter: () => setHoveredRow(r.id),
-      onMouseLeave: () => setHoveredRow(null),
+      hoverProps: getHoverProps(r.id),
       onRemove: () => requestDelete(r.id),
       onToggleSelect: () => toggleSelect(r.id),
       onContextMenu: (e) => handleContextMenu(e, r.id),
@@ -1727,7 +1730,26 @@ var RentaTable = ({
         /* @__PURE__ */ jsx("td", { style: { width: "40px" } })
       ] }) }) }) }),
       renderAfterContent: ({ isExpanded }) => /* @__PURE__ */ jsxs(Fragment, { children: [
-        isExpanded && /* @__PURE__ */ jsx(recyclebin_default, { deletedRows, months: monthsArray, onRestore: handleRestore, formatValue, showVariableColumn }),
+        isExpanded && /* @__PURE__ */ jsx(
+          recyclebin_default,
+          {
+            deletedRows,
+            getLabel: (r) => r.label,
+            onRestore: handleRestore,
+            renderCells: (row) => {
+              const subtract = isSubtractType(row.type);
+              return /* @__PURE__ */ jsxs(Fragment, { children: [
+                showVariableColumn && /* @__PURE__ */ jsx("td", { style: { width: "20px" } }),
+                monthsArray.map((m) => {
+                  const v = row.values[m.id];
+                  const hasValue = v != null;
+                  return /* @__PURE__ */ jsx("td", { className: "px-2 py-1.5 text-right tabular-nums", style: { width: "110px" }, children: /* @__PURE__ */ jsx("span", { className: `${T.totalValue} ${hasValue ? subtract ? "text-rose-300" : "text-gray-400" : "text-gray-200"}`, children: hasValue ? formatValue(v) : "\u2014" }) }, m.id);
+                }),
+                /* @__PURE__ */ jsx("td", { style: { width: "40px" } })
+              ] });
+            }
+          }
+        ),
         deleteTarget && /* @__PURE__ */ jsx(
           deletedialog_default,
           {
@@ -1785,11 +1807,10 @@ var RentaTable = ({
                       group,
                       childRows: groupChildren,
                       months: monthsArray,
-                      isHovered: hoveredRow === group.id,
+                      isHovered: isRowHovered(group.id),
                       forceExpanded,
                       formatValue,
-                      onMouseEnter: () => setHoveredRow(group.id),
-                      onMouseLeave: () => setHoveredRow(null),
+                      hoverProps: getHoverProps(group.id),
                       onToggleCollapse: () => toggleGroupCollapse(group.id),
                       onUngroup: () => handleUngroup(group.id),
                       onLabelChange: (label) => updateRowLabel(group.id, label),
@@ -1989,79 +2010,18 @@ var useDragReorder2 = () => {
     handleDragEnd
   };
 };
-var formatDeletedDate2 = (iso) => {
-  const d = new Date(iso);
-  const now = /* @__PURE__ */ new Date();
-  const diffMs = now.getTime() - d.getTime();
-  const diffMin = Math.floor(diffMs / 6e4);
-  if (diffMin < 1) return "hace un momento";
-  if (diffMin < 60) return `hace ${diffMin} min`;
-  const diffHrs = Math.floor(diffMin / 60);
-  if (diffHrs < 24) return `hace ${diffHrs}h`;
-  const diffDays = Math.floor(diffHrs / 24);
-  if (diffDays < 7) return `hace ${diffDays}d`;
-  return d.toLocaleDateString("es-CL", { day: "numeric", month: "short" });
-};
-function RecycleBin2({ deletedRows, getLabel, onRestore }) {
-  const [expanded, setExpanded] = useState(false);
-  if (deletedRows.length === 0) return null;
-  return /* @__PURE__ */ jsxs("div", { className: "border-t border-gray-200 bg-gray-50/50", children: [
-    /* @__PURE__ */ jsxs(
-      "button",
-      {
-        onClick: () => setExpanded(!expanded),
-        className: "w-full px-4 py-2 flex items-center gap-2 text-xs text-gray-400 hover:text-gray-600 hover:bg-gray-100/50 transition-colors",
-        children: [
-          /* @__PURE__ */ jsx(Trash2, { size: 12 }),
-          /* @__PURE__ */ jsxs("span", { children: [
-            deletedRows.length,
-            " eliminado",
-            deletedRows.length !== 1 ? "s" : ""
-          ] }),
-          expanded ? /* @__PURE__ */ jsx(ChevronUp, { size: 12 }) : /* @__PURE__ */ jsx(ChevronDown, { size: 12 })
-        ]
-      }
-    ),
-    expanded && /* @__PURE__ */ jsx("div", { className: "px-4 pb-2 space-y-1", children: deletedRows.map((row) => /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2 py-1 opacity-75", children: [
-      /* @__PURE__ */ jsx(
-        "button",
-        {
-          onClick: () => onRestore(row.id),
-          className: "shrink-0 p-1 rounded text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors",
-          title: "Restaurar",
-          children: /* @__PURE__ */ jsx(Undo2, { size: 13 })
-        }
-      ),
-      /* @__PURE__ */ jsxs("div", { className: "min-w-0 flex-1", children: [
-        /* @__PURE__ */ jsx(
-          "span",
-          {
-            className: "text-xs font-medium line-through text-gray-400 truncate block",
-            title: getLabel(row),
-            children: getLabel(row)
-          }
-        ),
-        row.deletedAt && /* @__PURE__ */ jsxs("span", { className: "text-[10px] text-gray-400 truncate block", title: row.deletionReason, children: [
-          formatDeletedDate2(row.deletedAt),
-          row.deletionReason && ` \xB7 ${row.deletionReason}`
-        ] })
-      ] })
-    ] }, row.id)) })
-  ] });
-}
-var recyclebin_default2 = RecycleBin2;
 var LINEAS_TC_PATTERN = /l[ií]nea|tarjeta|tc/i;
 var DeudasTable = ({
   rows,
   onRowsChange,
-  formatCurrency: formatCurrency4 = defaultFormatCurrency,
+  formatCurrency = defaultFormatCurrency,
   ufValue,
   castigo = 0.05,
   headerBg = "bg-rose-50",
   headerText = "text-rose-700",
   onViewSource
 }) => {
-  const [hoveredRow, setHoveredRow] = useState(null);
+  const { getHoverProps, isHovered: isRowHovered } = useRowHover();
   const [selectedRows, setSelectedRows] = useState(/* @__PURE__ */ new Set());
   const [newRow, setNewRow] = useState({ institucion: "", tipo_deuda: "" });
   const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange);
@@ -2119,7 +2079,7 @@ var DeudasTable = ({
   const addRow = () => {
     if (!newRow.institucion.trim()) return;
     const row = {
-      id: `dc_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+      id: generateId("dc"),
       institucion: newRow.institucion.trim(),
       tipo_deuda: newRow.tipo_deuda.trim(),
       saldo_deuda_uf: null,
@@ -2184,17 +2144,16 @@ var DeudasTable = ({
         ] }) }) }),
         /* @__PURE__ */ jsxs("tbody", { children: [
           activeRows.map((row) => {
-            const isHovered = hoveredRow === row.id;
+            const hovered = isRowHovered(row.id);
             const selected = selectedRows.has(row.id);
-            const showCheckbox = anySelected || isHovered;
+            const showCheckbox = anySelected || hovered;
             const isDragging = drag.dragRowId === row.id;
             const dropBorder = drag.dropTargetId === row.id ? drag.dropPosition === "above" ? "border-t-2 border-t-blue-400" : "border-b-2 border-b-blue-400" : "";
             return /* @__PURE__ */ jsxs(
               "tr",
               {
-                className: `border-b border-gray-100 ${selected ? "bg-rose-50/60" : "hover:bg-gray-50"} ${isDragging ? "opacity-40" : ""} ${dropBorder}`,
-                onMouseEnter: () => setHoveredRow(row.id),
-                onMouseLeave: () => setHoveredRow(null),
+                className: `${T.rowBorder} ${selected ? "bg-rose-50/60" : T.rowHover} ${isDragging ? "opacity-40" : ""} ${dropBorder}`,
+                ...getHoverProps(row.id),
                 onClick: (e) => handleRowClick(e, row.id),
                 onDragOver: drag.handleDragOver(row.id),
                 onDragLeave: drag.handleDragLeave,
@@ -2202,7 +2161,7 @@ var DeudasTable = ({
                 children: [
                   /* @__PURE__ */ jsxs("td", { className: `pl-1 pr-2 py-2.5 ${T.cellLabel} relative`, style: { width: "160px" }, children: [
                     /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-0.5 min-w-0", children: [
-                      isHovered && !anySelected && /* @__PURE__ */ jsx(
+                      hovered && !anySelected && /* @__PURE__ */ jsx(
                         "span",
                         {
                           draggable: true,
@@ -2228,12 +2187,12 @@ var DeudasTable = ({
                           type: "text",
                           value: row.institucion,
                           onChange: (e) => updateField(row.id, "institucion", e.target.value),
-                          className: `flex-1 min-w-0 ${T.inputLabel} ${isHovered || showCheckbox ? "" : "pl-1"}`,
+                          className: `flex-1 min-w-0 ${T.inputLabel} ${hovered || showCheckbox ? "" : "pl-1"}`,
                           placeholder: "Instituci\xF3n"
                         }
                       )
                     ] }),
-                    isHovered && row.sourceFileId && onViewSource && /* @__PURE__ */ jsx(
+                    hovered && row.sourceFileId && onViewSource && /* @__PURE__ */ jsx(
                       "button",
                       {
                         onClick: () => onViewSource([row.sourceFileId]),
@@ -2305,16 +2264,16 @@ var DeudasTable = ({
                         asDiv: true
                       }
                     ),
-                    isHovered && row.cuota_estimated && row.saldo_deuda_pesos != null && !row.castigo_pct && /* @__PURE__ */ jsxs("div", { className: "absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] group/info", children: [
+                    hovered && row.cuota_estimated && row.saldo_deuda_pesos != null && !row.castigo_pct && /* @__PURE__ */ jsxs("div", { className: "absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] group/info", children: [
                       /* @__PURE__ */ jsx("button", { className: "p-0.5 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100", children: /* @__PURE__ */ jsx(Info, { size: 13 }) }),
                       /* @__PURE__ */ jsxs("div", { className: "hidden group-hover/info:block absolute bottom-full right-0 mb-1 px-2 py-1 rounded bg-gray-800 text-white text-[10px] whitespace-nowrap z-50 shadow-lg", children: [
                         "Estimado: ",
                         Math.round((row.castigo_pct ?? castigo) * 100),
                         "% de ",
-                        formatCurrency4(row.saldo_deuda_pesos)
+                        formatCurrency(row.saldo_deuda_pesos)
                       ] })
                     ] }),
-                    isHovered && row.cuota_source_file_id && onViewSource && /* @__PURE__ */ jsx(
+                    hovered && row.cuota_source_file_id && onViewSource && /* @__PURE__ */ jsx(
                       "button",
                       {
                         onClick: () => onViewSource([row.cuota_source_file_id]),
@@ -2382,7 +2341,7 @@ var DeudasTable = ({
                       }
                     )
                   ] }) }),
-                  /* @__PURE__ */ jsx("td", { style: { width: "40px" }, className: "text-center", children: /* @__PURE__ */ jsx(deletebutton_default, { onClick: () => requestDelete(row.id), isVisible: isHovered && !anySelected }) })
+                  /* @__PURE__ */ jsx("td", { style: { width: "40px" }, className: "text-center", children: /* @__PURE__ */ jsx(deletebutton_default, { onClick: () => requestDelete(row.id), isVisible: hovered && !anySelected }) })
                 ]
               },
               row.id
@@ -2422,34 +2381,17 @@ var DeudasTable = ({
         ] }),
         /* @__PURE__ */ jsx("tfoot", { children: /* @__PURE__ */ jsxs("tr", { className: `${headerBg} font-semibold text-xs border-b border-rose-200`, children: [
           /* @__PURE__ */ jsx("td", { colSpan: 3, className: `px-2 py-1.5 ${headerText} ${T.totalLabel}`, children: "TOTAL" }),
-          /* @__PURE__ */ jsx("td", { className: `px-2 py-1.5 text-right ${headerText} ${T.totalValue}`, children: totalSaldoPesos ? formatCurrency4(totalSaldoPesos) : "\u2014" }),
-          /* @__PURE__ */ jsx("td", { className: `px-2 py-1.5 text-right ${headerText} ${T.totalValue}`, children: totalMontoCuota ? formatCurrency4(totalMontoCuota) : "\u2014" }),
+          /* @__PURE__ */ jsx("td", { className: `px-2 py-1.5 text-right ${headerText} ${T.totalValue}`, children: totalSaldoPesos ? formatCurrency(totalSaldoPesos) : "\u2014" }),
+          /* @__PURE__ */ jsx("td", { className: `px-2 py-1.5 text-right ${headerText} ${T.totalValue}`, children: totalMontoCuota ? formatCurrency(totalMontoCuota) : "\u2014" }),
           /* @__PURE__ */ jsx("td", { colSpan: 3 })
         ] }) })
       ] }),
-      /* @__PURE__ */ jsx(recyclebin_default2, { deletedRows, getLabel: (r) => r.institucion, onRestore: restoreRow })
+      /* @__PURE__ */ jsx(recyclebin_default, { deletedRows, getLabel: (r) => r.institucion, onRestore: restoreRow })
     ] }),
     deleteTargetId && /* @__PURE__ */ jsx(deletedialog_default, { count: 1, onConfirm: confirmDelete, onCancel: cancelDelete })
   ] });
 };
 var deudas_default = DeudasTable;
-var formatCurrency = (value) => {
-  return displayCurrencyCompact(value);
-};
-var MONTH_LABELS = {
-  enero: "Enero",
-  febrero: "Febrero",
-  marzo: "Marzo",
-  abril: "Abril",
-  mayo: "Mayo",
-  junio: "Junio",
-  julio: "Julio",
-  agosto: "Agosto",
-  septiembre: "Septiembre",
-  octubre: "Octubre",
-  noviembre: "Noviembre",
-  diciembre: "Diciembre"
-};
 var BoletasTable = ({
   title,
   months,
@@ -2463,7 +2405,7 @@ var BoletasTable = ({
   onViewSource,
   onRemoveMonth
 }) => {
-  const [hoveredRow, setHoveredRow] = useState(null);
+  const { getHoverProps, isHovered } = useRowHover();
   const monthsWithData = months.filter((m) => m.hasData);
   const totalLiquido = totales?.total_liquido ?? monthsWithData.reduce((s, m) => s + (m.liquido || 0), 0);
   const totalBoletas = totales?.boletas_vigentes ?? monthsWithData.reduce((s, m) => s + (m.boletas || 0), 0);
@@ -2488,11 +2430,11 @@ var BoletasTable = ({
             ] }),
             /* @__PURE__ */ jsxs("span", { className: headerText, children: [
               /* @__PURE__ */ jsx("span", { className: `${T.headerStatLabel}`, children: "L\xEDquido: " }),
-              /* @__PURE__ */ jsx("span", { className: T.headerStat, children: formatCurrency(totalLiquido) })
+              /* @__PURE__ */ jsx("span", { className: T.headerStat, children: displayCurrencyCompact(totalLiquido) })
             ] }),
             /* @__PURE__ */ jsxs("span", { className: headerText, children: [
               /* @__PURE__ */ jsx("span", { className: `${T.headerStatLabel}`, children: "Promedio: " }),
-              /* @__PURE__ */ jsx("span", { className: T.headerStat, children: formatCurrency(Math.round(promedioMensual)) })
+              /* @__PURE__ */ jsx("span", { className: T.headerStat, children: displayCurrencyCompact(Math.round(promedioMensual)) })
             ] })
           ] }),
           !forceExpanded && (isExpanded ? /* @__PURE__ */ jsx(ChevronUp, { size: 20, className: headerText }) : /* @__PURE__ */ jsx(ChevronDown, { size: 20, className: headerText }))
@@ -2510,20 +2452,19 @@ var BoletasTable = ({
         /* @__PURE__ */ jsx("tbody", { children: months.map((m, i) => /* @__PURE__ */ jsxs(
           "tr",
           {
-            className: `border-b border-gray-100 ${m.hasData ? "hover:bg-emerald-50/30" : ""}`,
-            onMouseEnter: () => setHoveredRow(i),
-            onMouseLeave: () => setHoveredRow(null),
+            className: `${T.rowBorder} ${m.hasData ? "hover:bg-emerald-50/30" : ""}`,
+            ...getHoverProps(i),
             children: [
               /* @__PURE__ */ jsx("td", { className: `px-4 py-2.5 font-medium ${T.cellLabel} ${m.hasData ? "text-gray-700" : "text-gray-300"}`, style: { width: "140px" }, children: /* @__PURE__ */ jsx("span", { className: "truncate block", children: MONTH_LABELS[m.mes] || m.mes }) }),
               /* @__PURE__ */ jsx("td", { className: "px-3 py-2.5 text-center text-gray-800", style: { width: "80px" }, children: m.hasData ? m.boletas ?? "" : "" }),
-              /* @__PURE__ */ jsx("td", { className: "px-3 py-2.5 text-right text-gray-800", style: { width: "130px" }, children: m.hasData ? formatCurrency(m.bruto) : "" }),
-              /* @__PURE__ */ jsx("td", { className: "px-3 py-2.5 text-right text-red-700", style: { width: "130px" }, children: m.hasData ? formatCurrency(m.retencion) : "" }),
-              /* @__PURE__ */ jsx("td", { className: "px-4 py-2.5 text-right font-medium text-emerald-700", style: { width: "130px" }, children: m.hasData ? formatCurrency(m.liquido) : "" }),
+              /* @__PURE__ */ jsx("td", { className: "px-3 py-2.5 text-right text-gray-800", style: { width: "130px" }, children: m.hasData ? displayCurrencyCompact(m.bruto) : "" }),
+              /* @__PURE__ */ jsx("td", { className: "px-3 py-2.5 text-right text-red-700", style: { width: "130px" }, children: m.hasData ? displayCurrencyCompact(m.retencion) : "" }),
+              /* @__PURE__ */ jsx("td", { className: "px-4 py-2.5 text-right font-medium text-emerald-700", style: { width: "130px" }, children: m.hasData ? displayCurrencyCompact(m.liquido) : "" }),
               onRemoveMonth && /* @__PURE__ */ jsx("td", { style: { width: "36px" }, className: "text-center", children: m.hasData && /* @__PURE__ */ jsx(
                 deletebutton_default,
                 {
                   onClick: () => onRemoveMonth(m.periodo),
-                  isVisible: hoveredRow === i
+                  isVisible: isHovered(i)
                 }
               ) })
             ]
@@ -2533,11 +2474,11 @@ var BoletasTable = ({
         /* @__PURE__ */ jsx("tfoot", { children: /* @__PURE__ */ jsxs("tr", { className: "border-t-2 border-emerald-200 bg-emerald-50/50", children: [
           /* @__PURE__ */ jsx("td", { className: `px-4 py-3 ${T.footerLabel} text-emerald-700`, style: { width: "140px" }, children: "TOTALES" }),
           /* @__PURE__ */ jsx("td", { className: `px-3 py-3 text-center ${T.footerValue} text-emerald-700`, style: { width: "80px" }, children: totalBoletas }),
-          /* @__PURE__ */ jsx("td", { className: `px-3 py-3 text-right ${T.footerValue} text-emerald-700`, style: { width: "130px" }, children: formatCurrency(totales?.honorario_bruto ?? monthsWithData.reduce((s, m) => s + (m.bruto || 0), 0)) }),
-          /* @__PURE__ */ jsx("td", { className: `px-3 py-3 text-right ${T.footerValue} text-red-700`, style: { width: "130px" }, children: formatCurrency(
+          /* @__PURE__ */ jsx("td", { className: `px-3 py-3 text-right ${T.footerValue} text-emerald-700`, style: { width: "130px" }, children: displayCurrencyCompact(totales?.honorario_bruto ?? monthsWithData.reduce((s, m) => s + (m.bruto || 0), 0)) }),
+          /* @__PURE__ */ jsx("td", { className: `px-3 py-3 text-right ${T.footerValue} text-red-700`, style: { width: "130px" }, children: displayCurrencyCompact(
             (totales?.retencion_terceros ?? 0) + (totales?.retencion_contribuyente ?? 0) || monthsWithData.reduce((s, m) => s + (m.retencion || 0), 0)
           ) }),
-          /* @__PURE__ */ jsx("td", { className: `px-4 py-3 text-right ${T.footerValue} text-emerald-700`, style: { width: "130px" }, children: formatCurrency(totalLiquido) }),
+          /* @__PURE__ */ jsx("td", { className: `px-4 py-3 text-right ${T.footerValue} text-emerald-700`, style: { width: "130px" }, children: displayCurrencyCompact(totalLiquido) }),
           onRemoveMonth && /* @__PURE__ */ jsx("td", { style: { width: "36px" } })
         ] }) })
       ] })
@@ -2564,18 +2505,6 @@ var ViewSourceButton = ({
   );
 };
 var viewsourcebutton_default = ViewSourceButton;
-function useRowHover() {
-  const [hoveredRow, setHoveredRow] = useState(null);
-  const getHoverProps = useCallback((id) => ({
-    onMouseEnter: () => setHoveredRow(id),
-    onMouseLeave: () => setHoveredRow(null)
-  }), []);
-  const isHovered = useCallback((id) => hoveredRow === id, [hoveredRow]);
-  return { hoveredRow, getHoverProps, isHovered };
-}
-var formatCurrency2 = (value) => {
-  return displayCurrencyCompact(value);
-};
 var TributarioTable = ({
   title,
   entries,
@@ -2612,11 +2541,11 @@ var TributarioTable = ({
         balanceEntries.length > 0 && /* @__PURE__ */ jsxs(Fragment, { children: [
           /* @__PURE__ */ jsxs("td", { className: "px-3 py-3 text-right", style: { width: "140px" }, children: [
             /* @__PURE__ */ jsx("span", { className: `${headerText} ${T.headerStatLabel}`, children: "Ingresos: " }),
-            /* @__PURE__ */ jsx("span", { className: `${T.headerStat} ${totalIngresos > 0 ? "text-emerald-600" : "text-gray-400"}`, children: totalIngresos > 0 ? formatCurrency2(totalIngresos) : "\u2014" })
+            /* @__PURE__ */ jsx("span", { className: `${T.headerStat} ${totalIngresos > 0 ? "text-emerald-600" : "text-gray-400"}`, children: totalIngresos > 0 ? displayCurrencyCompact(totalIngresos) : "\u2014" })
           ] }),
           /* @__PURE__ */ jsxs("td", { className: "px-3 py-3 text-right", style: { width: "140px" }, children: [
             /* @__PURE__ */ jsx("span", { className: `${headerText} ${T.headerStatLabel}`, children: "Egresos: " }),
-            /* @__PURE__ */ jsx("span", { className: `${T.headerStat} ${totalEgresos > 0 ? headerText : "text-gray-400"}`, children: totalEgresos > 0 ? formatCurrency2(totalEgresos) : "\u2014" })
+            /* @__PURE__ */ jsx("span", { className: `${T.headerStat} ${totalEgresos > 0 ? headerText : "text-gray-400"}`, children: totalEgresos > 0 ? displayCurrencyCompact(totalEgresos) : "\u2014" })
           ] })
         ] }),
         balanceEntries.length === 0 && /* @__PURE__ */ jsxs(Fragment, { children: [
@@ -2645,8 +2574,8 @@ var TributarioTable = ({
                   /* @__PURE__ */ jsx(viewsourcebutton_default, { sourceFileId: entry.sourceFileId, onViewSource, isVisible: isRowHovered(entry.id), size: "default" })
                 ] }) }),
                 /* @__PURE__ */ jsx("td", { className: `px-2 py-2.5 ${T.muted}`, style: { width: "120px" }, children: entry.year ? `A\xF1o ${entry.year}` : "\u2014" }),
-                /* @__PURE__ */ jsx("td", { className: "px-3 py-2.5 text-right text-emerald-700 font-medium", style: { width: "140px" }, children: formatCurrency2(entry.ingresos) }),
-                /* @__PURE__ */ jsx("td", { className: "px-3 py-2.5 text-right text-amber-700 font-medium", style: { width: "140px" }, children: formatCurrency2(entry.egresos) }),
+                /* @__PURE__ */ jsx("td", { className: "px-3 py-2.5 text-right text-emerald-700 font-medium", style: { width: "140px" }, children: displayCurrencyCompact(entry.ingresos) }),
+                /* @__PURE__ */ jsx("td", { className: "px-3 py-2.5 text-right text-amber-700 font-medium", style: { width: "140px" }, children: displayCurrencyCompact(entry.egresos) }),
                 /* @__PURE__ */ jsx("td", { style: { width: "40px" } })
               ]
             },
@@ -2674,9 +2603,6 @@ var TributarioTable = ({
   );
 };
 var tributario_default = TributarioTable;
-var formatCurrency3 = (value) => {
-  return displayCurrencyCompact(value);
-};
 var RiskBadge = ({ value, thresholds }) => {
   if (value === null || value === void 0) return null;
   let badgeClass = "bg-emerald-100 text-emerald-700";
@@ -2790,7 +2716,7 @@ var FinalResultsCompact = ({
         ] }),
         /* @__PURE__ */ jsxs("div", { className: "border-t border-emerald-300 pt-2 mt-2 flex items-center justify-between", children: [
           /* @__PURE__ */ jsx("span", { className: `${T.footerLabel} text-emerald-800 text-xs`, children: "TOTAL" }),
-          /* @__PURE__ */ jsx("span", { className: `text-emerald-800 ${T.footerValue}`, children: formatCurrency3(displayTotal > 0 ? displayTotal : null) })
+          /* @__PURE__ */ jsx("span", { className: `text-emerald-800 ${T.footerValue}`, children: displayCurrencyCompact(displayTotal > 0 ? displayTotal : null) })
         ] })
       ] })
     ] }),
@@ -2816,11 +2742,11 @@ var FinalResultsCompact = ({
         ] }),
         /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-between", children: [
           /* @__PURE__ */ jsx("span", { className: T.muted, children: "Deudas" }),
-          /* @__PURE__ */ jsx("span", { className: `text-orange-600 ${T.cardValue}`, children: formatCurrency3(totalDebts > 0 ? totalDebts : null) })
+          /* @__PURE__ */ jsx("span", { className: `text-orange-600 ${T.cardValue}`, children: displayCurrencyCompact(totalDebts > 0 ? totalDebts : null) })
         ] }),
         /* @__PURE__ */ jsxs("div", { className: "border-t border-sky-300 pt-2 mt-2 flex items-center justify-between", children: [
           /* @__PURE__ */ jsx("span", { className: `${T.footerLabel} text-sky-800 text-xs`, children: "TOTAL" }),
-          /* @__PURE__ */ jsx("span", { className: `text-sky-800 ${T.footerValue}`, children: formatCurrency3(dividendo + totalDebts > 0 ? dividendo + totalDebts : null) })
+          /* @__PURE__ */ jsx("span", { className: `text-sky-800 ${T.footerValue}`, children: displayCurrencyCompact(dividendo + totalDebts > 0 ? dividendo + totalDebts : null) })
         ] })
       ] })
     ] }),
@@ -2863,345 +2789,11 @@ var FinalResultsCompact = ({
   ] });
 };
 var finalresults_default = FinalResultsCompact;
-function useFieldUpdate(rows, onRowsChange) {
-  const updateField = useCallback(
-    (id, field, value) => {
-      onRowsChange(rows.map((r) => r.id === id ? { ...r, [field]: value } : r));
-    },
-    [rows, onRowsChange]
-  );
-  const removeRow = useCallback(
-    (id) => {
-      onRowsChange(rows.filter((r) => r.id !== id));
-    },
-    [rows, onRowsChange]
-  );
-  return { updateField, removeRow };
-}
-var VehiculosTable = ({
-  rows,
-  onRowsChange,
-  formatCurrency: formatCurrency4 = defaultFormatCurrency,
-  headerBg = "bg-slate-50",
-  headerText = "text-slate-700",
-  title
-}) => {
-  const { getHoverProps, isHovered } = useRowHover();
-  const { updateField } = useFieldUpdate(rows, onRowsChange);
-  const [newRow, setNewRow] = useState({ marca: "", modelo: "" });
-  const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange);
-  const visibleRowIds = useMemo(() => activeRows.map((r) => r.id), [activeRows]);
-  const keyboard = useGridKeyboard({ visibleRowIds, colCount: 2 });
-  const addRow = (overrides) => {
-    const row = {
-      id: `vh_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      marca: newRow.marca.trim(),
-      modelo: newRow.modelo.trim(),
-      monto: null,
-      anio: null,
-      ...overrides
-    };
-    setNewRow({ marca: "", modelo: "" });
-    onRowsChange([...rows, row]);
-  };
-  const totalMonto = activeRows.reduce((s, r) => s + (r.monto || 0), 0);
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsxs("div", { className: "overflow-x-auto", onKeyDown: keyboard.handleContainerKeyDown, tabIndex: 0, children: [
-      /* @__PURE__ */ jsxs("table", { className: T.table, style: { tableLayout: "fixed" }, children: [
-        /* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsxs("tr", { className: `${headerBg} border-t border-slate-200 ${headerText}`, children: [
-          /* @__PURE__ */ jsx("th", { className: `px-2 py-1.5 text-left ${T.th} ${headerText}`, style: { width: "160px" }, children: title || "Marca" }),
-          /* @__PURE__ */ jsx("th", { className: `px-2 py-1.5 text-left ${T.th} ${headerText}`, style: { width: "140px" }, children: "Modelo" }),
-          /* @__PURE__ */ jsx("th", { className: `px-2 py-1.5 text-right ${T.th} ${headerText}`, style: { width: "120px" }, children: "Monto $" }),
-          /* @__PURE__ */ jsx("th", { className: `px-2 py-1.5 text-center ${T.th} ${headerText}`, style: { width: "80px" }, children: "A\xF1o" }),
-          /* @__PURE__ */ jsx("th", { style: { width: "40px" } })
-        ] }) }),
-        /* @__PURE__ */ jsxs("tbody", { children: [
-          activeRows.map((row) => {
-            const hovered = isHovered(row.id);
-            return /* @__PURE__ */ jsxs(
-              "tr",
-              {
-                className: "border-b border-gray-100 hover:bg-gray-50",
-                ...getHoverProps(row.id),
-                children: [
-                  /* @__PURE__ */ jsx("td", { className: `px-2 py-2.5 ${T.cellLabel}`, style: { width: "160px" }, children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1 min-w-0", children: [
-                    /* @__PURE__ */ jsx(deletebutton_default, { onClick: () => requestDelete(row.id), isVisible: hovered }),
-                    /* @__PURE__ */ jsx(
-                      "input",
-                      {
-                        type: "text",
-                        value: row.marca,
-                        onChange: (e) => updateField(row.id, "marca", e.target.value),
-                        className: `flex-1 min-w-0 ${T.inputLabel} pl-1`,
-                        placeholder: "Marca"
-                      }
-                    )
-                  ] }) }),
-                  /* @__PURE__ */ jsx("td", { className: "px-2 py-2.5", style: { width: "140px" }, children: /* @__PURE__ */ jsx(
-                    "input",
-                    {
-                      type: "text",
-                      value: row.modelo,
-                      onChange: (e) => updateField(row.id, "modelo", e.target.value),
-                      className: `w-full ${T.input} pl-1`,
-                      placeholder: "Modelo"
-                    }
-                  ) }),
-                  /* @__PURE__ */ jsx(
-                    editablecell_default,
-                    {
-                      value: row.monto,
-                      onChange: (v) => updateField(row.id, "monto", v),
-                      type: "currency",
-                      hasData: row.monto !== null,
-                      width: "120px",
-                      focused: keyboard.isFocused(row.id, 0),
-                      onCellFocus: () => keyboard.focus(row.id, 0),
-                      onNavigate: keyboard.navigate,
-                      requestEdit: keyboard.isFocused(row.id, 0) ? keyboard.editTrigger : 0,
-                      requestClear: keyboard.isFocused(row.id, 0) ? keyboard.clearTrigger : 0,
-                      editInitialValue: keyboard.isFocused(row.id, 0) ? keyboard.editInitialValue : void 0
-                    }
-                  ),
-                  /* @__PURE__ */ jsx(
-                    editablecell_default,
-                    {
-                      value: row.anio,
-                      onChange: (v) => updateField(row.id, "anio", v),
-                      type: "number",
-                      hasData: row.anio !== null,
-                      width: "80px",
-                      align: "center",
-                      focused: keyboard.isFocused(row.id, 1),
-                      onCellFocus: () => keyboard.focus(row.id, 1),
-                      onNavigate: keyboard.navigate,
-                      requestEdit: keyboard.isFocused(row.id, 1) ? keyboard.editTrigger : 0,
-                      requestClear: keyboard.isFocused(row.id, 1) ? keyboard.clearTrigger : 0,
-                      editInitialValue: keyboard.isFocused(row.id, 1) ? keyboard.editInitialValue : void 0
-                    }
-                  ),
-                  /* @__PURE__ */ jsx("td", { style: { width: "40px" } })
-                ]
-              },
-              row.id
-            );
-          }),
-          /* @__PURE__ */ jsxs("tr", { className: "border-b border-dashed border-slate-100 bg-slate-50/20", children: [
-            /* @__PURE__ */ jsx("td", { className: "px-2 py-2.5", style: { width: "160px" }, children: /* @__PURE__ */ jsx(
-              "input",
-              {
-                type: "text",
-                placeholder: "Agregar veh\xEDculo...",
-                value: newRow.marca,
-                onChange: (e) => setNewRow((prev) => ({ ...prev, marca: e.target.value })),
-                className: `w-full ${T.inputPlaceholder}`,
-                onKeyDown: (e) => {
-                  if (e.key === "Enter" && newRow.marca.trim()) addRow();
-                }
-              }
-            ) }),
-            /* @__PURE__ */ jsx("td", { className: "px-2 py-2.5", style: { width: "140px" }, children: /* @__PURE__ */ jsx(
-              "input",
-              {
-                type: "text",
-                placeholder: "Modelo",
-                value: newRow.modelo,
-                onChange: (e) => setNewRow((prev) => ({ ...prev, modelo: e.target.value })),
-                className: `w-full ${T.inputPlaceholder}`
-              }
-            ) }),
-            /* @__PURE__ */ jsx(
-              editablecell_default,
-              {
-                value: null,
-                onChange: (v) => addRow({ monto: v }),
-                type: "currency",
-                hasData: false,
-                width: "120px"
-              }
-            ),
-            /* @__PURE__ */ jsx(
-              editablecell_default,
-              {
-                value: null,
-                onChange: (v) => addRow({ anio: v }),
-                type: "number",
-                hasData: false,
-                width: "80px",
-                align: "center"
-              }
-            ),
-            /* @__PURE__ */ jsx("td", { style: { width: "40px" } })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsx("tfoot", { children: /* @__PURE__ */ jsxs("tr", { className: `${headerBg} font-semibold text-xs border-b border-slate-200`, children: [
-          /* @__PURE__ */ jsx("td", { colSpan: 2, className: `px-2 py-1.5 ${headerText} ${T.totalLabel}`, children: "TOTAL" }),
-          /* @__PURE__ */ jsx("td", { className: `px-2 py-1.5 text-right ${headerText} ${T.totalValue}`, children: totalMonto ? formatCurrency4(totalMonto) : "\u2014" }),
-          /* @__PURE__ */ jsx("td", { colSpan: 2 })
-        ] }) })
-      ] }),
-      /* @__PURE__ */ jsx(recyclebin_default2, { deletedRows, getLabel: (r) => r.marca, onRestore: restoreRow })
-    ] }),
-    deleteTargetId && /* @__PURE__ */ jsx(deletedialog_default, { count: 1, onConfirm: confirmDelete, onCancel: cancelDelete })
-  ] });
-};
-var vehiculos_default = VehiculosTable;
-var InversionesTable = ({
-  rows,
-  onRowsChange,
-  formatCurrency: formatCurrency4 = defaultFormatCurrency,
-  headerBg = "bg-emerald-50",
-  headerText = "text-emerald-700",
-  title
-}) => {
-  const { getHoverProps, isHovered } = useRowHover();
-  const { updateField } = useFieldUpdate(rows, onRowsChange);
-  const [newRow, setNewRow] = useState({ institucion: "", tipo: "" });
-  const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange);
-  const visibleRowIds = useMemo(() => activeRows.map((r) => r.id), [activeRows]);
-  const keyboard = useGridKeyboard({ visibleRowIds, colCount: 1 });
-  const addRow = (overrides) => {
-    const row = {
-      id: `inv_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      institucion: newRow.institucion.trim(),
-      tipo: newRow.tipo.trim(),
-      monto: null,
-      fecha: "",
-      ...overrides
-    };
-    setNewRow({ institucion: "", tipo: "" });
-    onRowsChange([...rows, row]);
-  };
-  const totalMonto = activeRows.reduce((s, r) => s + (r.monto || 0), 0);
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsxs("div", { className: "overflow-x-auto", onKeyDown: keyboard.handleContainerKeyDown, tabIndex: 0, children: [
-      /* @__PURE__ */ jsxs("table", { className: T.table, style: { tableLayout: "fixed" }, children: [
-        /* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsxs("tr", { className: `${headerBg} border-t border-emerald-200 ${headerText}`, children: [
-          /* @__PURE__ */ jsx("th", { className: `px-2 py-1.5 text-left ${T.th} ${headerText}`, style: { width: "160px" }, children: title || "Instituci\xF3n" }),
-          /* @__PURE__ */ jsx("th", { className: `px-2 py-1.5 text-left ${T.th} ${headerText}`, style: { width: "140px" }, children: "Tipo Inversi\xF3n" }),
-          /* @__PURE__ */ jsx("th", { className: `px-2 py-1.5 text-right ${T.th} ${headerText}`, style: { width: "120px" }, children: "Monto $" }),
-          /* @__PURE__ */ jsx("th", { className: `px-2 py-1.5 text-left ${T.th} ${headerText}`, style: { width: "100px" }, children: "Fecha" }),
-          /* @__PURE__ */ jsx("th", { style: { width: "40px" } })
-        ] }) }),
-        /* @__PURE__ */ jsxs("tbody", { children: [
-          activeRows.map((row) => {
-            const hovered = isHovered(row.id);
-            return /* @__PURE__ */ jsxs(
-              "tr",
-              {
-                className: "border-b border-gray-100 hover:bg-gray-50",
-                ...getHoverProps(row.id),
-                children: [
-                  /* @__PURE__ */ jsx("td", { className: `px-2 py-2.5 ${T.cellLabel}`, style: { width: "160px" }, children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1 min-w-0", children: [
-                    /* @__PURE__ */ jsx(deletebutton_default, { onClick: () => requestDelete(row.id), isVisible: hovered }),
-                    /* @__PURE__ */ jsx(
-                      "input",
-                      {
-                        type: "text",
-                        value: row.institucion,
-                        onChange: (e) => updateField(row.id, "institucion", e.target.value),
-                        className: `flex-1 min-w-0 ${T.inputLabel} pl-1`,
-                        placeholder: "Instituci\xF3n"
-                      }
-                    )
-                  ] }) }),
-                  /* @__PURE__ */ jsx("td", { className: "px-2 py-2.5", style: { width: "140px" }, children: /* @__PURE__ */ jsx(
-                    "input",
-                    {
-                      type: "text",
-                      value: row.tipo,
-                      onChange: (e) => updateField(row.id, "tipo", e.target.value),
-                      className: `w-full ${T.input} pl-1`,
-                      placeholder: "Tipo"
-                    }
-                  ) }),
-                  /* @__PURE__ */ jsx(
-                    editablecell_default,
-                    {
-                      value: row.monto,
-                      onChange: (v) => updateField(row.id, "monto", v),
-                      type: "currency",
-                      hasData: row.monto !== null,
-                      width: "120px",
-                      focused: keyboard.isFocused(row.id, 0),
-                      onCellFocus: () => keyboard.focus(row.id, 0),
-                      onNavigate: keyboard.navigate,
-                      requestEdit: keyboard.isFocused(row.id, 0) ? keyboard.editTrigger : 0,
-                      requestClear: keyboard.isFocused(row.id, 0) ? keyboard.clearTrigger : 0,
-                      editInitialValue: keyboard.isFocused(row.id, 0) ? keyboard.editInitialValue : void 0
-                    }
-                  ),
-                  /* @__PURE__ */ jsx("td", { className: "px-2 py-2.5", style: { width: "100px" }, children: /* @__PURE__ */ jsx(
-                    "input",
-                    {
-                      type: "text",
-                      value: row.fecha,
-                      onChange: (e) => updateField(row.id, "fecha", e.target.value),
-                      className: `w-full ${T.input} pl-1`,
-                      placeholder: "Fecha"
-                    }
-                  ) }),
-                  /* @__PURE__ */ jsx("td", { style: { width: "40px" } })
-                ]
-              },
-              row.id
-            );
-          }),
-          /* @__PURE__ */ jsxs("tr", { className: "border-b border-dashed border-emerald-100 bg-emerald-50/20", children: [
-            /* @__PURE__ */ jsx("td", { className: "px-2 py-2.5", style: { width: "160px" }, children: /* @__PURE__ */ jsx(
-              "input",
-              {
-                type: "text",
-                placeholder: "Agregar inversi\xF3n...",
-                value: newRow.institucion,
-                onChange: (e) => setNewRow((prev) => ({ ...prev, institucion: e.target.value })),
-                className: `w-full ${T.inputPlaceholder}`,
-                onKeyDown: (e) => {
-                  if (e.key === "Enter" && newRow.institucion.trim()) addRow();
-                }
-              }
-            ) }),
-            /* @__PURE__ */ jsx("td", { className: "px-2 py-2.5", style: { width: "140px" }, children: /* @__PURE__ */ jsx(
-              "input",
-              {
-                type: "text",
-                placeholder: "Tipo",
-                value: newRow.tipo,
-                onChange: (e) => setNewRow((prev) => ({ ...prev, tipo: e.target.value })),
-                className: `w-full ${T.inputPlaceholder}`
-              }
-            ) }),
-            /* @__PURE__ */ jsx(
-              editablecell_default,
-              {
-                value: null,
-                onChange: (v) => addRow({ monto: v }),
-                type: "currency",
-                hasData: false,
-                width: "120px"
-              }
-            ),
-            /* @__PURE__ */ jsx("td", { className: "px-2 py-2.5", style: { width: "100px" }, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) }),
-            /* @__PURE__ */ jsx("td", { style: { width: "40px" } })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsx("tfoot", { children: /* @__PURE__ */ jsxs("tr", { className: `${headerBg} font-semibold text-xs border-b border-emerald-200`, children: [
-          /* @__PURE__ */ jsx("td", { colSpan: 2, className: `px-2 py-1.5 ${headerText} ${T.totalLabel}`, children: "TOTAL" }),
-          /* @__PURE__ */ jsx("td", { className: `px-2 py-1.5 text-right ${headerText} ${T.totalValue}`, children: totalMonto ? formatCurrency4(totalMonto) : "\u2014" }),
-          /* @__PURE__ */ jsx("td", { colSpan: 2 })
-        ] }) })
-      ] }),
-      /* @__PURE__ */ jsx(recyclebin_default2, { deletedRows, getLabel: (r) => r.institucion, onRestore: restoreRow })
-    ] }),
-    deleteTargetId && /* @__PURE__ */ jsx(deletedialog_default, { count: 1, onConfirm: confirmDelete, onCancel: cancelDelete })
-  ] });
-};
-var inversiones_default = InversionesTable;
-var CurrencyToggle = ({ value, onChange, headerText }) => /* @__PURE__ */ jsxs("span", { className: "inline-flex rounded-md overflow-hidden border border-amber-200 ml-2 text-[10px] leading-none align-middle", children: [
+var CurrencyToggle = ({ value, onChange }) => /* @__PURE__ */ jsxs("span", { className: "inline-flex rounded-md overflow-hidden border border-amber-200 ml-2 text-[10px] leading-none align-middle", children: [
   /* @__PURE__ */ jsx(
     "button",
     {
-      className: `px-1.5 py-0.5 font-medium transition-colors ${value === "uf" ? "bg-amber-200 text-amber-800" : `text-amber-500 hover:text-amber-700`}`,
+      className: `px-1.5 py-0.5 font-medium transition-colors ${value === "uf" ? "bg-amber-200 text-amber-800" : "text-amber-500 hover:text-amber-700"}`,
       onClick: () => onChange("uf"),
       children: "UF"
     }
@@ -3209,39 +2801,342 @@ var CurrencyToggle = ({ value, onChange, headerText }) => /* @__PURE__ */ jsxs("
   /* @__PURE__ */ jsx(
     "button",
     {
-      className: `px-1.5 py-0.5 font-medium transition-colors ${value === "clp" ? "bg-amber-200 text-amber-800" : `text-amber-500 hover:text-amber-700`}`,
+      className: `px-1.5 py-0.5 font-medium transition-colors ${value === "clp" ? "bg-amber-200 text-amber-800" : "text-amber-500 hover:text-amber-700"}`,
       onClick: () => onChange("clp"),
       children: "$"
     }
   )
 ] });
+var currencytoggle_default = CurrencyToggle;
+function AssetTable({
+  columns: columns3,
+  rows,
+  onRowsChange,
+  idPrefix,
+  addPlaceholder,
+  formatCurrency = defaultFormatCurrency,
+  headerBg = "bg-gray-50",
+  headerText = "text-gray-700",
+  title,
+  ufValue,
+  conversionRules = [],
+  computeRules = []
+}) {
+  const { getHoverProps, isHovered } = useRowHover();
+  const [currency, setCurrency] = useState("uf");
+  const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange);
+  const hasUfToggle = ufValue != null && columns3.some((c) => c.ufPair);
+  const isUf = currency === "uf";
+  useMemo(() => {
+    if (!hasUfToggle) return columns3;
+    const ufPairKeys = new Set(columns3.filter((c) => c.ufPair).map((c) => c.ufPair));
+    return columns3.filter((c) => {
+      if (ufPairKeys.has(c.key)) return isUf;
+      return true;
+    });
+  }, [columns3, hasUfToggle, isUf]);
+  const resolvedColumns = useMemo(() => {
+    return columns3.map((col) => {
+      if (col.ufPair && !isUf) {
+        return { ...col, key: col.ufPair, type: "currency", label: col.label.replace("UF", "$") };
+      }
+      return col;
+    });
+  }, [columns3, isUf]);
+  const editableCols = useMemo(
+    () => resolvedColumns.filter((c) => c.type !== "text"),
+    [resolvedColumns]
+  );
+  const visibleRowIds = useMemo(() => activeRows.map((r) => r.id), [activeRows]);
+  const keyboard = useGridKeyboard({ visibleRowIds, colCount: editableCols.length });
+  const textCols = resolvedColumns.filter((c) => c.type === "text");
+  const labelCol = resolvedColumns.find((c) => c.isLabel) || resolvedColumns[0];
+  const [newRowValues, setNewRowValues] = useState({});
+  const hasAutoConvert = conversionRules.length > 0 || computeRules.length > 0;
+  const updateField = (id, field, value) => {
+    onRowsChange(rows.map((r) => {
+      if (r.id !== id) return r;
+      if (hasAutoConvert) {
+        let next = applyAutoConversions(r, field, value, conversionRules, {});
+        next = applyAutoCompute(next, field, computeRules, {});
+        return next;
+      }
+      return { ...r, [field]: value };
+    }));
+  };
+  const addRow = (overrides) => {
+    const base = { id: generateId(idPrefix) };
+    for (const col of columns3) {
+      if (col.type === "text") {
+        base[col.key] = (newRowValues[col.key] || "").trim();
+      } else {
+        base[col.key] = null;
+      }
+      if (col.ufPair) base[col.ufPair] = null;
+    }
+    const row = { ...base, ...overrides };
+    setNewRowValues({});
+    onRowsChange([...rows, row]);
+  };
+  const totals = useMemo(() => {
+    const result = {};
+    for (const col of resolvedColumns) {
+      if (col.type === "currency" || col.type === "number") {
+        result[col.key] = activeRows.reduce((s, r) => s + (r[col.key] || 0), 0);
+      }
+    }
+    return result;
+  }, [activeRows, resolvedColumns]);
+  const editableColIndex = (col) => editableCols.indexOf(col);
+  const renderEditableCell = (row, col) => {
+    const colIdx = editableColIndex(col);
+    const value = row[col.key];
+    const autoClass = col.autoComputedClass?.(row) || "";
+    return /* @__PURE__ */ jsx(
+      editablecell_default,
+      {
+        value,
+        onChange: (v) => updateField(row.id, col.key, v),
+        type: col.type,
+        hasData: value !== null,
+        width: col.width,
+        align: col.align,
+        className: autoClass,
+        focused: keyboard.isFocused(row.id, colIdx),
+        onCellFocus: () => keyboard.focus(row.id, colIdx),
+        onNavigate: keyboard.navigate,
+        requestEdit: keyboard.isFocused(row.id, colIdx) ? keyboard.editTrigger : 0,
+        requestClear: keyboard.isFocused(row.id, colIdx) ? keyboard.clearTrigger : 0,
+        editInitialValue: keyboard.isFocused(row.id, colIdx) ? keyboard.editInitialValue : void 0
+      },
+      col.key
+    );
+  };
+  const borderColor = headerBg.replace("bg-", "border-").replace("/50", "") + "-200";
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsxs("div", { className: "overflow-x-auto relative", onKeyDown: keyboard.handleContainerKeyDown, tabIndex: 0, children: [
+      hasUfToggle && /* @__PURE__ */ jsx("div", { className: "absolute top-1 right-1 z-10", children: /* @__PURE__ */ jsx(currencytoggle_default, { value: currency, onChange: setCurrency }) }),
+      /* @__PURE__ */ jsxs("table", { className: T.table, style: { tableLayout: "fixed" }, children: [
+        /* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsxs("tr", { className: `${headerBg} border-t ${borderColor} ${headerText}`, children: [
+          resolvedColumns.map((col) => /* @__PURE__ */ jsx(
+            "th",
+            {
+              className: `px-2 py-1.5 ${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left"} ${T.th} ${headerText}`,
+              style: { width: col.width },
+              children: col === labelCol && title ? title : col.label
+            },
+            col.key
+          )),
+          /* @__PURE__ */ jsx("th", { style: { width: "40px" } })
+        ] }) }),
+        /* @__PURE__ */ jsxs("tbody", { children: [
+          activeRows.map((row) => {
+            const hovered = isHovered(row.id);
+            return /* @__PURE__ */ jsxs(
+              "tr",
+              {
+                className: `${T.rowBorder} ${T.rowHover}`,
+                ...getHoverProps(row.id),
+                children: [
+                  resolvedColumns.map((col) => {
+                    if (col.isLabel) {
+                      return /* @__PURE__ */ jsx("td", { className: `px-2 py-2.5 ${T.cellLabel}`, style: { width: col.width }, children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1 min-w-0", children: [
+                        /* @__PURE__ */ jsx(deletebutton_default, { onClick: () => requestDelete(row.id), isVisible: hovered }),
+                        /* @__PURE__ */ jsx(
+                          "input",
+                          {
+                            type: "text",
+                            value: row[col.key] || "",
+                            onChange: (e) => updateField(row.id, col.key, e.target.value),
+                            className: `flex-1 min-w-0 ${T.inputLabel} pl-1`,
+                            placeholder: col.placeholder || col.label
+                          }
+                        )
+                      ] }) }, col.key);
+                    }
+                    if (col.type === "text") {
+                      return /* @__PURE__ */ jsx("td", { className: "px-2 py-2.5", style: { width: col.width }, children: /* @__PURE__ */ jsx(
+                        "input",
+                        {
+                          type: "text",
+                          value: row[col.key] || "",
+                          onChange: (e) => updateField(row.id, col.key, e.target.value),
+                          className: `w-full ${T.input} pl-1`,
+                          placeholder: col.placeholder || col.label
+                        }
+                      ) }, col.key);
+                    }
+                    return renderEditableCell(row, col);
+                  }),
+                  /* @__PURE__ */ jsx("td", { style: { width: "40px" } })
+                ]
+              },
+              row.id
+            );
+          }),
+          /* @__PURE__ */ jsxs("tr", { className: `border-b border-dashed ${borderColor.replace("200", "100")} ${headerBg}/20`, children: [
+            resolvedColumns.map((col, i) => {
+              if (col.isLabel) {
+                return /* @__PURE__ */ jsx("td", { className: "px-2 py-2.5", style: { width: col.width }, children: /* @__PURE__ */ jsx(
+                  "input",
+                  {
+                    type: "text",
+                    placeholder: addPlaceholder || `Agregar...`,
+                    value: newRowValues[col.key] || "",
+                    onChange: (e) => setNewRowValues((prev) => ({ ...prev, [col.key]: e.target.value })),
+                    className: `w-full ${T.inputPlaceholder}`,
+                    onKeyDown: (e) => {
+                      if (e.key === "Enter" && (newRowValues[col.key] || "").trim()) addRow();
+                    }
+                  }
+                ) }, col.key);
+              }
+              if (col.type === "text") {
+                return /* @__PURE__ */ jsx("td", { className: "px-2 py-2.5", style: { width: col.width }, children: /* @__PURE__ */ jsx(
+                  "input",
+                  {
+                    type: "text",
+                    placeholder: col.placeholder || col.label,
+                    value: newRowValues[col.key] || "",
+                    onChange: (e) => setNewRowValues((prev) => ({ ...prev, [col.key]: e.target.value })),
+                    className: `w-full ${T.inputPlaceholder}`
+                  }
+                ) }, col.key);
+              }
+              return /* @__PURE__ */ jsx(
+                editablecell_default,
+                {
+                  value: null,
+                  onChange: (v) => addRow({ [col.key]: v }),
+                  type: col.type,
+                  hasData: false,
+                  width: col.width,
+                  align: col.align
+                },
+                col.key
+              );
+            }),
+            /* @__PURE__ */ jsx("td", { style: { width: "40px" } })
+          ] })
+        ] }),
+        /* @__PURE__ */ jsx("tfoot", { children: /* @__PURE__ */ jsxs("tr", { className: `${headerBg} font-semibold text-xs border-b ${borderColor}`, children: [
+          /* @__PURE__ */ jsx("td", { colSpan: textCols.length, className: `px-2 py-1.5 ${headerText} ${T.totalLabel}`, children: "TOTAL" }),
+          editableCols.map((col) => /* @__PURE__ */ jsx("td", { className: `px-2 py-1.5 ${col.align === "center" ? "text-center" : "text-right"} ${headerText} ${T.totalValue}`, children: totals[col.key] ? col.type === "number" ? totals[col.key].toLocaleString("es-CL", { maximumFractionDigits: 2 }) : formatCurrency(totals[col.key]) : "\u2014" }, col.key)),
+          /* @__PURE__ */ jsx("td", {})
+        ] }) })
+      ] }),
+      /* @__PURE__ */ jsx(
+        recyclebin_default,
+        {
+          deletedRows,
+          getLabel: (r) => r[labelCol.key] || "",
+          onRestore: restoreRow,
+          renderCells: (row) => /* @__PURE__ */ jsxs(Fragment, { children: [
+            editableCols.map((col) => {
+              const v = row[col.key];
+              return /* @__PURE__ */ jsx("td", { className: "px-2 py-1.5 text-right tabular-nums", style: { width: col.width }, children: /* @__PURE__ */ jsx("span", { className: `${T.totalValue} ${v != null ? "text-gray-400" : "text-gray-200"}`, children: v != null ? col.type === "number" ? String(v) : formatCurrency(v) : "\u2014" }) }, col.key);
+            }),
+            /* @__PURE__ */ jsx("td", { style: { width: "40px" } })
+          ] })
+        }
+      )
+    ] }),
+    deleteTargetId && /* @__PURE__ */ jsx(deletedialog_default, { count: 1, onConfirm: confirmDelete, onCancel: cancelDelete })
+  ] });
+}
+var assettable_default = AssetTable;
+var columns = [
+  { key: "marca", label: "Marca", type: "text", width: "160px", isLabel: true, placeholder: "Marca" },
+  { key: "modelo", label: "Modelo", type: "text", width: "140px", placeholder: "Modelo" },
+  { key: "monto", label: "Monto $", type: "currency", width: "120px" },
+  { key: "anio", label: "A\xF1o", type: "number", width: "80px", align: "center" }
+];
+var VehiculosTable = ({
+  rows,
+  onRowsChange,
+  formatCurrency,
+  headerBg = "bg-slate-50",
+  headerText = "text-slate-700",
+  title
+}) => /* @__PURE__ */ jsx(
+  assettable_default,
+  {
+    columns,
+    rows,
+    onRowsChange,
+    idPrefix: "vh",
+    addPlaceholder: "Agregar veh\xEDculo...",
+    formatCurrency,
+    headerBg,
+    headerText,
+    title
+  }
+);
+var vehiculos_default = VehiculosTable;
+var columns2 = [
+  { key: "institucion", label: "Instituci\xF3n", type: "text", width: "160px", isLabel: true, placeholder: "Instituci\xF3n" },
+  { key: "tipo", label: "Tipo Inversi\xF3n", type: "text", width: "140px", placeholder: "Tipo" },
+  { key: "monto", label: "Monto $", type: "currency", width: "120px" },
+  { key: "fecha", label: "Fecha", type: "text", width: "100px", placeholder: "Fecha" }
+];
+var InversionesTable = ({
+  rows,
+  onRowsChange,
+  formatCurrency,
+  headerBg = "bg-emerald-50",
+  headerText = "text-emerald-700",
+  title
+}) => /* @__PURE__ */ jsx(
+  assettable_default,
+  {
+    columns: columns2,
+    rows,
+    onRowsChange,
+    idPrefix: "inv",
+    addPlaceholder: "Agregar inversi\xF3n...",
+    formatCurrency,
+    headerBg,
+    headerText,
+    title
+  }
+);
+var inversiones_default = InversionesTable;
 var PropiedadesTable = ({
   rows,
   onRowsChange,
-  formatCurrency: formatCurrency4 = defaultFormatCurrency,
+  formatCurrency,
   ufValue,
   capRate = 0.05,
   factorDescuento = 0.1,
   headerBg = "bg-amber-50",
   headerText = "text-amber-700",
-  onViewSource,
-  title,
-  hipotecarioOptions
+  title
 }) => {
-  const { getHoverProps, isHovered: isRowHovered } = useRowHover();
-  const [newRow, setNewRow] = useState({ direccion: "", comuna: "" });
-  const [currency, setCurrency] = useState("uf");
-  const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange);
-  const visibleRowIds = useMemo(() => activeRows.map((r) => r.id), [activeRows]);
-  const keyboard = useGridKeyboard({ visibleRowIds, colCount: 7 });
-  const isUf = currency === "uf";
-  const conversionRules = ufValue ? [
+  const columns3 = [
+    { key: "direccion", label: "Direcci\xF3n", type: "text", width: "140px", isLabel: true, placeholder: "Direcci\xF3n" },
+    { key: "comuna", label: "Comuna", type: "text", width: "100px", placeholder: "Comuna" },
+    {
+      key: "valor_uf",
+      label: "Valor UF",
+      type: "number",
+      width: "100px",
+      ufPair: "valor_pesos",
+      autoComputedClass: (row) => ufValue && row.valor_uf != null && row.valor_pesos != null ? "italic text-amber-500" : ""
+    },
+    { key: "arriendo_real", label: "Arr. Real $", type: "currency", width: "100px" },
+    {
+      key: "arriendo_futuro",
+      label: "Arr. Fut $",
+      type: "currency",
+      width: "100px",
+      autoComputedClass: (row) => ufValue && row.valor_uf != null ? "italic text-amber-500" : ""
+    }
+  ];
+  const conversionRules = useMemo(() => ufValue ? [
     { source: "valor_uf", target: "valor_pesos", formula: (v) => v * ufValue, precision: 0 },
-    { source: "valor_pesos", target: "valor_uf", formula: (v) => v / ufValue, precision: 2 },
-    { source: "saldo_deuda_uf", target: "saldo_deuda_pesos", formula: (v) => v * ufValue, precision: 0 },
-    { source: "saldo_deuda_pesos", target: "saldo_deuda_uf", formula: (v) => v / ufValue, precision: 2 }
-  ] : [];
-  const computeRules = ufValue ? [
+    { source: "valor_pesos", target: "valor_uf", formula: (v) => v / ufValue, precision: 2 }
+  ] : [], [ufValue]);
+  const computeRules = useMemo(() => ufValue ? [
     {
       target: "arriendo_futuro",
       depends: ["valor_uf", "valor_pesos"],
@@ -3252,386 +3147,24 @@ var PropiedadesTable = ({
         return Math.round(valorUf * capRate / 12 * (1 - factorDescuento) * ufValue);
       }
     }
-  ] : [];
-  const updateField = (id, field, value) => {
-    onRowsChange(rows.map((r) => {
-      if (r.id !== id) return r;
-      let next = applyAutoConversions(r, field, value, conversionRules, {});
-      next = applyAutoCompute(next, field, computeRules, {});
-      return next;
-    }));
-  };
-  const addRow = (overrides) => {
-    const row = {
-      id: `br_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      direccion: newRow.direccion.trim(),
-      comuna: newRow.comuna.trim(),
-      valor_uf: null,
-      valor_pesos: null,
-      arriendo_real: null,
-      arriendo_futuro: null,
-      institucion: "",
-      tipo_deuda: "",
-      saldo_deuda_uf: null,
-      saldo_deuda_pesos: null,
-      monto_cuota: null,
-      cuotas_pagadas: null,
-      cuotas_total: null,
-      ...overrides
-    };
-    setNewRow({ direccion: "", comuna: "" });
-    onRowsChange([...rows, row]);
-  };
-  const totalValorUf = activeRows.reduce((s, r) => s + (r.valor_uf || 0), 0);
-  const totalValorPesos = activeRows.reduce((s, r) => s + (r.valor_pesos || 0), 0);
-  const totalArriendoReal = activeRows.reduce((s, r) => s + (r.arriendo_real || 0), 0);
-  const totalArriendoFuturo = activeRows.reduce((s, r) => s + (r.arriendo_futuro || 0), 0);
-  const totalSaldoDeudaUf = activeRows.reduce((s, r) => s + (r.saldo_deuda_uf || 0), 0);
-  const totalSaldoDeudaPesos = activeRows.reduce((s, r) => s + (r.saldo_deuda_pesos || 0), 0);
-  const totalMontoCuota = activeRows.reduce((s, r) => s + (r.monto_cuota || 0), 0);
-  const usedEntidades = useMemo(() => {
-    if (!hipotecarioOptions?.length) return /* @__PURE__ */ new Set();
-    return new Set(activeRows.map((r) => r.institucion).filter(Boolean));
-  }, [activeRows, hipotecarioOptions]);
-  const selectHipotecario = (rowId, entidad) => {
-    const option = hipotecarioOptions?.find((o) => o.entidad === entidad);
-    onRowsChange(rows.map((r) => {
-      if (r.id !== rowId) return r;
-      if (!entidad) {
-        return { ...r, institucion: "", tipo_deuda: "", saldo_deuda_uf: null, saldo_deuda_pesos: null, monto_cuota: null };
-      }
-      if (!option) return r;
-      return {
-        ...r,
-        institucion: option.entidad,
-        tipo_deuda: "Hipotecaria",
-        saldo_deuda_uf: option.saldo_uf,
-        saldo_deuda_pesos: option.saldo_pesos,
-        monto_cuota: option.monto_cuota ?? r.monto_cuota
-      };
-    }));
-  };
-  const isAutoComputed = (row, field) => {
-    if (!ufValue) return false;
-    if (field === "valor_pesos" && row.valor_uf != null) return true;
-    if (field === "saldo_deuda_pesos" && row.saldo_deuda_uf != null) return true;
-    if (field === "arriendo_futuro" && row.valor_uf != null) return true;
-    return false;
-  };
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsxs("div", { className: "overflow-x-auto relative", onKeyDown: keyboard.handleContainerKeyDown, tabIndex: 0, children: [
-      /* @__PURE__ */ jsx("div", { className: "absolute top-1 right-1 z-10", children: /* @__PURE__ */ jsx(CurrencyToggle, { value: currency, onChange: setCurrency, headerText }) }),
-      /* @__PURE__ */ jsxs("table", { className: T.table, style: { tableLayout: "fixed" }, children: [
-        /* @__PURE__ */ jsxs("thead", { children: [
-          /* @__PURE__ */ jsxs("tr", { className: `${headerBg} border-t border-amber-200`, children: [
-            /* @__PURE__ */ jsx("th", { colSpan: 5, className: `px-2 py-1.5 text-left ${T.th} ${headerText} border-r border-amber-200`, children: title || "Propiedad" }),
-            /* @__PURE__ */ jsx("th", { colSpan: 5, className: `px-2 py-1.5 text-left ${T.th} ${headerText}`, children: "Deuda Hipotecaria Asociada" }),
-            /* @__PURE__ */ jsx("th", { style: { width: "40px" } })
-          ] }),
-          /* @__PURE__ */ jsxs("tr", { className: `${headerBg}/50 border-b border-amber-100 text-amber-600`, children: [
-            /* @__PURE__ */ jsx("th", { className: `px-2 py-1 text-left ${T.th} text-amber-600`, style: { width: "140px" }, children: "Direcci\xF3n" }),
-            /* @__PURE__ */ jsx("th", { className: `px-2 py-1 text-left ${T.th} text-amber-600`, style: { width: "100px" }, children: "Comuna" }),
-            /* @__PURE__ */ jsx("th", { className: `px-2 py-1 text-right ${T.th} text-amber-600`, style: { width: "100px" }, children: isUf ? "Valor UF" : "Valor $" }),
-            /* @__PURE__ */ jsx("th", { className: `px-2 py-1 text-right ${T.th} text-amber-600`, style: { width: "100px" }, children: "Arr. Real $" }),
-            /* @__PURE__ */ jsx("th", { className: `px-2 py-1 text-right ${T.th} text-amber-600 border-r border-amber-200`, style: { width: "100px" }, children: "Arr. Fut $" }),
-            /* @__PURE__ */ jsx("th", { className: `px-2 py-1 text-left ${T.th} text-amber-600`, style: { width: "120px" }, children: "Instituci\xF3n" }),
-            /* @__PURE__ */ jsx("th", { className: `px-2 py-1 text-left ${T.th} text-amber-600`, style: { width: "90px" }, children: "Tipo" }),
-            /* @__PURE__ */ jsx("th", { className: `px-2 py-1 text-right ${T.th} text-amber-600`, style: { width: "100px" }, children: isUf ? "Saldo UF" : "Saldo $" }),
-            /* @__PURE__ */ jsx("th", { className: `px-2 py-1 text-right ${T.th} text-amber-600`, style: { width: "100px" }, children: "Cuota $" }),
-            /* @__PURE__ */ jsx("th", { className: `px-2 py-1 text-center ${T.th} text-amber-600`, style: { width: "80px" }, children: "Cuotas" }),
-            /* @__PURE__ */ jsx("th", { style: { width: "40px" } })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsxs("tbody", { children: [
-          activeRows.map((row) => {
-            const isHovered = isRowHovered(row.id);
-            return /* @__PURE__ */ jsxs(
-              "tr",
-              {
-                className: "border-b border-gray-100 hover:bg-gray-50",
-                ...getHoverProps(row.id),
-                children: [
-                  /* @__PURE__ */ jsx("td", { className: `px-2 py-2.5 ${T.cellLabel}`, style: { width: "140px" }, children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1 min-w-0", children: [
-                    /* @__PURE__ */ jsx(deletebutton_default, { onClick: () => requestDelete(row.id), isVisible: isHovered }),
-                    /* @__PURE__ */ jsx(
-                      "input",
-                      {
-                        type: "text",
-                        value: row.direccion,
-                        onChange: (e) => updateField(row.id, "direccion", e.target.value),
-                        className: `flex-1 min-w-0 ${T.inputLabel} pl-1`,
-                        placeholder: "Direcci\xF3n"
-                      }
-                    )
-                  ] }) }),
-                  /* @__PURE__ */ jsx("td", { className: "px-2 py-2.5", style: { width: "100px" }, children: /* @__PURE__ */ jsx(
-                    "input",
-                    {
-                      type: "text",
-                      value: row.comuna,
-                      onChange: (e) => updateField(row.id, "comuna", e.target.value),
-                      className: `w-full ${T.input} pl-1`,
-                      placeholder: "Comuna"
-                    }
-                  ) }),
-                  isUf ? /* @__PURE__ */ jsx(
-                    editablecell_default,
-                    {
-                      value: row.valor_uf,
-                      onChange: (v) => updateField(row.id, "valor_uf", v),
-                      type: "number",
-                      hasData: row.valor_uf !== null,
-                      width: "100px",
-                      focused: keyboard.isFocused(row.id, 0),
-                      onCellFocus: () => keyboard.focus(row.id, 0),
-                      onNavigate: keyboard.navigate,
-                      requestEdit: keyboard.isFocused(row.id, 0) ? keyboard.editTrigger : 0,
-                      requestClear: keyboard.isFocused(row.id, 0) ? keyboard.clearTrigger : 0,
-                      editInitialValue: keyboard.isFocused(row.id, 0) ? keyboard.editInitialValue : void 0
-                    }
-                  ) : /* @__PURE__ */ jsx(
-                    editablecell_default,
-                    {
-                      value: row.valor_pesos,
-                      onChange: (v) => updateField(row.id, "valor_pesos", v),
-                      type: "currency",
-                      hasData: row.valor_pesos !== null,
-                      width: "100px",
-                      className: isAutoComputed(row, "valor_pesos") ? "italic text-amber-500" : "",
-                      focused: keyboard.isFocused(row.id, 0),
-                      onCellFocus: () => keyboard.focus(row.id, 0),
-                      onNavigate: keyboard.navigate,
-                      requestEdit: keyboard.isFocused(row.id, 0) ? keyboard.editTrigger : 0,
-                      requestClear: keyboard.isFocused(row.id, 0) ? keyboard.clearTrigger : 0,
-                      editInitialValue: keyboard.isFocused(row.id, 0) ? keyboard.editInitialValue : void 0
-                    }
-                  ),
-                  /* @__PURE__ */ jsx(
-                    editablecell_default,
-                    {
-                      value: row.arriendo_real,
-                      onChange: (v) => updateField(row.id, "arriendo_real", v),
-                      type: "currency",
-                      hasData: row.arriendo_real !== null,
-                      width: "100px",
-                      focused: keyboard.isFocused(row.id, 1),
-                      onCellFocus: () => keyboard.focus(row.id, 1),
-                      onNavigate: keyboard.navigate,
-                      requestEdit: keyboard.isFocused(row.id, 1) ? keyboard.editTrigger : 0,
-                      requestClear: keyboard.isFocused(row.id, 1) ? keyboard.clearTrigger : 0,
-                      editInitialValue: keyboard.isFocused(row.id, 1) ? keyboard.editInitialValue : void 0
-                    }
-                  ),
-                  /* @__PURE__ */ jsx(
-                    editablecell_default,
-                    {
-                      value: row.arriendo_futuro,
-                      onChange: (v) => updateField(row.id, "arriendo_futuro", v),
-                      type: "currency",
-                      hasData: row.arriendo_futuro !== null,
-                      width: "100px",
-                      className: `border-r border-amber-200 ${isAutoComputed(row, "arriendo_futuro") ? "italic text-amber-500" : ""}`,
-                      focused: keyboard.isFocused(row.id, 2),
-                      onCellFocus: () => keyboard.focus(row.id, 2),
-                      onNavigate: keyboard.navigate,
-                      requestEdit: keyboard.isFocused(row.id, 2) ? keyboard.editTrigger : 0,
-                      requestClear: keyboard.isFocused(row.id, 2) ? keyboard.clearTrigger : 0,
-                      editInitialValue: keyboard.isFocused(row.id, 2) ? keyboard.editInitialValue : void 0
-                    }
-                  ),
-                  /* @__PURE__ */ jsx("td", { className: "px-2 py-2.5", style: { width: "120px" }, children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1 min-w-0", children: [
-                    row.sourceFileId && onViewSource && /* @__PURE__ */ jsx(
-                      "button",
-                      {
-                        onClick: () => onViewSource([row.sourceFileId]),
-                        className: `p-0.5 rounded transition-all shrink-0 ${isHovered ? "opacity-100 text-teal-400 hover:text-amber-600 hover:bg-teal-100" : "opacity-0"}`,
-                        title: "Ver documento fuente",
-                        children: /* @__PURE__ */ jsx(Eye, { size: 14 })
-                      }
-                    ),
-                    hipotecarioOptions?.length ? /* @__PURE__ */ jsxs(
-                      "select",
-                      {
-                        value: row.institucion,
-                        onChange: (e) => selectHipotecario(row.id, e.target.value),
-                        className: `flex-1 min-w-0 ${T.input} pl-0.5 bg-transparent cursor-pointer`,
-                        children: [
-                          /* @__PURE__ */ jsx("option", { value: "", children: "\u2014" }),
-                          hipotecarioOptions.map((opt) => /* @__PURE__ */ jsx(
-                            "option",
-                            {
-                              value: opt.entidad,
-                              disabled: usedEntidades.has(opt.entidad) && row.institucion !== opt.entidad,
-                              children: opt.entidad
-                            },
-                            opt.entidad
-                          ))
-                        ]
-                      }
-                    ) : /* @__PURE__ */ jsx(
-                      "input",
-                      {
-                        type: "text",
-                        value: row.institucion,
-                        onChange: (e) => updateField(row.id, "institucion", e.target.value),
-                        className: `flex-1 min-w-0 ${T.input} pl-1`,
-                        placeholder: "Instituci\xF3n"
-                      }
-                    )
-                  ] }) }),
-                  /* @__PURE__ */ jsx("td", { className: "px-2 py-2.5", style: { width: "90px" }, children: hipotecarioOptions?.length && row.institucion ? /* @__PURE__ */ jsx("span", { className: "text-xs text-gray-500 pl-1", children: "Hipotecaria" }) : /* @__PURE__ */ jsx(
-                    "input",
-                    {
-                      type: "text",
-                      value: row.tipo_deuda,
-                      onChange: (e) => updateField(row.id, "tipo_deuda", e.target.value),
-                      className: `w-full ${T.input} pl-1`,
-                      placeholder: "Tipo"
-                    }
-                  ) }),
-                  isUf ? /* @__PURE__ */ jsx(
-                    editablecell_default,
-                    {
-                      value: row.saldo_deuda_uf,
-                      onChange: (v) => updateField(row.id, "saldo_deuda_uf", v),
-                      type: "number",
-                      hasData: row.saldo_deuda_uf !== null,
-                      width: "100px",
-                      focused: keyboard.isFocused(row.id, 3),
-                      onCellFocus: () => keyboard.focus(row.id, 3),
-                      onNavigate: keyboard.navigate,
-                      requestEdit: keyboard.isFocused(row.id, 3) ? keyboard.editTrigger : 0,
-                      requestClear: keyboard.isFocused(row.id, 3) ? keyboard.clearTrigger : 0,
-                      editInitialValue: keyboard.isFocused(row.id, 3) ? keyboard.editInitialValue : void 0
-                    }
-                  ) : /* @__PURE__ */ jsx(
-                    editablecell_default,
-                    {
-                      value: row.saldo_deuda_pesos,
-                      onChange: (v) => updateField(row.id, "saldo_deuda_pesos", v),
-                      type: "currency",
-                      hasData: row.saldo_deuda_pesos !== null,
-                      width: "100px",
-                      className: isAutoComputed(row, "saldo_deuda_pesos") ? "italic text-amber-500" : "",
-                      focused: keyboard.isFocused(row.id, 3),
-                      onCellFocus: () => keyboard.focus(row.id, 3),
-                      onNavigate: keyboard.navigate,
-                      requestEdit: keyboard.isFocused(row.id, 3) ? keyboard.editTrigger : 0,
-                      requestClear: keyboard.isFocused(row.id, 3) ? keyboard.clearTrigger : 0,
-                      editInitialValue: keyboard.isFocused(row.id, 3) ? keyboard.editInitialValue : void 0
-                    }
-                  ),
-                  /* @__PURE__ */ jsx(
-                    editablecell_default,
-                    {
-                      value: row.monto_cuota,
-                      onChange: (v) => updateField(row.id, "monto_cuota", v),
-                      type: "currency",
-                      hasData: row.monto_cuota !== null,
-                      width: "100px",
-                      focused: keyboard.isFocused(row.id, 4),
-                      onCellFocus: () => keyboard.focus(row.id, 4),
-                      onNavigate: keyboard.navigate,
-                      requestEdit: keyboard.isFocused(row.id, 4) ? keyboard.editTrigger : 0,
-                      requestClear: keyboard.isFocused(row.id, 4) ? keyboard.clearTrigger : 0,
-                      editInitialValue: keyboard.isFocused(row.id, 4) ? keyboard.editInitialValue : void 0
-                    }
-                  ),
-                  /* @__PURE__ */ jsx("td", { className: "text-center text-xs text-gray-500", style: { width: "80px" }, children: /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-center gap-0.5", children: [
-                    /* @__PURE__ */ jsx(
-                      editablecell_default,
-                      {
-                        value: row.cuotas_pagadas,
-                        onChange: (v) => updateField(row.id, "cuotas_pagadas", v),
-                        type: "number",
-                        hasData: row.cuotas_pagadas !== null,
-                        width: "30px",
-                        align: "center",
-                        asDiv: true,
-                        focused: keyboard.isFocused(row.id, 5),
-                        onCellFocus: () => keyboard.focus(row.id, 5),
-                        onNavigate: keyboard.navigate,
-                        requestEdit: keyboard.isFocused(row.id, 5) ? keyboard.editTrigger : 0,
-                        requestClear: keyboard.isFocused(row.id, 5) ? keyboard.clearTrigger : 0,
-                        editInitialValue: keyboard.isFocused(row.id, 5) ? keyboard.editInitialValue : void 0
-                      }
-                    ),
-                    /* @__PURE__ */ jsx("span", { className: "text-gray-400", children: "/" }),
-                    /* @__PURE__ */ jsx(
-                      editablecell_default,
-                      {
-                        value: row.cuotas_total,
-                        onChange: (v) => updateField(row.id, "cuotas_total", v),
-                        type: "number",
-                        hasData: row.cuotas_total !== null,
-                        width: "30px",
-                        align: "center",
-                        asDiv: true,
-                        focused: keyboard.isFocused(row.id, 6),
-                        onCellFocus: () => keyboard.focus(row.id, 6),
-                        onNavigate: keyboard.navigate,
-                        requestEdit: keyboard.isFocused(row.id, 6) ? keyboard.editTrigger : 0,
-                        requestClear: keyboard.isFocused(row.id, 6) ? keyboard.clearTrigger : 0,
-                        editInitialValue: keyboard.isFocused(row.id, 6) ? keyboard.editInitialValue : void 0
-                      }
-                    )
-                  ] }) }),
-                  /* @__PURE__ */ jsx("td", { style: { width: "40px" } })
-                ]
-              },
-              row.id
-            );
-          }),
-          /* @__PURE__ */ jsxs("tr", { className: "border-b border-dashed border-amber-100 bg-amber-50/20", children: [
-            /* @__PURE__ */ jsx("td", { className: `px-2 py-2.5 ${T.cellLabel}`, style: { width: "140px" }, children: /* @__PURE__ */ jsx(
-              "input",
-              {
-                type: "text",
-                placeholder: "Agregar propiedad...",
-                value: newRow.direccion,
-                onChange: (e) => setNewRow((prev) => ({ ...prev, direccion: e.target.value })),
-                className: `w-full ${T.inputPlaceholder}`,
-                onKeyDown: (e) => {
-                  if (e.key === "Enter" && newRow.direccion.trim()) addRow();
-                }
-              }
-            ) }),
-            /* @__PURE__ */ jsx("td", { className: "px-2 py-2.5", style: { width: "100px" }, children: /* @__PURE__ */ jsx(
-              "input",
-              {
-                type: "text",
-                placeholder: "Comuna",
-                value: newRow.comuna,
-                onChange: (e) => setNewRow((prev) => ({ ...prev, comuna: e.target.value })),
-                className: `w-full ${T.inputPlaceholder}`
-              }
-            ) }),
-            /* @__PURE__ */ jsx("td", { style: { width: "100px" } }),
-            /* @__PURE__ */ jsx("td", { style: { width: "100px" } }),
-            /* @__PURE__ */ jsx("td", { style: { width: "100px" } }),
-            /* @__PURE__ */ jsx("td", { style: { width: "120px" } }),
-            /* @__PURE__ */ jsx("td", { style: { width: "90px" } }),
-            /* @__PURE__ */ jsx("td", { style: { width: "100px" } }),
-            /* @__PURE__ */ jsx("td", { style: { width: "100px" } }),
-            /* @__PURE__ */ jsx("td", { style: { width: "80px" } }),
-            /* @__PURE__ */ jsx("td", { style: { width: "40px" } })
-          ] })
-        ] }),
-        /* @__PURE__ */ jsx("tfoot", { children: /* @__PURE__ */ jsxs("tr", { className: `${headerBg} font-semibold text-xs border-b border-amber-200`, children: [
-          /* @__PURE__ */ jsx("td", { colSpan: 2, className: `px-2 py-1.5 ${headerText} ${T.totalLabel}`, children: "TOTAL" }),
-          /* @__PURE__ */ jsx("td", { className: `px-2 py-1.5 text-right ${headerText} ${T.totalValue}`, children: isUf ? totalValorUf ? totalValorUf.toLocaleString("es-CL", { maximumFractionDigits: 2 }) : "\u2014" : totalValorPesos ? formatCurrency4(totalValorPesos) : "\u2014" }),
-          /* @__PURE__ */ jsx("td", { className: `px-2 py-1.5 text-right ${headerText} ${T.totalValue}`, children: totalArriendoReal ? formatCurrency4(totalArriendoReal) : "\u2014" }),
-          /* @__PURE__ */ jsx("td", { className: `px-2 py-1.5 text-right ${headerText} ${T.totalValue} border-r border-amber-200`, children: totalArriendoFuturo ? formatCurrency4(totalArriendoFuturo) : "\u2014" }),
-          /* @__PURE__ */ jsx("td", { colSpan: 2 }),
-          /* @__PURE__ */ jsx("td", { className: `px-2 py-1.5 text-right ${headerText} ${T.totalValue}`, children: isUf ? totalSaldoDeudaUf ? totalSaldoDeudaUf.toLocaleString("es-CL", { maximumFractionDigits: 2 }) : "\u2014" : totalSaldoDeudaPesos ? formatCurrency4(totalSaldoDeudaPesos) : "\u2014" }),
-          /* @__PURE__ */ jsx("td", { className: `px-2 py-1.5 text-right ${headerText} ${T.totalValue}`, children: totalMontoCuota ? formatCurrency4(totalMontoCuota) : "\u2014" }),
-          /* @__PURE__ */ jsx("td", { colSpan: 2 })
-        ] }) })
-      ] }),
-      /* @__PURE__ */ jsx(recyclebin_default2, { deletedRows, getLabel: (r) => r.direccion, onRestore: restoreRow })
-    ] }),
-    deleteTargetId && /* @__PURE__ */ jsx(deletedialog_default, { count: 1, onConfirm: confirmDelete, onCancel: cancelDelete })
-  ] });
+  ] : [], [ufValue, capRate, factorDescuento]);
+  return /* @__PURE__ */ jsx(
+    assettable_default,
+    {
+      columns: columns3,
+      rows,
+      onRowsChange,
+      idPrefix: "br",
+      addPlaceholder: "Agregar propiedad...",
+      formatCurrency,
+      headerBg,
+      headerText,
+      title,
+      ufValue,
+      conversionRules,
+      computeRules
+    }
+  );
 };
 var propiedades_default = PropiedadesTable;
 var defaultColorScheme = {
@@ -3643,14 +3176,14 @@ var defaultColorScheme = {
 var ActivosSummary = ({
   items,
   totalLabel = "Total Activos",
-  formatCurrency: formatCurrency4 = defaultFormatCurrency,
+  formatCurrency = defaultFormatCurrency,
   colorScheme = defaultColorScheme
 }) => {
   const grandTotal = items.reduce((sum, item) => sum + (item.value || 0), 0);
   return /* @__PURE__ */ jsxs("div", { className: "space-y-2", children: [
     /* @__PURE__ */ jsx("div", { className: "grid grid-cols-3 gap-2", children: items.map((item, i) => /* @__PURE__ */ jsxs("div", { className: "border border-gray-200 rounded-lg p-2.5", children: [
       /* @__PURE__ */ jsx("div", { className: `${T.cardLabel} text-gray-500`, children: item.label }),
-      /* @__PURE__ */ jsx("div", { className: `${T.cardValue} text-gray-800 mt-0.5`, children: item.value ? formatCurrency4(item.value) : "\u2014" }),
+      /* @__PURE__ */ jsx("div", { className: `${T.cardValue} text-gray-800 mt-0.5`, children: item.value ? formatCurrency(item.value) : "\u2014" }),
       /* @__PURE__ */ jsxs("div", { className: "text-[10px] text-gray-400 mt-0.5", children: [
         item.count,
         " ",
@@ -3659,7 +3192,7 @@ var ActivosSummary = ({
     ] }, i)) }),
     /* @__PURE__ */ jsxs("div", { className: `${colorScheme.totalBg} border ${colorScheme.totalBorder} rounded-lg p-2.5 flex items-center justify-between`, children: [
       /* @__PURE__ */ jsx("span", { className: `${T.totalLabel} ${colorScheme.totalText}`, children: totalLabel }),
-      /* @__PURE__ */ jsx("span", { className: `${T.totalValue} ${colorScheme.totalValueText}`, children: grandTotal ? formatCurrency4(grandTotal) : "\u2014" })
+      /* @__PURE__ */ jsx("span", { className: `${T.totalValue} ${colorScheme.totalValueText}`, children: grandTotal ? formatCurrency(grandTotal) : "\u2014" })
     ] })
   ] });
 };
@@ -3717,6 +3250,6 @@ var SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, colum
 };
 var summary_default = SummaryTable;
 
-export { activossummary_default as ActivosSummary, boletas_default as BoletasTable, deletedialog_default as DeleteDialog, deudas_default as DeudasTable, editablecell_default as EditableCell, finalresults_default as FinalResultsCompact, inversiones_default as InversionesTable, propiedades_default as PropiedadesTable, recyclebin_default2 as RecycleBin, SourceIcon, summary_default as SummaryTable, tableshell_default as TableShell, tributario_default as TributarioTable, vehiculos_default as VehiculosTable, applyAutoCompute, applyAutoConversions, renta_default as default, defaultFormatCurrency, displayCurrency, displayCurrencyCompact, generateLastNMonths, useSoftDelete };
+export { activossummary_default as ActivosSummary, assettable_default as AssetTable, boletas_default as BoletasTable, currencytoggle_default as CurrencyToggle, deletedialog_default as DeleteDialog, deudas_default as DeudasTable, editablecell_default as EditableCell, finalresults_default as FinalResultsCompact, inversiones_default as InversionesTable, MONTH_LABELS, propiedades_default as PropiedadesTable, recyclebin_default as RecycleBin, SourceIcon, summary_default as SummaryTable, tableshell_default as TableShell, tributario_default as TributarioTable, vehiculos_default as VehiculosTable, applyAutoCompute, applyAutoConversions, renta_default as default, defaultFormatCurrency, displayCurrency, displayCurrencyCompact, formatDeletedDate, generateId, generateLastNMonths, useSoftDelete };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

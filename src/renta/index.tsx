@@ -22,10 +22,11 @@ import DataRow from './datarow'
 import AddRow from './addrow'
 import GroupRow from './grouprow'
 import DeleteDialog from '../common/deletedialog'
-import RecycleBin from './recyclebin'
+import RecycleBin from '../common/recyclebin'
 import { HeaderSelectionBar, ContextMenu } from './floatingaction'
 import { useKeyboard } from './usekeyboard'
 import { useDragReorder } from './usedragreorder'
+import { useRowHover } from '../common/userowhover'
 
 import type { RowData, RentaTableProps, ReliquidacionBreakdown } from './types'
 
@@ -116,7 +117,7 @@ const RentaTable = ({
     onViewSource,
     reliquidacion,
 }: RentaTableProps) => {
-    const [hoveredRow, setHoveredRow] = useState<string | null>(null)
+    const { getHoverProps, isHovered: isRowHovered } = useRowHover()
     const [newRowLabels, setNewRowLabels] = useState<Record<string, string>>({})
     const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
     const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
@@ -344,12 +345,11 @@ const RentaTable = ({
             key={r.id}
             row={r}
             months={monthsArray}
-            isHovered={hoveredRow === r.id}
+            isHovered={isRowHovered(r.id)}
             selected={selectedRows.has(r.id)}
             anySelected={anySelected}
             selectable={!r.isGroup}
-            onMouseEnter={() => setHoveredRow(r.id)}
-            onMouseLeave={() => setHoveredRow(null)}
+            hoverProps={getHoverProps(r.id)}
             onRemove={() => requestDelete(r.id)}
             onToggleSelect={() => toggleSelect(r.id)}
             onContextMenu={(e) => handleContextMenu(e, r.id)}
@@ -442,7 +442,31 @@ const RentaTable = ({
                 <>
                     {/* Recycle bin footer */}
                     {isExpanded && (
-                        <RecycleBin deletedRows={deletedRows} months={monthsArray} onRestore={handleRestore} formatValue={formatValue} showVariableColumn={showVariableColumn} />
+                        <RecycleBin
+                            deletedRows={deletedRows}
+                            getLabel={(r) => r.label}
+                            onRestore={handleRestore}
+                            renderCells={(row) => {
+                                const subtract = isSubtractType(row.type)
+                                return (
+                                    <>
+                                        {showVariableColumn && <td style={{ width: '20px' }} />}
+                                        {monthsArray.map(m => {
+                                            const v = row.values[m.id]
+                                            const hasValue = v != null
+                                            return (
+                                                <td key={m.id} className="px-2 py-1.5 text-right tabular-nums" style={{ width: '110px' }}>
+                                                    <span className={`${T.totalValue} ${hasValue ? (subtract ? 'text-rose-300' : 'text-gray-400') : 'text-gray-200'}`}>
+                                                        {hasValue ? formatValue(v) : '—'}
+                                                    </span>
+                                                </td>
+                                            )
+                                        })}
+                                        <td style={{ width: '40px' }} />
+                                    </>
+                                )
+                            }}
+                        />
                     )}
 
                     {/* Delete confirmation dialog */}
@@ -514,11 +538,10 @@ const RentaTable = ({
                                                         group={group}
                                                         childRows={groupChildren}
                                                         months={monthsArray}
-                                                        isHovered={hoveredRow === group.id}
+                                                        isHovered={isRowHovered(group.id)}
                                                         forceExpanded={forceExpanded}
                                                         formatValue={formatValue}
-                                                        onMouseEnter={() => setHoveredRow(group.id)}
-                                                        onMouseLeave={() => setHoveredRow(null)}
+                                                        hoverProps={getHoverProps(group.id)}
                                                         onToggleCollapse={() => toggleGroupCollapse(group.id)}
                                                         onUngroup={() => handleUngroup(group.id)}
                                                         onLabelChange={(label) => updateRowLabel(group.id, label)}

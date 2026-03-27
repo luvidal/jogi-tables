@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { ChevronDown, ChevronUp, Undo2, Trash2 } from 'lucide-react'
+import { formatDeletedDate } from './utils'
+import { T } from './styles'
 import type { SoftDeletable } from './softdeletetypes'
 
 type RecycleBinRow = { id: string } & SoftDeletable
@@ -8,23 +10,10 @@ interface RecycleBinProps<T extends RecycleBinRow> {
     deletedRows: T[]
     getLabel: (row: T) => string
     onRestore: (id: string) => void
+    renderCells?: (row: T) => React.ReactNode
 }
 
-const formatDeletedDate = (iso: string): string => {
-    const d = new Date(iso)
-    const now = new Date()
-    const diffMs = now.getTime() - d.getTime()
-    const diffMin = Math.floor(diffMs / 60000)
-    if (diffMin < 1) return 'hace un momento'
-    if (diffMin < 60) return `hace ${diffMin} min`
-    const diffHrs = Math.floor(diffMin / 60)
-    if (diffHrs < 24) return `hace ${diffHrs}h`
-    const diffDays = Math.floor(diffHrs / 24)
-    if (diffDays < 7) return `hace ${diffDays}d`
-    return d.toLocaleDateString('es-CL', { day: 'numeric', month: 'short' })
-}
-
-function RecycleBin<T extends RecycleBinRow>({ deletedRows, getLabel, onRestore }: RecycleBinProps<T>) {
+function RecycleBin<T extends RecycleBinRow>({ deletedRows, getLabel, onRestore, renderCells }: RecycleBinProps<T>) {
     const [expanded, setExpanded] = useState(false)
 
     if (deletedRows.length === 0) return null
@@ -43,33 +32,40 @@ function RecycleBin<T extends RecycleBinRow>({ deletedRows, getLabel, onRestore 
             </button>
 
             {expanded && (
-                <div className="px-4 pb-2 space-y-1">
-                    {deletedRows.map(row => (
-                        <div key={row.id} className="flex items-center gap-2 py-1 opacity-75">
-                            <button
-                                onClick={() => onRestore(row.id)}
-                                className="shrink-0 p-1 rounded text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
-                                title="Restaurar"
-                            >
-                                <Undo2 size={13} />
-                            </button>
-                            <div className="min-w-0 flex-1">
-                                <span
-                                    className="text-xs font-medium line-through text-gray-400 truncate block"
-                                    title={getLabel(row)}
-                                >
-                                    {getLabel(row)}
-                                </span>
-                                {row.deletedAt && (
-                                    <span className="text-[10px] text-gray-400 truncate block" title={row.deletionReason}>
-                                        {formatDeletedDate(row.deletedAt)}
-                                        {row.deletionReason && ` · ${row.deletionReason}`}
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                <table className={T.table} style={{ tableLayout: 'fixed' }}>
+                    <tbody>
+                        {deletedRows.map(row => (
+                            <tr key={row.id} className={`${T.rowBorder} opacity-75`}>
+                                <td className={`pl-1 pr-2 py-1.5 text-gray-500 ${T.cellLabel}`}>
+                                    <div className="flex items-center gap-1 min-w-0">
+                                        <button
+                                            onClick={() => onRestore(row.id)}
+                                            className="shrink-0 p-1 rounded text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+                                            title="Restaurar"
+                                        >
+                                            <Undo2 size={13} />
+                                        </button>
+                                        <div className="min-w-0 flex-1">
+                                            <span
+                                                className={`${T.rowLabel} line-through text-gray-400 truncate block`}
+                                                title={getLabel(row)}
+                                            >
+                                                {getLabel(row)}
+                                            </span>
+                                            {row.deletedAt && (
+                                                <span className="text-[10px] text-gray-400 truncate block" title={row.deletionReason}>
+                                                    {formatDeletedDate(row.deletedAt)}
+                                                    {row.deletionReason && ` · ${row.deletionReason}`}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </td>
+                                {renderCells && renderCells(row)}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             )}
         </div>
     )

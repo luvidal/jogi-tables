@@ -34,8 +34,7 @@ interface DataRowProps {
     selected?: boolean
     anySelected?: boolean
     selectable?: boolean
-    onMouseEnter: () => void
-    onMouseLeave: () => void
+    hoverProps: Record<string, unknown>
     onRemove: () => void
     onToggleSelect?: () => void
     onContextMenu?: (e: React.MouseEvent) => void
@@ -83,8 +82,7 @@ const DataRow = ({
     selected = false,
     anySelected = false,
     selectable = false,
-    onMouseEnter,
-    onMouseLeave,
+    hoverProps,
     onRemove,
     onToggleSelect,
     onContextMenu,
@@ -133,8 +131,7 @@ const DataRow = ({
         <tr
             className={`border-b border-gray-100 ${rowBg} ${isDragging ? 'opacity-40' : ''} ${dropBorder} group`}
             onClick={handleRowClick}
-            onMouseEnter={onMouseEnter}
-            onMouseLeave={onMouseLeave}
+            {...hoverProps}
             onContextMenu={onContextMenu}
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
