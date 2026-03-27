@@ -21,15 +21,10 @@ export const T = {
     empty: 'text-xs text-gray-400 italic',
     cardLabel: 'text-xs font-medium',
     cardValue: 'text-xs font-semibold',
-    // Summary table rows
-    sumSubheaderRow: 'border-b-2 border-gray-300',
-    sumSubheaderLabel: 'py-2 px-3 text-xs font-bold text-gray-800 uppercase tracking-wider',
-    sumSubheaderCol: 'py-2 px-3 text-right text-xs font-bold text-gray-600',
-    sumDataRow: 'border-b border-gray-100',
-    sumDataLabel: 'py-1.5 px-3 text-gray-600 pl-5',
-    sumDataValue: 'py-1.5 px-3 text-right tabular-nums text-gray-700',
-    sumTotalRow: 'border-b bg-gray-50/80 border-gray-200',
-    sumTotalLabel: 'py-1.5 px-3 font-bold text-gray-800',
-    sumTotalValue: 'py-1.5 px-3 text-right tabular-nums font-bold text-gray-800',
-    sumGrandtotalRow: 'border-b-2 bg-gray-100 border-gray-300',
+    // Shared row primitives (used across summary, data-entry, and read-only tables)
+    row: 'border-b border-gray-100',
+    rowTotal: 'border-b bg-gray-50/80 border-gray-200',
+    rowGrandtotal: 'border-b-2 bg-gray-100 border-gray-300',
+    cell: 'py-1.5 px-3',
+    cellValue: 'py-1.5 px-3 text-right tabular-nums',
 } as const

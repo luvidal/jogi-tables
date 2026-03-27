@@ -34,17 +34,12 @@ var T = {
   empty: "text-xs text-gray-400 italic",
   cardLabel: "text-xs font-medium",
   cardValue: "text-xs font-semibold",
-  // Summary table rows
-  sumSubheaderRow: "border-b-2 border-gray-300",
-  sumSubheaderLabel: "py-2 px-3 text-xs font-bold text-gray-800 uppercase tracking-wider",
-  sumSubheaderCol: "py-2 px-3 text-right text-xs font-bold text-gray-600",
-  sumDataRow: "border-b border-gray-100",
-  sumDataLabel: "py-1.5 px-3 text-gray-600 pl-5",
-  sumDataValue: "py-1.5 px-3 text-right tabular-nums text-gray-700",
-  sumTotalRow: "border-b bg-gray-50/80 border-gray-200",
-  sumTotalLabel: "py-1.5 px-3 font-bold text-gray-800",
-  sumTotalValue: "py-1.5 px-3 text-right tabular-nums font-bold text-gray-800",
-  sumGrandtotalRow: "border-b-2 bg-gray-100 border-gray-300"
+  // Shared row primitives (used across summary, data-entry, and read-only tables)
+  row: "border-b border-gray-100",
+  rowTotal: "border-b bg-gray-50/80 border-gray-200",
+  rowGrandtotal: "border-b-2 bg-gray-100 border-gray-300",
+  cell: "py-1.5 px-3",
+  cellValue: "py-1.5 px-3 text-right tabular-nums"
 };
 var SourceIcon = ({
   fileIds,
@@ -3692,36 +3687,34 @@ function formatCell(v, format) {
       return { display: displayCurrencyCompact(v), title: displayCurrency(v) || void 0 };
   }
 }
-var ROW_STYLES = {
-  data: { row: T.sumDataRow, label: T.sumDataLabel, value: T.sumDataValue },
-  total: { row: T.sumTotalRow, label: T.sumTotalLabel, value: T.sumTotalValue },
-  grandtotal: { row: T.sumGrandtotalRow, label: T.sumTotalLabel, value: T.sumTotalValue }
-};
 var SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, columnWidth = "w-[120px]" }) => {
   const extraW = extraColumn?.width ?? "w-[80px]";
   return /* @__PURE__ */ jsxRuntime.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntime.jsx("table", { className: `${T.table} text-sm border-collapse`, children: /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: rows.map((row, idx) => {
     if (row.type === "subheader") {
-      return /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: T.sumSubheaderRow, children: [
-        /* @__PURE__ */ jsxRuntime.jsx("td", { className: T.sumSubheaderLabel, children: row.label }),
-        extraColumn && /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.sumSubheaderCol} ${extraW}`, children: extraColumn.header }),
-        columnHeaders.map((col, i) => /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.sumSubheaderCol} ${columnWidth}`, children: col }, i))
+      return /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-b-2 border-gray-300", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cell} ${T.th} font-bold text-gray-800 tracking-wider`, children: row.label }),
+        extraColumn && /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cell} ${T.th} text-right font-bold text-gray-600 ${extraW}`, children: extraColumn.header }),
+        columnHeaders.map((col, i) => /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cell} ${T.th} text-right font-bold text-gray-600 ${columnWidth}`, children: col }, i))
       ] }, idx);
     }
-    const s = ROW_STYLES[row.type] ?? ROW_STYLES.data;
+    const isTotal = row.type === "total";
+    const isFinal = row.type === "grandtotal";
+    const bold = isTotal || isFinal;
     const fmt = row.format ?? "currency";
-    return /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: s.row, children: [
-      /* @__PURE__ */ jsxRuntime.jsxs("td", { className: s.label, children: [
+    const rowClass = isFinal ? T.rowGrandtotal : isTotal ? T.rowTotal : T.row;
+    return /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: rowClass, children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("td", { className: `${T.cell} ${bold ? T.footerLabel + " text-gray-800" : T.muted + " pl-5"}`, children: [
         row.label,
         renderLabelSuffix?.(row, idx)
       ] }),
-      extraColumn && /* @__PURE__ */ jsxRuntime.jsx("td", { className: `py-1.5 px-1 ${extraW}`, children: extraColumn.render(row, idx) }),
+      extraColumn && /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cell} ${extraW}`, children: extraColumn.render(row, idx) }),
       row.values.map((v, i) => {
         const { display, title } = formatCell(v, fmt);
         return /* @__PURE__ */ jsxRuntime.jsx(
           "td",
           {
             title,
-            className: `${s.value} ${columnWidth}${title ? " cursor-default" : ""}`,
+            className: `${T.cellValue} ${columnWidth} ${bold ? T.footerValue + " text-gray-800" : "text-gray-700"}${title ? " cursor-default" : ""}`,
             children: display
           },
           i

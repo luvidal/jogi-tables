@@ -19,12 +19,6 @@ function formatCell(v: number | null, format: SummaryRowFormat): { display: stri
   }
 }
 
-const ROW_STYLES = {
-  data:       { row: T.sumDataRow,       label: T.sumDataLabel,  value: T.sumDataValue },
-  total:      { row: T.sumTotalRow,      label: T.sumTotalLabel, value: T.sumTotalValue },
-  grandtotal: { row: T.sumGrandtotalRow, label: T.sumTotalLabel, value: T.sumTotalValue },
-} as const
-
 const SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, columnWidth = 'w-[120px]' }: SummaryTableProps) => {
   const extraW = extraColumn?.width ?? 'w-[80px]'
 
@@ -35,29 +29,32 @@ const SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, col
           {rows.map((row, idx) => {
             if (row.type === 'subheader') {
               return (
-                <tr key={idx} className={T.sumSubheaderRow}>
-                  <td className={T.sumSubheaderLabel}>{row.label}</td>
+                <tr key={idx} className="border-b-2 border-gray-300">
+                  <td className={`${T.cell} ${T.th} font-bold text-gray-800 tracking-wider`}>{row.label}</td>
                   {extraColumn && (
-                    <td className={`${T.sumSubheaderCol} ${extraW}`}>{extraColumn.header}</td>
+                    <td className={`${T.cell} ${T.th} text-right font-bold text-gray-600 ${extraW}`}>{extraColumn.header}</td>
                   )}
                   {columnHeaders.map((col, i) => (
-                    <td key={i} className={`${T.sumSubheaderCol} ${columnWidth}`}>{col}</td>
+                    <td key={i} className={`${T.cell} ${T.th} text-right font-bold text-gray-600 ${columnWidth}`}>{col}</td>
                   ))}
                 </tr>
               )
             }
 
-            const s = ROW_STYLES[row.type] ?? ROW_STYLES.data
+            const isTotal = row.type === 'total'
+            const isFinal = row.type === 'grandtotal'
+            const bold = isTotal || isFinal
             const fmt = row.format ?? 'currency'
+            const rowClass = isFinal ? T.rowGrandtotal : isTotal ? T.rowTotal : T.row
 
             return (
-              <tr key={idx} className={s.row}>
-                <td className={s.label}>
+              <tr key={idx} className={rowClass}>
+                <td className={`${T.cell} ${bold ? T.footerLabel + ' text-gray-800' : T.muted + ' pl-5'}`}>
                   {row.label}
                   {renderLabelSuffix?.(row, idx)}
                 </td>
                 {extraColumn && (
-                  <td className={`py-1.5 px-1 ${extraW}`}>
+                  <td className={`${T.cell} ${extraW}`}>
                     {extraColumn.render(row, idx)}
                   </td>
                 )}
@@ -67,7 +64,7 @@ const SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, col
                     <td
                       key={i}
                       title={title}
-                      className={`${s.value} ${columnWidth}${title ? ' cursor-default' : ''}`}
+                      className={`${T.cellValue} ${columnWidth} ${bold ? T.footerValue + ' text-gray-800' : 'text-gray-700'}${title ? ' cursor-default' : ''}`}
                     >
                       {display}
                     </td>
