@@ -574,15 +574,17 @@ const RentaTable = ({
                                 </React.Fragment>
                             )
                         })}
-                        {/* Summary rows — Renta Líquida, Renta Variable, Renta Fija */}
+                        {/* Summary rows — Renta Variable, Renta Fija */}
+                        {/* Uses reliquidación values when available (theoretical RF/RV split via effective-rate method), */}
+                        {/* otherwise falls back to naive method (sum of isVariable rows). */}
                         {(showVariableColumn || showClassificationColumns) && effectiveSections.length > 1 && (() => {
-                            const rentaVariable = computeRentaVariable(rows, monthsArray)
+                            const naiveVariable = computeRentaVariable(rows, monthsArray)
                             // formatValue strips negatives (displayCurrencyCompact uses Math.abs).
                             // Summary rows can be negative, so we prefix the sign manually.
                             const fmtSigned = (v: number) => v < 0 ? `-${formatValue(-v)}` : formatValue(v)
                             return (
                                 <>
-                                    {/* Renta Variable = sum of variable-flagged items */}
+                                    {/* Renta Variable */}
                                     <tr className="border-t-2 border-t-gray-200 border-b border-gray-100 bg-amber-50/30">
                                         <td className="pl-4 pr-2 py-2" style={{ width: (showClassificationColumns || showVariableColumn) ? '140px' : '180px' }}>
                                             <span className={`${T.totalLabel} text-amber-700`}>Renta Variable</span>
@@ -590,9 +592,9 @@ const RentaTable = ({
                                         {showClassificationColumns && <><td style={{ width: '44px' }} /><td style={{ width: '36px' }} /></>}
                                         {showVariableColumn && !showClassificationColumns && <td style={{ width: '28px' }} />}
                                         {monthsArray.map(p => {
-                                            const value = rentaVariable[p.id] ?? 0
-                                            const hasValue = value !== 0
                                             const rliq = reliquidacion?.[p.id]
+                                            const value = rliq ? rliq.rentaVariable : (naiveVariable[p.id] ?? 0)
+                                            const hasValue = value !== 0
                                             return (
                                                 <td key={p.id} className="py-2 pr-2 text-right relative" style={{ width: '110px' }}>
                                                     {rliq && hasValue && (
@@ -609,7 +611,7 @@ const RentaTable = ({
                                         })}
                                         <td style={{ width: '40px' }} />
                                     </tr>
-                                    {/* Renta Fija = Renta Líquida - Renta Variable */}
+                                    {/* Renta Fija */}
                                     <tr className="border-b border-gray-200 bg-sky-50/30">
                                         <td className="pl-4 pr-2 py-2" style={{ width: (showClassificationColumns || showVariableColumn) ? '140px' : '180px' }}>
                                             <span className={`${T.totalLabel} text-sky-700`}>Renta Fija</span>
@@ -617,11 +619,9 @@ const RentaTable = ({
                                         {showClassificationColumns && <><td style={{ width: '44px' }} /><td style={{ width: '36px' }} /></>}
                                         {showVariableColumn && !showClassificationColumns && <td style={{ width: '28px' }} />}
                                         {monthsArray.map(p => {
-                                            const liquida = calculateTotal(p.id, rows)
-                                            const variable = rentaVariable[p.id] ?? 0
-                                            const fija = liquida - variable
-                                            const hasValue = fija !== 0
                                             const rliq = reliquidacion?.[p.id]
+                                            const fija = rliq ? rliq.rentaFija : (calculateTotal(p.id, rows) - (naiveVariable[p.id] ?? 0))
+                                            const hasValue = fija !== 0
                                             return (
                                                 <td key={p.id} className="py-2 pr-2 text-right relative" style={{ width: '110px' }}>
                                                     {rliq && hasValue && (

@@ -228,6 +228,7 @@ var computeRentaVariable = (rows, months) => {
     let sum = 0;
     for (const row of rows) {
       if (row.isGroup || row.deletedAt || !row.isVariable) continue;
+      if (row.naturaleza === "Legal") continue;
       const value = row.values[month.id] ?? 0;
       if (isAddType(row.type)) sum += value;
       else sum -= value;
@@ -1854,7 +1855,7 @@ var RentaTable = ({
           ] }, section.type);
         }),
         (showVariableColumn || showClassificationColumns) && effectiveSections.length > 1 && (() => {
-          const rentaVariable = computeRentaVariable(rows, monthsArray);
+          const naiveVariable = computeRentaVariable(rows, monthsArray);
           const fmtSigned = (v) => v < 0 ? `-${formatValue(-v)}` : formatValue(v);
           return /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
             /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-t-2 border-t-gray-200 border-b border-gray-100 bg-amber-50/30", children: [
@@ -1865,9 +1866,9 @@ var RentaTable = ({
               ] }),
               showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "28px" } }),
               monthsArray.map((p) => {
-                const value = rentaVariable[p.id] ?? 0;
-                const hasValue = value !== 0;
                 const rliq = reliquidacion?.[p.id];
+                const value = rliq ? rliq.rentaVariable : naiveVariable[p.id] ?? 0;
+                const hasValue = value !== 0;
                 return /* @__PURE__ */ jsxRuntime.jsxs("td", { className: "py-2 pr-2 text-right relative", style: { width: "110px" }, children: [
                   rliq && hasValue && /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "group/reliq absolute cursor-help", style: { top: "9px", left: "30px" }, children: [
                     /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Info, { size: 12, className: "text-amber-400 hover:text-amber-500" }),
@@ -1886,11 +1887,9 @@ var RentaTable = ({
               ] }),
               showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "28px" } }),
               monthsArray.map((p) => {
-                const liquida = calculateTotal(p.id, rows);
-                const variable = rentaVariable[p.id] ?? 0;
-                const fija = liquida - variable;
-                const hasValue = fija !== 0;
                 const rliq = reliquidacion?.[p.id];
+                const fija = rliq ? rliq.rentaFija : calculateTotal(p.id, rows) - (naiveVariable[p.id] ?? 0);
+                const hasValue = fija !== 0;
                 return /* @__PURE__ */ jsxRuntime.jsxs("td", { className: "py-2 pr-2 text-right relative", style: { width: "110px" }, children: [
                   rliq && hasValue && /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "group/reliq absolute cursor-help", style: { top: "9px", left: "30px" }, children: [
                     /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Info, { size: 12, className: "text-sky-400 hover:text-sky-500" }),

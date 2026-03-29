@@ -114,13 +114,15 @@ export const computeSectionSubtotal = (rows: RowData[], sectionType: RowType, mo
     return result
 }
 
-/** Compute Renta Variable: sum of variable-flagged rows per month (add types add, subtract types subtract) */
+/** Compute Renta Variable: sum of variable-flagged rows per month (add types add, subtract types subtract).
+ *  Legal deductions (cotizaciones, impuesto) are excluded — they don't participate in the RF/RV split. */
 export const computeRentaVariable = (rows: RowData[], months: Month[]): Record<string, number> => {
     const result: Record<string, number> = {}
     for (const month of months) {
         let sum = 0
         for (const row of rows) {
             if (row.isGroup || row.deletedAt || !row.isVariable) continue
+            if (row.naturaleza === 'Legal') continue
             const value = row.values[month.id] ?? 0
             if (isAddType(row.type)) sum += value
             else sum -= value
