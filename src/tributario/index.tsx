@@ -3,6 +3,7 @@ import { ChevronUp, ChevronDown } from 'lucide-react'
 import ViewSourceButton from '../common/viewsourcebutton'
 import { displayCurrencyCompact } from '../common/utils'
 import { T } from '../common/styles'
+import { resolveColors } from '../common/colors'
 import TableShell, { SourceIcon } from '../common/tableshell'
 import { useRowHover } from '../common/userowhover'
 
@@ -29,7 +30,10 @@ export type TributarioEntry = {
 export interface TributarioTableProps {
     title: string
     entries: TributarioEntry[]
+    colorScheme?: import('../common/colors').ColorScheme
+    /** @deprecated Use colorScheme instead */
     headerBg?: string
+    /** @deprecated Use colorScheme instead */
     headerText?: string
     defaultCollapsed?: boolean
     forceExpanded?: boolean
@@ -50,14 +54,16 @@ export interface TributarioTableProps {
 const TributarioTable = ({
     title,
     entries,
-    headerBg = 'bg-amber-50',
-    headerText = 'text-amber-700',
+    colorScheme: colorSchemeProp,
+    headerBg: headerBgProp,
+    headerText: headerTextProp,
     defaultCollapsed = false,
     forceExpanded = false,
     flush = false,
     sourceFileIds,
     onViewSource,
 }: TributarioTableProps) => {
+    const { bg: headerBg, text: headerText } = resolveColors(colorSchemeProp, headerBgProp, headerTextProp)
     const { getHoverProps, isHovered: isRowHovered } = useRowHover()
 
     const balanceEntries = entries.filter(e => e.source === 'balance-anual')

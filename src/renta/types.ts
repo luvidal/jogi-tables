@@ -49,8 +49,11 @@ export interface RentaTableProps {
     }>
 
     // Appearance - matches accordion section colors
-    headerBg?: string       // e.g., 'bg-emerald-50' from section colors
-    headerText?: string     // e.g., 'text-emerald-700' from section colors
+    colorScheme?: import('../common/colors').ColorScheme
+    /** @deprecated Use colorScheme instead */
+    headerBg?: string
+    /** @deprecated Use colorScheme instead */
+    headerText?: string
 
     // Behavior
     defaultCollapsed?: boolean

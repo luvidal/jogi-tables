@@ -14,6 +14,7 @@ export interface SummaryRow {
 export interface SummaryTableProps {
   columnHeaders: string[]
   rows: SummaryRow[]
+  colorScheme?: import('../common/colors').ColorScheme
   /** Extra column rendered before data columns (e.g., castigo input) */
   extraColumn?: {
     header: string

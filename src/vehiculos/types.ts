@@ -12,7 +12,10 @@ export interface VehiculosTableProps {
   rows: VehiculoRow[]
   onRowsChange: (rows: VehiculoRow[]) => void
   formatCurrency?: (value: number | null | undefined) => string
+  colorScheme?: import('../common/colors').ColorScheme
+  /** @deprecated Use colorScheme instead */
   headerBg?: string
+  /** @deprecated Use colorScheme instead */
   headerText?: string
   title?: React.ReactNode
 }

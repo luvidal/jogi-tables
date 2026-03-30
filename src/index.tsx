@@ -43,6 +43,14 @@ export type { ActivosSummaryItem, ActivosSummaryProps } from './activossummary'
 export { default as SummaryTable } from './summary'
 export type { SummaryRow, SummaryRowType, SummaryRowFormat, SummaryTableProps } from './summary/types'
 
+// DeclaracionTable
+export { default as DeclaracionTable } from './declaracion'
+export type { DeclaracionColumn, DeclaracionRow, DeclaracionTableProps } from './declaracion/types'
+
+// ColorScheme
+export { DEFAULT_SCHEME, resolveColors } from './common/colors'
+export type { ColorScheme } from './common/colors'
+
 // Common
 export { default as EditableCell } from './common/editablecell'
 export { default as DeleteDialog } from './common/deletedialog'

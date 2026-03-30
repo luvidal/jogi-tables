@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback } from 'react'
 import { GripVertical, Eye, Info, Trash2 } from 'lucide-react'
 import EditableCell from '../common/editablecell'
 import { T } from '../common/styles'
+import { resolveColors } from '../common/colors'
 import { useGridKeyboard } from '../common/usegridkeyboard'
 import { applyAutoConversions, applyAutoCompute } from '../common/autoconvert'
 import type { AutoConvertRule, AutoComputeRule } from '../common/autoconvert'
@@ -22,10 +23,12 @@ const DeudasTable = ({
     formatCurrency = defaultFormatCurrency,
     ufValue,
     castigo = 0.05,
-    headerBg = 'bg-rose-50',
-    headerText = 'text-rose-700',
+    colorScheme: colorSchemeProp,
+    headerBg: headerBgProp,
+    headerText: headerTextProp,
     onViewSource,
 }: DeudasTableProps) => {
+    const { bg: headerBg, text: headerText, border: borderColor } = resolveColors(colorSchemeProp, headerBgProp, headerTextProp)
     const { getHoverProps, isHovered: isRowHovered } = useRowHover()
     const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
     const [newRow, setNewRow] = useState({ institucion: '', tipo_deuda: '' })
@@ -130,7 +133,7 @@ const DeudasTable = ({
         <div className="overflow-x-auto" onKeyDown={keyboard.handleContainerKeyDown} tabIndex={0}>
             <table className={T.table} style={{ tableLayout: 'fixed' }}>
                 <thead>
-                    <tr className={`${headerBg} border-t border-rose-200 ${headerText}`}>
+                    <tr className={`${headerBg} border-t ${borderColor} ${headerText}`}>
                         {anySelected ? (
                             <th colSpan={8} className="px-4 py-1.5 text-left" onClick={e => e.stopPropagation()}>
                                 <div className="flex items-center gap-2">
@@ -362,7 +365,7 @@ const DeudasTable = ({
                     })}
 
                     {/* Add row */}
-                    <tr className="border-b border-dashed border-rose-100 bg-rose-50/20">
+                    <tr className={`border-b border-dashed ${borderColor.replace('200', '100')} ${headerBg}/20`}>
                         <td className="px-2 py-2.5" style={{ width: '160px' }}>
                             <input
                                 type="text"
@@ -391,7 +394,7 @@ const DeudasTable = ({
                     </tr>
                 </tbody>
                 <tfoot>
-                    <tr className={`${headerBg} font-semibold text-xs border-b border-rose-200`}>
+                    <tr className={`${headerBg} font-semibold text-xs border-b ${borderColor}`}>
                         <td colSpan={3} className={`px-2 py-1.5 ${headerText} ${T.totalLabel}`}>TOTAL</td>
                         <td className={`px-2 py-1.5 text-right ${headerText} ${T.totalValue}`}>
                             {totalSaldoPesos ? formatCurrency(totalSaldoPesos) : '—'}

@@ -21,7 +21,10 @@ export interface DeudasTableProps {
   formatCurrency?: (value: number | null | undefined) => string
   ufValue?: number | null
   castigo?: number
+  colorScheme?: import('../common/colors').ColorScheme
+  /** @deprecated Use colorScheme instead */
   headerBg?: string
+  /** @deprecated Use colorScheme instead */
   headerText?: string
   onViewSource?: (fileIds: string[]) => void
 }

@@ -1,4 +1,5 @@
 import { T } from '../common/styles'
+import { resolveColors, DEFAULT_SCHEME } from '../common/colors'
 import { displayCurrencyCompact, displayCurrency } from '../common/utils'
 import type { SummaryRow, SummaryRowFormat, SummaryTableProps } from './types'
 
@@ -19,8 +20,9 @@ function formatCell(v: number | null, format: SummaryRowFormat): { display: stri
   }
 }
 
-const SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, columnWidth = 'w-[120px]' }: SummaryTableProps) => {
+const SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, columnWidth = 'w-[120px]', colorScheme }: SummaryTableProps) => {
   const extraW = extraColumn?.width ?? 'w-[80px]'
+  const colors = colorScheme ?? DEFAULT_SCHEME
 
   return (
     <div className="overflow-x-auto">
@@ -29,13 +31,13 @@ const SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, col
           {rows.map((row, idx) => {
             if (row.type === 'subheader') {
               return (
-                <tr key={idx} className="border-b-2 border-gray-300">
-                  <td className={`${T.cell} ${T.th} font-bold text-gray-800 tracking-wider`}>{row.label}</td>
+                <tr key={idx} className={`border-b-2 ${colors.border}`}>
+                  <td className={`${T.cell} ${T.th} font-bold ${colors.text} tracking-wider`}>{row.label}</td>
                   {extraColumn && (
-                    <td className={`${T.cell} ${T.th} text-right font-bold text-gray-600 ${extraW}`}>{extraColumn.header}</td>
+                    <td className={`${T.cell} ${T.th} text-right font-bold ${colors.text} ${extraW}`}>{extraColumn.header}</td>
                   )}
                   {columnHeaders.map((col, i) => (
-                    <td key={i} className={`${T.cell} ${T.th} text-right font-bold text-gray-600 ${columnWidth}`}>{col}</td>
+                    <td key={i} className={`${T.cell} ${T.th} text-right font-bold ${colors.text} ${columnWidth}`}>{col}</td>
                   ))}
                 </tr>
               )
@@ -45,7 +47,9 @@ const SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, col
             const isFinal = row.type === 'grandtotal'
             const bold = isTotal || isFinal
             const fmt = row.format ?? 'currency'
-            const rowClass = isFinal ? T.rowGrandtotal : isTotal ? T.rowTotal : T.row
+            const rowClass = isFinal
+              ? `border-b-2 ${colors.bg} ${colors.border}`
+              : isTotal ? T.rowTotal : T.row
 
             return (
               <tr key={idx} className={rowClass}>

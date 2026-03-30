@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Eye } from 'lucide-react'
+import { resolveColors } from './colors'
 
 // ============================================================================
 // SourceIcon — reusable eye icon for source file viewing in headers/rows
@@ -32,6 +33,8 @@ export const SourceIcon = ({
 
 export interface TableShellProps {
     // Appearance
+    colorScheme?: import('./colors').ColorScheme
+    /** @deprecated Use colorScheme instead */
     headerBg?: string
 
     // Collapse behavior
@@ -58,7 +61,8 @@ export interface TableShellProps {
 }
 
 const TableShell = ({
-    headerBg = 'bg-gray-100',
+    colorScheme: colorSchemeProp,
+    headerBg: headerBgProp = 'bg-gray-100',
     defaultCollapsed = false,
     forceExpanded = false,
     disableToggle = false,
@@ -69,6 +73,7 @@ const TableShell = ({
     contentClassName,
     contentProps,
 }: TableShellProps) => {
+    const { bg: headerBg } = resolveColors(colorSchemeProp, headerBgProp)
     const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed)
     const isExpanded = forceExpanded || !isCollapsed
     const canToggle = !forceExpanded && !disableToggle

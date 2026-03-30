@@ -17,7 +17,10 @@ export interface PropiedadesTableProps {
   ufValue?: number | null
   capRate?: number
   factorDescuento?: number
+  colorScheme?: import('../common/colors').ColorScheme
+  /** @deprecated Use colorScheme instead */
   headerBg?: string
+  /** @deprecated Use colorScheme instead */
   headerText?: string
   title?: React.ReactNode
 }

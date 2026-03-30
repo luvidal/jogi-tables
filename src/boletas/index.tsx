@@ -2,6 +2,7 @@ import React from 'react'
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import { displayCurrencyCompact } from '../common/utils'
 import { T } from '../common/styles'
+import { resolveColors } from '../common/colors'
 import TableShell, { SourceIcon } from '../common/tableshell'
 
 // ============================================================================
@@ -28,7 +29,10 @@ export interface BoletasTableProps {
         retencion_contribuyente?: number
         total_liquido?: number
     }
+    colorScheme?: import('../common/colors').ColorScheme
+    /** @deprecated Use colorScheme instead */
     headerBg?: string
+    /** @deprecated Use colorScheme instead */
     headerText?: string
     defaultCollapsed?: boolean
     forceExpanded?: boolean
@@ -70,8 +74,9 @@ const METRICS: { key: MetricKey; label: string; color: string; format: (v: numbe
 const BoletasTable = ({
     title,
     months,
-    headerBg = 'bg-emerald-50',
-    headerText = 'text-emerald-700',
+    colorScheme: colorSchemeProp,
+    headerBg: headerBgProp,
+    headerText: headerTextProp,
     defaultCollapsed = false,
     forceExpanded = false,
     flush = false,
@@ -80,6 +85,7 @@ const BoletasTable = ({
     excludedMonths,
     onToggleMonth,
 }: BoletasTableProps) => {
+    const { bg: headerBg, text: headerText } = resolveColors(colorSchemeProp, headerBgProp, headerTextProp)
     const excluded = excludedMonths ?? []
 
     return (

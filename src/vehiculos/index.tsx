@@ -13,8 +13,9 @@ const VehiculosTable = ({
     rows,
     onRowsChange,
     formatCurrency,
-    headerBg = 'bg-slate-50',
-    headerText = 'text-slate-700',
+    colorScheme,
+    headerBg,
+    headerText,
     title,
 }: VehiculosTableProps) => (
     <AssetTable<VehiculoRow>
@@ -24,6 +25,7 @@ const VehiculosTable = ({
         idPrefix="vh"
         addPlaceholder="Agregar vehículo..."
         formatCurrency={formatCurrency}
+        colorScheme={colorScheme}
         headerBg={headerBg}
         headerText={headerText}
         title={title}

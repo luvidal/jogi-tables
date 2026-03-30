@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { ChevronUp, ChevronDown, Info } from 'lucide-react'
 import { T } from '../common/styles'
+import { resolveColors } from '../common/colors'
 import TableShell, { SourceIcon } from '../common/tableshell'
 import {
     generateLastNMonths,
@@ -104,8 +105,9 @@ const RentaTable = ({
     rows,
     onRowsChange,
     sections,
-    headerBg = 'bg-gray-100',
-    headerText = 'text-gray-700',
+    colorScheme: colorSchemeProp,
+    headerBg: headerBgProp,
+    headerText: headerTextProp,
     defaultCollapsed = false,
     forceExpanded = false,
     flush = false,
@@ -117,6 +119,7 @@ const RentaTable = ({
     onViewSource,
     reliquidacion,
 }: RentaTableProps) => {
+    const { bg: headerBg, text: headerText } = resolveColors(colorSchemeProp, headerBgProp, headerTextProp)
     const { getHoverProps, isHovered: isRowHovered } = useRowHover()
     const [newRowLabels, setNewRowLabels] = useState<Record<string, string>>({})
     const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())

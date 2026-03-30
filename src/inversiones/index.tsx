@@ -13,8 +13,9 @@ const InversionesTable = ({
     rows,
     onRowsChange,
     formatCurrency,
-    headerBg = 'bg-emerald-50',
-    headerText = 'text-emerald-700',
+    colorScheme,
+    headerBg,
+    headerText,
     title,
 }: InversionesTableProps) => (
     <AssetTable<InversionRow>
@@ -24,6 +25,7 @@ const InversionesTable = ({
         idPrefix="inv"
         addPlaceholder="Agregar inversión..."
         formatCurrency={formatCurrency}
+        colorScheme={colorScheme}
         headerBg={headerBg}
         headerText={headerText}
         title={title}

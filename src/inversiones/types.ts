@@ -12,7 +12,10 @@ export interface InversionesTableProps {
   rows: InversionRow[]
   onRowsChange: (rows: InversionRow[]) => void
   formatCurrency?: (value: number | null | undefined) => string
+  colorScheme?: import('../common/colors').ColorScheme
+  /** @deprecated Use colorScheme instead */
   headerBg?: string
+  /** @deprecated Use colorScheme instead */
   headerText?: string
   title?: React.ReactNode
 }

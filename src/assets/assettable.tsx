@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react'
 import EditableCell from '../common/editablecell'
 import DeleteRowButton from '../common/deletebutton'
 import { T } from '../common/styles'
+import { resolveColors } from '../common/colors'
 import { useRowHover } from '../common/userowhover'
 import { useGridKeyboard } from '../common/usegridkeyboard'
 import { applyAutoConversions, applyAutoCompute } from '../common/autoconvert'
@@ -19,13 +20,15 @@ function AssetTable<T extends AssetRow>({
     idPrefix,
     addPlaceholder,
     formatCurrency = defaultFormatCurrency,
-    headerBg = 'bg-gray-50',
-    headerText = 'text-gray-700',
+    colorScheme: colorSchemeProp,
+    headerBg: headerBgProp,
+    headerText: headerTextProp,
     title,
     ufValue,
     conversionRules = [],
     computeRules = [],
 }: AssetTableProps<T>) {
+    const { bg: headerBg, text: headerText, border: borderColor } = resolveColors(colorSchemeProp, headerBgProp, headerTextProp)
     const { getHoverProps, isHovered } = useRowHover()
     const [currency, setCurrency] = useState<'uf' | 'clp'>('uf')
     const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange)
@@ -142,9 +145,6 @@ function AssetTable<T extends AssetRow>({
             />
         )
     }
-
-    // Border color derived from headerBg
-    const borderColor = headerBg.replace('bg-', 'border-').replace('/50', '') + '-200'
 
     return (<>
         <div className="overflow-x-auto relative" onKeyDown={keyboard.handleContainerKeyDown} tabIndex={0}>

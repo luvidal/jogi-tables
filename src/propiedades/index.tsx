@@ -14,8 +14,9 @@ const PropiedadesTable = ({
     ufValue,
     capRate = 0.05,
     factorDescuento = 0.10,
-    headerBg = 'bg-amber-50',
-    headerText = 'text-amber-700',
+    colorScheme,
+    headerBg,
+    headerText,
     title,
 }: PropiedadesTableProps) => {
     const columns: ColumnDef[] = [
@@ -59,6 +60,7 @@ const PropiedadesTable = ({
             idPrefix="br"
             addPlaceholder="Agregar propiedad..."
             formatCurrency={formatCurrency}
+            colorScheme={colorScheme}
             headerBg={headerBg}
             headerText={headerText}
             title={title}

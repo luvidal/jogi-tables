@@ -38,10 +38,26 @@ var T = {
   // Shared row primitives (used across summary, data-entry, and read-only tables)
   row: "border-b border-gray-100",
   rowTotal: "border-b bg-gray-50/80 border-gray-200",
-  rowGrandtotal: "border-b-2 bg-gray-100 border-gray-300",
   cell: "py-1.5 px-3",
   cellValue: "py-1.5 px-3 text-right tabular-nums"
 };
+
+// src/common/colors.ts
+var DEFAULT_SCHEME = {
+  bg: "bg-gray-100",
+  text: "text-gray-700",
+  border: "border-gray-200"
+};
+function resolveColors(colorScheme, headerBg, headerText, defaultScheme = DEFAULT_SCHEME) {
+  if (colorScheme) return colorScheme;
+  if (headerBg || headerText) {
+    const bg = headerBg || defaultScheme.bg;
+    const text = headerText || defaultScheme.text;
+    const border = bg.replace("bg-", "border-").replace(/-(50|100)$/, "-200");
+    return { bg, text, border };
+  }
+  return defaultScheme;
+}
 var SourceIcon = ({
   fileIds,
   onViewSource,
@@ -62,7 +78,8 @@ var SourceIcon = ({
   );
 };
 var TableShell = ({
-  headerBg = "bg-gray-100",
+  colorScheme: colorSchemeProp,
+  headerBg: headerBgProp = "bg-gray-100",
   defaultCollapsed = false,
   forceExpanded = false,
   disableToggle = false,
@@ -73,6 +90,7 @@ var TableShell = ({
   contentClassName,
   contentProps
 }) => {
+  const { bg: headerBg } = resolveColors(colorSchemeProp, headerBgProp);
   const [isCollapsed, setIsCollapsed] = React4.useState(defaultCollapsed);
   const isExpanded = forceExpanded || !isCollapsed;
   const canToggle = !forceExpanded && !disableToggle;
@@ -1451,8 +1469,9 @@ var RentaTable = ({
   rows,
   onRowsChange,
   sections,
-  headerBg = "bg-gray-100",
-  headerText = "text-gray-700",
+  colorScheme: colorSchemeProp,
+  headerBg: headerBgProp,
+  headerText: headerTextProp,
   defaultCollapsed = false,
   forceExpanded = false,
   flush = false,
@@ -1464,6 +1483,7 @@ var RentaTable = ({
   onViewSource,
   reliquidacion
 }) => {
+  const { bg: headerBg, text: headerText } = resolveColors(colorSchemeProp, headerBgProp, headerTextProp);
   const { getHoverProps, isHovered: isRowHovered } = useRowHover();
   const [newRowLabels, setNewRowLabels] = React4.useState({});
   const [selectedRows, setSelectedRows] = React4.useState(/* @__PURE__ */ new Set());
@@ -2024,10 +2044,12 @@ var DeudasTable = ({
   formatCurrency = defaultFormatCurrency,
   ufValue,
   castigo = 0.05,
-  headerBg = "bg-rose-50",
-  headerText = "text-rose-700",
+  colorScheme: colorSchemeProp,
+  headerBg: headerBgProp,
+  headerText: headerTextProp,
   onViewSource
 }) => {
+  const { bg: headerBg, text: headerText, border: borderColor } = resolveColors(colorSchemeProp, headerBgProp, headerTextProp);
   const { getHoverProps, isHovered: isRowHovered } = useRowHover();
   const [selectedRows, setSelectedRows] = React4.useState(/* @__PURE__ */ new Set());
   const [newRow, setNewRow] = React4.useState({ institucion: "", tipo_deuda: "" });
@@ -2113,7 +2135,7 @@ var DeudasTable = ({
   return /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
     /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "overflow-x-auto", onKeyDown: keyboard.handleContainerKeyDown, tabIndex: 0, children: [
       /* @__PURE__ */ jsxRuntime.jsxs("table", { className: T.table, style: { tableLayout: "fixed" }, children: [
-        /* @__PURE__ */ jsxRuntime.jsx("thead", { children: /* @__PURE__ */ jsxRuntime.jsx("tr", { className: `${headerBg} border-t border-rose-200 ${headerText}`, children: anySelected ? /* @__PURE__ */ jsxRuntime.jsx("th", { colSpan: 8, className: "px-4 py-1.5 text-left", onClick: (e) => e.stopPropagation(), children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsxRuntime.jsx("thead", { children: /* @__PURE__ */ jsxRuntime.jsx("tr", { className: `${headerBg} border-t ${borderColor} ${headerText}`, children: anySelected ? /* @__PURE__ */ jsxRuntime.jsx("th", { colSpan: 8, className: "px-4 py-1.5 text-left", onClick: (e) => e.stopPropagation(), children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-2", children: [
           /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "text-xs text-rose-600", children: [
             selectedRows.size,
             " fila",
@@ -2354,7 +2376,7 @@ var DeudasTable = ({
               row.id
             );
           }),
-          /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-b border-dashed border-rose-100 bg-rose-50/20", children: [
+          /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: `border-b border-dashed ${borderColor.replace("200", "100")} ${headerBg}/20`, children: [
             /* @__PURE__ */ jsxRuntime.jsx("td", { className: "px-2 py-2.5", style: { width: "160px" }, children: /* @__PURE__ */ jsxRuntime.jsx(
               "input",
               {
@@ -2386,7 +2408,7 @@ var DeudasTable = ({
             /* @__PURE__ */ jsxRuntime.jsx("td", { style: { width: "40px" } })
           ] })
         ] }),
-        /* @__PURE__ */ jsxRuntime.jsx("tfoot", { children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: `${headerBg} font-semibold text-xs border-b border-rose-200`, children: [
+        /* @__PURE__ */ jsxRuntime.jsx("tfoot", { children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: `${headerBg} font-semibold text-xs border-b ${borderColor}`, children: [
           /* @__PURE__ */ jsxRuntime.jsx("td", { colSpan: 3, className: `px-2 py-1.5 ${headerText} ${T.totalLabel}`, children: "TOTAL" }),
           /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-2 py-1.5 text-right ${headerText} ${T.totalValue}`, children: totalSaldoPesos ? formatCurrency(totalSaldoPesos) : "\u2014" }),
           /* @__PURE__ */ jsxRuntime.jsx("td", { className: `px-2 py-1.5 text-right ${headerText} ${T.totalValue}`, children: totalMontoCuota ? formatCurrency(totalMontoCuota) : "\u2014" }),
@@ -2421,8 +2443,9 @@ var METRICS = [
 var BoletasTable = ({
   title,
   months,
-  headerBg = "bg-emerald-50",
-  headerText = "text-emerald-700",
+  colorScheme: colorSchemeProp,
+  headerBg: headerBgProp,
+  headerText: headerTextProp,
   defaultCollapsed = false,
   forceExpanded = false,
   flush = false,
@@ -2431,6 +2454,7 @@ var BoletasTable = ({
   excludedMonths,
   onToggleMonth
 }) => {
+  const { bg: headerBg, text: headerText } = resolveColors(colorSchemeProp, headerBgProp, headerTextProp);
   const excluded = excludedMonths ?? [];
   return /* @__PURE__ */ jsxRuntime.jsx(
     tableshell_default,
@@ -2512,14 +2536,16 @@ var viewsourcebutton_default = ViewSourceButton;
 var TributarioTable = ({
   title,
   entries,
-  headerBg = "bg-amber-50",
-  headerText = "text-amber-700",
+  colorScheme: colorSchemeProp,
+  headerBg: headerBgProp,
+  headerText: headerTextProp,
   defaultCollapsed = false,
   forceExpanded = false,
   flush = false,
   sourceFileIds,
   onViewSource
 }) => {
+  const { bg: headerBg, text: headerText } = resolveColors(colorSchemeProp, headerBgProp, headerTextProp);
   const { getHoverProps, isHovered: isRowHovered } = useRowHover();
   const balanceEntries = entries.filter((e) => e.source === "balance-anual");
   const carpetaEntries = entries.filter((e) => e.source === "carpeta-tributaria");
@@ -2819,13 +2845,15 @@ function AssetTable({
   idPrefix,
   addPlaceholder,
   formatCurrency = defaultFormatCurrency,
-  headerBg = "bg-gray-50",
-  headerText = "text-gray-700",
+  colorScheme: colorSchemeProp,
+  headerBg: headerBgProp,
+  headerText: headerTextProp,
   title,
   ufValue,
   conversionRules = [],
   computeRules = []
 }) {
+  const { bg: headerBg, text: headerText, border: borderColor } = resolveColors(colorSchemeProp, headerBgProp, headerTextProp);
   const { getHoverProps, isHovered } = useRowHover();
   const [currency, setCurrency] = React4.useState("uf");
   const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange);
@@ -2916,7 +2944,6 @@ function AssetTable({
       col.key
     );
   };
-  const borderColor = headerBg.replace("bg-", "border-").replace("/50", "") + "-200";
   return /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
     /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "overflow-x-auto relative", onKeyDown: keyboard.handleContainerKeyDown, tabIndex: 0, children: [
       hasUfToggle && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "absolute top-1 right-1 z-10", children: /* @__PURE__ */ jsxRuntime.jsx(currencytoggle_default, { value: currency, onChange: setCurrency }) }),
@@ -3059,8 +3086,9 @@ var VehiculosTable = ({
   rows,
   onRowsChange,
   formatCurrency,
-  headerBg = "bg-slate-50",
-  headerText = "text-slate-700",
+  colorScheme,
+  headerBg,
+  headerText,
   title
 }) => /* @__PURE__ */ jsxRuntime.jsx(
   assettable_default,
@@ -3071,6 +3099,7 @@ var VehiculosTable = ({
     idPrefix: "vh",
     addPlaceholder: "Agregar veh\xEDculo...",
     formatCurrency,
+    colorScheme,
     headerBg,
     headerText,
     title
@@ -3087,8 +3116,9 @@ var InversionesTable = ({
   rows,
   onRowsChange,
   formatCurrency,
-  headerBg = "bg-emerald-50",
-  headerText = "text-emerald-700",
+  colorScheme,
+  headerBg,
+  headerText,
   title
 }) => /* @__PURE__ */ jsxRuntime.jsx(
   assettable_default,
@@ -3099,6 +3129,7 @@ var InversionesTable = ({
     idPrefix: "inv",
     addPlaceholder: "Agregar inversi\xF3n...",
     formatCurrency,
+    colorScheme,
     headerBg,
     headerText,
     title
@@ -3112,8 +3143,9 @@ var PropiedadesTable = ({
   ufValue,
   capRate = 0.05,
   factorDescuento = 0.1,
-  headerBg = "bg-amber-50",
-  headerText = "text-amber-700",
+  colorScheme,
+  headerBg,
+  headerText,
   title
 }) => {
   const columns3 = [
@@ -3161,6 +3193,7 @@ var PropiedadesTable = ({
       idPrefix: "br",
       addPlaceholder: "Agregar propiedad...",
       formatCurrency,
+      colorScheme,
       headerBg,
       headerText,
       title,
@@ -3216,21 +3249,22 @@ function formatCell(v, format) {
       return { display: displayCurrencyCompact(v), title: displayCurrency(v) || void 0 };
   }
 }
-var SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, columnWidth = "w-[120px]" }) => {
+var SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, columnWidth = "w-[120px]", colorScheme }) => {
   const extraW = extraColumn?.width ?? "w-[80px]";
+  const colors = colorScheme ?? DEFAULT_SCHEME;
   return /* @__PURE__ */ jsxRuntime.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntime.jsx("table", { className: `${T.table} text-sm border-collapse`, children: /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: rows.map((row, idx) => {
     if (row.type === "subheader") {
-      return /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-b-2 border-gray-300", children: [
-        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cell} ${T.th} font-bold text-gray-800 tracking-wider`, children: row.label }),
-        extraColumn && /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cell} ${T.th} text-right font-bold text-gray-600 ${extraW}`, children: extraColumn.header }),
-        columnHeaders.map((col, i) => /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cell} ${T.th} text-right font-bold text-gray-600 ${columnWidth}`, children: col }, i))
+      return /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: `border-b-2 ${colors.border}`, children: [
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cell} ${T.th} font-bold ${colors.text} tracking-wider`, children: row.label }),
+        extraColumn && /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cell} ${T.th} text-right font-bold ${colors.text} ${extraW}`, children: extraColumn.header }),
+        columnHeaders.map((col, i) => /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cell} ${T.th} text-right font-bold ${colors.text} ${columnWidth}`, children: col }, i))
       ] }, idx);
     }
     const isTotal = row.type === "total";
     const isFinal = row.type === "grandtotal";
     const bold = isTotal || isFinal;
     const fmt = row.format ?? "currency";
-    const rowClass = isFinal ? T.rowGrandtotal : isTotal ? T.rowTotal : T.row;
+    const rowClass = isFinal ? `border-b-2 ${colors.bg} ${colors.border}` : isTotal ? T.rowTotal : T.row;
     return /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: rowClass, children: [
       /* @__PURE__ */ jsxRuntime.jsxs("td", { className: `${T.cell} ${bold ? T.footerLabel + " text-gray-800" : T.muted + " pl-5"}`, children: [
         row.label,
@@ -3253,11 +3287,53 @@ var SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, colum
   }) }) }) });
 };
 var summary_default = SummaryTable;
+var DeclaracionTable = ({
+  columns: columns3,
+  rows,
+  data,
+  totalLabel = "Suma Total",
+  formatCurrency,
+  colorScheme: colorSchemeProp,
+  sourceFileIds,
+  onViewSource
+}) => {
+  const { text: headerText, border: borderColor } = resolveColors(colorSchemeProp);
+  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: "p-3", children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntime.jsxs("table", { className: T.table, children: [
+    /* @__PURE__ */ jsxRuntime.jsx("thead", { children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: `border-b ${borderColor}`, children: [
+      /* @__PURE__ */ jsxRuntime.jsx("th", { className: `text-left ${T.cell} font-medium ${headerText}`, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-1.5", children: [
+        "Concepto",
+        /* @__PURE__ */ jsxRuntime.jsx(SourceIcon, { fileIds: sourceFileIds, onViewSource, className: headerText })
+      ] }) }),
+      columns3.map((col) => /* @__PURE__ */ jsxRuntime.jsx("th", { className: `text-right ${T.cell} font-medium ${headerText}`, children: col.label }, col.key))
+    ] }) }),
+    /* @__PURE__ */ jsxRuntime.jsxs("tbody", { children: [
+      rows.map((row) => /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: T.row, children: [
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cell} text-gray-700`, children: row.label }),
+        columns3.map((col) => {
+          const value = data[row.key]?.[col.key];
+          return /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellValue} ${value != null ? "text-gray-900" : "text-gray-400"}`, children: value != null ? formatCurrency(value) : "\u2014" }, col.key);
+        })
+      ] }, row.key)),
+      totalLabel && /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: `border-t-2 ${borderColor} font-semibold`, children: [
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cell} text-gray-800`, children: totalLabel }),
+        columns3.map((col) => {
+          const summedRows = rows.filter((r) => r.summed);
+          const hasAny = summedRows.some((r) => data[r.key]?.[col.key] != null);
+          const sum = summedRows.reduce((acc, r) => acc + (data[r.key]?.[col.key] ?? 0), 0);
+          return /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellValue} text-gray-900`, children: hasAny ? formatCurrency(sum) : "\u2014" }, col.key);
+        })
+      ] })
+    ] })
+  ] }) }) });
+};
+var declaracion_default = DeclaracionTable;
 
 exports.ActivosSummary = activossummary_default;
 exports.AssetTable = assettable_default;
 exports.BoletasTable = boletas_default;
 exports.CurrencyToggle = currencytoggle_default;
+exports.DEFAULT_SCHEME = DEFAULT_SCHEME;
+exports.DeclaracionTable = declaracion_default;
 exports.DeleteDialog = deletedialog_default;
 exports.DeudasTable = deudas_default;
 exports.EditableCell = editablecell_default;
@@ -3280,6 +3356,7 @@ exports.displayCurrencyCompact = displayCurrencyCompact;
 exports.formatDeletedDate = formatDeletedDate;
 exports.generateId = generateId;
 exports.generateLastNMonths = generateLastNMonths;
+exports.resolveColors = resolveColors;
 exports.useSoftDelete = useSoftDelete;
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map
