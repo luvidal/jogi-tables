@@ -18,6 +18,7 @@ export type RowData = {
     // Classification flags
     isVariable?: boolean   // true = variable income/deduction (drives Renta Variable calc)
     naturaleza?: 'Imponible' | 'No imponible' | 'Legal' | 'Otro'  // AI-classified, analyst-editable
+    legalType?: 'afp' | 'salud' | 'cesantia' | 'impuesto'  // legal deduction subtype (set by AI, editable)
     // Soft-delete
     deletedAt?: string     // ISO timestamp — presence means row is in recycle bin
     deletionReason?: string // User-provided reason for deletion

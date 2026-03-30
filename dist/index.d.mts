@@ -15,6 +15,7 @@ type RowData = {
     order?: number;
     isVariable?: boolean;
     naturaleza?: 'Imponible' | 'No imponible' | 'Legal' | 'Otro';
+    legalType?: 'afp' | 'salud' | 'cesantia' | 'impuesto';
     deletedAt?: string;
     deletionReason?: string;
 };
