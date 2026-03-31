@@ -26,7 +26,7 @@ var T = {
   headerCount: "font-medium text-xs",
   // ── Header: column headers (th) ──
   th: "text-gray-500 font-medium text-xs uppercase",
-  headerCell: "px-3 py-1.5",
+  headerCell: "px-2 py-1.5",
   // ── Body: read-only cells (compact) ──
   cell: "py-1.5 px-3",
   cellValue: "py-1.5 px-3 text-right tabular-nums",
@@ -35,7 +35,7 @@ var T = {
   cellEdit: "px-2 py-1.5",
   cellEditLabel: "pl-1 pr-2 py-1.5",
   // ── Totals / footer ──
-  totalCell: "px-3 py-1.5",
+  totalCell: "px-2 py-1.5",
   totalLabel: "font-medium text-xs",
   totalValue: "font-medium text-xs",
   footerLabel: "font-bold",
@@ -2969,15 +2969,18 @@ function AssetTable({
       hasUfToggle && /* @__PURE__ */ jsxRuntime.jsx("div", { className: "absolute top-1 right-1 z-10", children: /* @__PURE__ */ jsxRuntime.jsx(currencytoggle_default, { value: currency, onChange: setCurrency }) }),
       /* @__PURE__ */ jsxRuntime.jsxs("table", { className: T.table, style: { tableLayout: "fixed" }, children: [
         /* @__PURE__ */ jsxRuntime.jsx("thead", { children: /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: `${headerBg} border-t ${borderColor} ${headerText}`, children: [
-          resolvedColumns.map((col) => /* @__PURE__ */ jsxRuntime.jsx(
-            "th",
-            {
-              className: `${T.headerCell} ${col.align === "right" ? "text-right" : col.align === "center" ? "text-center" : "text-left"} ${T.th} ${headerText}`,
-              style: { width: col.width },
-              children: col === labelCol && title ? title : col.label
-            },
-            col.key
-          )),
+          resolvedColumns.map((col) => {
+            const effectiveAlign = col.align ?? (col.type === "currency" || col.type === "number" ? "right" : "left");
+            return /* @__PURE__ */ jsxRuntime.jsx(
+              "th",
+              {
+                className: `${T.headerCell} ${effectiveAlign === "right" ? "text-right" : effectiveAlign === "center" ? "text-center" : "text-left"} ${T.th} ${headerText}`,
+                style: { width: col.width },
+                children: col === labelCol && title ? title : col.label
+              },
+              col.key
+            );
+          }),
           /* @__PURE__ */ jsxRuntime.jsx("th", { style: { width: "40px" } })
         ] }) }),
         /* @__PURE__ */ jsxRuntime.jsxs("tbody", { children: [
@@ -3099,7 +3102,7 @@ var assettable_default = AssetTable;
 var columns = [
   { key: "marca", label: "Marca", type: "text", width: "160px", isLabel: true, placeholder: "Marca" },
   { key: "modelo", label: "Modelo", type: "text", width: "140px", placeholder: "Modelo" },
-  { key: "monto", label: "Monto $", type: "currency", width: "120px", align: "right" },
+  { key: "monto", label: "Monto $", type: "currency", width: "120px" },
   { key: "anio", label: "A\xF1o", type: "number", width: "80px", align: "center" }
 ];
 var VehiculosTable = ({
@@ -3129,7 +3132,7 @@ var vehiculos_default = VehiculosTable;
 var columns2 = [
   { key: "institucion", label: "Instituci\xF3n", type: "text", width: "160px", isLabel: true, placeholder: "Instituci\xF3n" },
   { key: "tipo", label: "Tipo Inversi\xF3n", type: "text", width: "140px", placeholder: "Tipo" },
-  { key: "monto", label: "Monto $", type: "currency", width: "120px", align: "right" },
+  { key: "monto", label: "Monto $", type: "currency", width: "120px" },
   { key: "fecha", label: "Fecha", type: "text", width: "100px", placeholder: "Fecha" }
 ];
 var InversionesTable = ({
@@ -3179,13 +3182,12 @@ var PropiedadesTable = ({
       ufPair: "valor_pesos",
       autoComputedClass: (row) => ufValue && row.valor_uf != null && row.valor_pesos != null ? "italic text-amber-500" : ""
     },
-    { key: "arriendo_real", label: "Arr. Real $", type: "currency", width: "100px", align: "right" },
+    { key: "arriendo_real", label: "Arr. Real $", type: "currency", width: "100px" },
     {
       key: "arriendo_futuro",
       label: "Arr. Fut $",
       type: "currency",
       width: "100px",
-      align: "right",
       autoComputedClass: (row) => ufValue && row.valor_uf != null ? "italic text-amber-500" : ""
     }
   ];

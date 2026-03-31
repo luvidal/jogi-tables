@@ -156,15 +156,18 @@ function AssetTable<T extends AssetRow>({
             <table className={T.table} style={{ tableLayout: 'fixed' }}>
                 <thead>
                     <tr className={`${headerBg} border-t ${borderColor} ${headerText}`}>
-                        {resolvedColumns.map(col => (
+                        {resolvedColumns.map(col => {
+                            // Default alignment: currency/number right-align (matching EditableCell default), text left-aligns
+                            const effectiveAlign = col.align ?? (col.type === 'currency' || col.type === 'number' ? 'right' : 'left')
+                            return (
                             <th
                                 key={col.key}
-                                className={`${T.headerCell} ${col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'} ${T.th} ${headerText}`}
+                                className={`${T.headerCell} ${effectiveAlign === 'right' ? 'text-right' : effectiveAlign === 'center' ? 'text-center' : 'text-left'} ${T.th} ${headerText}`}
                                 style={{ width: col.width }}
                             >
                                 {col === labelCol && title ? title : col.label}
                             </th>
-                        ))}
+                        )})}
                         <th style={{ width: '40px' }}></th>
                     </tr>
                 </thead>

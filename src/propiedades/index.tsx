@@ -27,9 +27,9 @@ const PropiedadesTable = ({
             ufPair: 'valor_pesos',
             autoComputedClass: (row) => (ufValue && row.valor_uf != null && row.valor_pesos != null) ? 'italic text-amber-500' : '',
         },
-        { key: 'arriendo_real', label: 'Arr. Real $', type: 'currency', width: '100px', align: 'right' },
+        { key: 'arriendo_real', label: 'Arr. Real $', type: 'currency', width: '100px' },
         {
-            key: 'arriendo_futuro', label: 'Arr. Fut $', type: 'currency', width: '100px', align: 'right',
+            key: 'arriendo_futuro', label: 'Arr. Fut $', type: 'currency', width: '100px',
             autoComputedClass: (row) => (ufValue && row.valor_uf != null) ? 'italic text-amber-500' : '',
         },
     ]

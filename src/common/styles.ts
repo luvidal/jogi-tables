@@ -22,7 +22,7 @@ export const T = {
 
     // ── Header: column headers (th) ──
     th: 'text-gray-500 font-medium text-xs uppercase',
-    headerCell: 'px-3 py-1.5',
+    headerCell: 'px-2 py-1.5',
 
     // ── Body: read-only cells (compact) ──
     cell: 'py-1.5 px-3',
@@ -34,7 +34,7 @@ export const T = {
     cellEditLabel: 'pl-1 pr-2 py-1.5',
 
     // ── Totals / footer ──
-    totalCell: 'px-3 py-1.5',
+    totalCell: 'px-2 py-1.5',
     totalLabel: 'font-medium text-xs',
     totalValue: 'font-medium text-xs',
     footerLabel: 'font-bold',

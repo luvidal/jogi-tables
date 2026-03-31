@@ -5,7 +5,7 @@ import type { InversionRow, InversionesTableProps } from './types'
 const columns: ColumnDef[] = [
     { key: 'institucion', label: 'Institución', type: 'text', width: '160px', isLabel: true, placeholder: 'Institución' },
     { key: 'tipo', label: 'Tipo Inversión', type: 'text', width: '140px', placeholder: 'Tipo' },
-    { key: 'monto', label: 'Monto $', type: 'currency', width: '120px', align: 'right' },
+    { key: 'monto', label: 'Monto $', type: 'currency', width: '120px' },
     { key: 'fecha', label: 'Fecha', type: 'text', width: '100px', placeholder: 'Fecha' },
 ]
 
