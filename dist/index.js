@@ -2975,7 +2975,7 @@ function AssetTable({
               "th",
               {
                 className: `${T.headerCell} ${effectiveAlign === "right" ? "text-right" : effectiveAlign === "center" ? "text-center" : "text-left"} ${T.th} ${headerText}`,
-                style: { width: col.width },
+                style: col.isLabel ? void 0 : { width: col.width },
                 children: col === labelCol && title ? title : col.label
               },
               col.key
@@ -3133,7 +3133,7 @@ var columns2 = [
   { key: "institucion", label: "Instituci\xF3n", type: "text", width: "160px", isLabel: true, placeholder: "Instituci\xF3n" },
   { key: "tipo", label: "Tipo Inversi\xF3n", type: "text", width: "140px", placeholder: "Tipo" },
   { key: "monto", label: "Monto $", type: "currency", width: "120px" },
-  { key: "fecha", label: "Fecha", type: "text", width: "100px", placeholder: "Fecha" }
+  { key: "fecha", label: "Fecha", type: "text", width: "120px", placeholder: "Fecha" }
 ];
 var InversionesTable = ({
   rows,
