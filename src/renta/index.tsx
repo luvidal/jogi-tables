@@ -410,7 +410,7 @@ const RentaTable = ({
                                     />
                                 ) : (
                                     <>
-                                        <td className={`${T.headerAccordion} text-left`}>
+                                        <td className={`${T.headerAccordion} text-left ${T.vline}`}>
                                             <div className="flex items-center gap-2">
                                                 {!forceExpanded && (
                                                     isExpanded ? <ChevronUp size={16} className={headerText} /> : <ChevronDown size={16} className={headerText} />
@@ -434,7 +434,7 @@ const RentaTable = ({
                                             )
                                         })}
                                         {/* Spacer aligns with body rows' actions column */}
-                                        <td />
+                                        <td className={T.actionCol} />
                                     </>
                                 )}
                             </tr>
@@ -453,19 +453,20 @@ const RentaTable = ({
                                 const subtract = isSubtractType(row.type)
                                 return (
                                     <>
-                                        {showVariableColumn && <td />}
-                                        {monthsArray.map(m => {
+                                        {showVariableColumn && <td className={T.vline} />}
+                                        {monthsArray.map((m, mi) => {
                                             const v = row.values[m.id]
                                             const hasValue = v != null
+                                            const vline = mi < monthsArray.length - 1 ? T.vline : ''
                                             return (
-                                                <td key={m.id} className={`${T.cellEdit} text-right tabular-nums`}>
+                                                <td key={m.id} className={`${T.cellEdit} text-right tabular-nums ${vline}`}>
                                                     <span className={`${T.totalValue} ${hasValue ? (subtract ? 'text-rose-300' : 'text-gray-400') : 'text-gray-200'}`}>
                                                         {hasValue ? formatValue(v) : '—'}
                                                     </span>
                                                 </td>
                                             )
                                         })}
-                                        <td />
+                                        <td className={T.actionCol} />
                                     </>
                                 )
                             }}
@@ -515,19 +516,20 @@ const RentaTable = ({
                                                 </td>
                                                 {showClassificationColumns && <><td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td><td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td></>}
                                                 {showVariableColumn && !showClassificationColumns && <td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td>}
-                                                {monthsArray.map(p => {
+                                                {monthsArray.map((p, mi) => {
                                                     const value = subtotals[p.id] ?? 0
                                                     const hasValue = value !== 0
                                                     const display = isSubtract ? `-${formatValue(value)}` : formatValue(value)
+                                                    const vline = mi < monthsArray.length - 1 ? T.vline : ''
                                                     return (
-                                                        <td key={p.id} className={`${T.totalCell} text-right`}>
+                                                        <td key={p.id} className={`${T.totalCell} text-right ${vline}`}>
                                                             <span className={`${T.totalValue} tabular-nums ${isSubtract ? (hasValue ? 'text-rose-600' : 'text-gray-300') : (hasValue ? 'text-emerald-700' : 'text-gray-300')}`}>
                                                                 {hasValue ? display : '—'}
                                                             </span>
                                                         </td>
                                                     )
                                                 })}
-                                                <td />
+                                                <td className={T.actionCol} />
                                             </tr>
                                         )
                                     })()}
@@ -594,12 +596,13 @@ const RentaTable = ({
                                         </td>
                                         {showClassificationColumns && <><td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td><td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td></>}
                                         {showVariableColumn && !showClassificationColumns && <td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td>}
-                                        {monthsArray.map(p => {
+                                        {monthsArray.map((p, mi) => {
                                             const rliq = reliquidacion?.[p.id]
                                             const value = rliq ? rliq.rentaVariable : (naiveVariable[p.id] ?? 0)
                                             const hasValue = value !== 0
+                                            const vline = mi < monthsArray.length - 1 ? T.vline : ''
                                             return (
-                                                <td key={p.id} className={`${T.totalCell} text-right relative`}>
+                                                <td key={p.id} className={`${T.totalCell} text-right relative ${vline}`}>
                                                     {rliq && hasValue && (
                                                         <span className="group/reliq absolute cursor-help" style={{ top: '9px', left: '30px' }}>
                                                             <Info size={12} className="text-amber-400 hover:text-amber-500" />
@@ -612,7 +615,7 @@ const RentaTable = ({
                                                 </td>
                                             )
                                         })}
-                                        <td />
+                                        <td className={T.actionCol} />
                                     </tr>
                                     {/* Renta Fija */}
                                     <tr className="border-b border-gray-200 bg-sky-50/30">
@@ -621,12 +624,13 @@ const RentaTable = ({
                                         </td>
                                         {showClassificationColumns && <><td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td><td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td></>}
                                         {showVariableColumn && !showClassificationColumns && <td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td>}
-                                        {monthsArray.map(p => {
+                                        {monthsArray.map((p, mi) => {
                                             const rliq = reliquidacion?.[p.id]
                                             const fija = rliq ? rliq.rentaFija : (calculateTotal(p.id, rows) - (naiveVariable[p.id] ?? 0))
                                             const hasValue = fija !== 0
+                                            const vline = mi < monthsArray.length - 1 ? T.vline : ''
                                             return (
-                                                <td key={p.id} className={`${T.totalCell} text-right relative`}>
+                                                <td key={p.id} className={`${T.totalCell} text-right relative ${vline}`}>
                                                     {rliq && hasValue && (
                                                         <span className="group/reliq absolute cursor-help" style={{ top: '9px', left: '30px' }}>
                                                             <Info size={12} className="text-sky-400 hover:text-sky-500" />
@@ -639,7 +643,7 @@ const RentaTable = ({
                                                 </td>
                                             )
                                         })}
-                                        <td />
+                                        <td className={T.actionCol} />
                                     </tr>
                                 </>
                             )

@@ -361,7 +361,7 @@ const DeudasTable = ({
 
                     {/* Add row */}
                     <tr className={`border-b border-dashed ${borderColor.replace('200', '100')} ${headerBg}/20`}>
-                        <td className={T.cellEdit}>
+                        <td className={`${T.cellEdit} ${T.vline}`}>
                             <input
                                 type="text"
                                 placeholder="Agregar deuda..."
@@ -371,7 +371,7 @@ const DeudasTable = ({
                                 onKeyDown={e => { if (e.key === 'Enter' && newRow.institucion.trim()) addRow() }}
                             />
                         </td>
-                        <td className={T.cellEdit}>
+                        <td className={`${T.cellEdit} ${T.vline}`}>
                             <input
                                 type="text"
                                 placeholder="Tipo"
@@ -380,10 +380,10 @@ const DeudasTable = ({
                                 className={`w-full ${T.inputPlaceholder}`}
                             />
                         </td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <td className={T.vline}></td>
+                        <td className={T.vline}></td>
+                        <td className={T.vline}></td>
+                        <td className={T.vline}></td>
                         <td></td>
                         <td className={T.actionCol}></td>
                     </tr>

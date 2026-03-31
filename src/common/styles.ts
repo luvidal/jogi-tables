@@ -10,7 +10,7 @@
 
 export const T = {
     // ── Base ──
-    table: 'w-full text-xs',
+    table: 'w-full text-xs border-separate border-spacing-0',
 
     // ── Header: accordion bar (TableShell) ──
     headerAccordion: 'px-4 py-2.5',

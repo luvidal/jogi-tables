@@ -8,7 +8,7 @@ import { createPortal } from 'react-dom';
 // src/common/styles.ts
 var T = {
   // ── Base ──
-  table: "w-full text-xs",
+  table: "w-full text-xs border-separate border-spacing-0",
   // ── Header: accordion bar (TableShell) ──
   headerAccordion: "px-4 py-2.5",
   headerAccordionStat: "px-2 py-2.5 text-right",
@@ -1744,7 +1744,7 @@ var RentaTable = ({
           showClassificationColumns
         }
       ) : /* @__PURE__ */ jsxs(Fragment, { children: [
-        /* @__PURE__ */ jsx("td", { className: `${T.headerAccordion} text-left`, children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
+        /* @__PURE__ */ jsx("td", { className: `${T.headerAccordion} text-left ${T.vline}`, children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
           !forceExpanded && (isExpanded ? /* @__PURE__ */ jsx(ChevronUp, { size: 16, className: headerText }) : /* @__PURE__ */ jsx(ChevronDown, { size: 16, className: headerText })),
           /* @__PURE__ */ jsx("span", { className: `${headerText} ${T.headerTitle}`, children: title }),
           /* @__PURE__ */ jsx(SourceIcon, { fileIds: sourceFileIds, onViewSource, className: headerText })
@@ -1765,7 +1765,7 @@ var RentaTable = ({
             /* @__PURE__ */ jsx("span", { className: `${T.headerStat} ${hasValue ? headerText : "text-gray-400"}`, children: hasValue ? formatValue(total) : "\u2014" })
           ] }, p.id);
         }),
-        /* @__PURE__ */ jsx("td", {})
+        /* @__PURE__ */ jsx("td", { className: T.actionCol })
       ] }) }) }) }),
       renderAfterContent: ({ isExpanded }) => /* @__PURE__ */ jsxs(Fragment, { children: [
         isExpanded && /* @__PURE__ */ jsx(
@@ -1777,13 +1777,14 @@ var RentaTable = ({
             renderCells: (row) => {
               const subtract = isSubtractType(row.type);
               return /* @__PURE__ */ jsxs(Fragment, { children: [
-                showVariableColumn && /* @__PURE__ */ jsx("td", {}),
-                monthsArray.map((m) => {
+                showVariableColumn && /* @__PURE__ */ jsx("td", { className: T.vline }),
+                monthsArray.map((m, mi) => {
                   const v = row.values[m.id];
                   const hasValue = v != null;
-                  return /* @__PURE__ */ jsx("td", { className: `${T.cellEdit} text-right tabular-nums`, children: /* @__PURE__ */ jsx("span", { className: `${T.totalValue} ${hasValue ? subtract ? "text-rose-300" : "text-gray-400" : "text-gray-200"}`, children: hasValue ? formatValue(v) : "\u2014" }) }, m.id);
+                  const vline = mi < monthsArray.length - 1 ? T.vline : "";
+                  return /* @__PURE__ */ jsx("td", { className: `${T.cellEdit} text-right tabular-nums ${vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.totalValue} ${hasValue ? subtract ? "text-rose-300" : "text-gray-400" : "text-gray-200"}`, children: hasValue ? formatValue(v) : "\u2014" }) }, m.id);
                 }),
-                /* @__PURE__ */ jsx("td", {})
+                /* @__PURE__ */ jsx("td", { className: T.actionCol })
               ] });
             }
           }
@@ -1825,13 +1826,14 @@ var RentaTable = ({
                   /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) })
                 ] }),
                 showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) }),
-                monthsArray.map((p) => {
+                monthsArray.map((p, mi) => {
                   const value = subtotals[p.id] ?? 0;
                   const hasValue = value !== 0;
                   const display = isSubtract ? `-${formatValue(value)}` : formatValue(value);
-                  return /* @__PURE__ */ jsx("td", { className: `${T.totalCell} text-right`, children: /* @__PURE__ */ jsx("span", { className: `${T.totalValue} tabular-nums ${isSubtract ? hasValue ? "text-rose-600" : "text-gray-300" : hasValue ? "text-emerald-700" : "text-gray-300"}`, children: hasValue ? display : "\u2014" }) }, p.id);
+                  const vline = mi < monthsArray.length - 1 ? T.vline : "";
+                  return /* @__PURE__ */ jsx("td", { className: `${T.totalCell} text-right ${vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.totalValue} tabular-nums ${isSubtract ? hasValue ? "text-rose-600" : "text-gray-300" : hasValue ? "text-emerald-700" : "text-gray-300"}`, children: hasValue ? display : "\u2014" }) }, p.id);
                 }),
-                /* @__PURE__ */ jsx("td", {})
+                /* @__PURE__ */ jsx("td", { className: T.actionCol })
               ] });
             })(),
             items.map((item) => {
@@ -1894,11 +1896,12 @@ var RentaTable = ({
                 /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) })
               ] }),
               showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) }),
-              monthsArray.map((p) => {
+              monthsArray.map((p, mi) => {
                 const rliq = reliquidacion?.[p.id];
                 const value = rliq ? rliq.rentaVariable : naiveVariable[p.id] ?? 0;
                 const hasValue = value !== 0;
-                return /* @__PURE__ */ jsxs("td", { className: `${T.totalCell} text-right relative`, children: [
+                const vline = mi < monthsArray.length - 1 ? T.vline : "";
+                return /* @__PURE__ */ jsxs("td", { className: `${T.totalCell} text-right relative ${vline}`, children: [
                   rliq && hasValue && /* @__PURE__ */ jsxs("span", { className: "group/reliq absolute cursor-help", style: { top: "9px", left: "30px" }, children: [
                     /* @__PURE__ */ jsx(Info, { size: 12, className: "text-amber-400 hover:text-amber-500" }),
                     /* @__PURE__ */ jsx(ReliqInfoTooltip, { data: rliq, type: "variable" })
@@ -1906,7 +1909,7 @@ var RentaTable = ({
                   /* @__PURE__ */ jsx("span", { className: `${T.totalValue} tabular-nums ${hasValue ? "text-amber-700" : "text-gray-300"}`, children: hasValue ? fmtSigned(value) : "\u2014" })
                 ] }, p.id);
               }),
-              /* @__PURE__ */ jsx("td", {})
+              /* @__PURE__ */ jsx("td", { className: T.actionCol })
             ] }),
             /* @__PURE__ */ jsxs("tr", { className: "border-b border-gray-200 bg-sky-50/30", children: [
               /* @__PURE__ */ jsx("td", { className: `${T.totalCell} ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.totalLabel} text-sky-700`, children: "Renta Fija" }) }),
@@ -1915,11 +1918,12 @@ var RentaTable = ({
                 /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) })
               ] }),
               showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) }),
-              monthsArray.map((p) => {
+              monthsArray.map((p, mi) => {
                 const rliq = reliquidacion?.[p.id];
                 const fija = rliq ? rliq.rentaFija : calculateTotal(p.id, rows) - (naiveVariable[p.id] ?? 0);
                 const hasValue = fija !== 0;
-                return /* @__PURE__ */ jsxs("td", { className: `${T.totalCell} text-right relative`, children: [
+                const vline = mi < monthsArray.length - 1 ? T.vline : "";
+                return /* @__PURE__ */ jsxs("td", { className: `${T.totalCell} text-right relative ${vline}`, children: [
                   rliq && hasValue && /* @__PURE__ */ jsxs("span", { className: "group/reliq absolute cursor-help", style: { top: "9px", left: "30px" }, children: [
                     /* @__PURE__ */ jsx(Info, { size: 12, className: "text-sky-400 hover:text-sky-500" }),
                     /* @__PURE__ */ jsx(ReliqInfoTooltip, { data: rliq, type: "fija" })
@@ -1927,7 +1931,7 @@ var RentaTable = ({
                   /* @__PURE__ */ jsx("span", { className: `${T.totalValue} tabular-nums ${hasValue ? "text-blue-700" : "text-gray-300"}`, children: hasValue ? fmtSigned(fija) : "\u2014" })
                 ] }, p.id);
               }),
-              /* @__PURE__ */ jsx("td", {})
+              /* @__PURE__ */ jsx("td", { className: T.actionCol })
             ] })
           ] });
         })()
@@ -2381,7 +2385,7 @@ var DeudasTable = ({
             );
           }),
           /* @__PURE__ */ jsxs("tr", { className: `border-b border-dashed ${borderColor.replace("200", "100")} ${headerBg}/20`, children: [
-            /* @__PURE__ */ jsx("td", { className: T.cellEdit, children: /* @__PURE__ */ jsx(
+            /* @__PURE__ */ jsx("td", { className: `${T.cellEdit} ${T.vline}`, children: /* @__PURE__ */ jsx(
               "input",
               {
                 type: "text",
@@ -2394,7 +2398,7 @@ var DeudasTable = ({
                 }
               }
             ) }),
-            /* @__PURE__ */ jsx("td", { className: T.cellEdit, children: /* @__PURE__ */ jsx(
+            /* @__PURE__ */ jsx("td", { className: `${T.cellEdit} ${T.vline}`, children: /* @__PURE__ */ jsx(
               "input",
               {
                 type: "text",
@@ -2404,10 +2408,10 @@ var DeudasTable = ({
                 className: `w-full ${T.inputPlaceholder}`
               }
             ) }),
-            /* @__PURE__ */ jsx("td", {}),
-            /* @__PURE__ */ jsx("td", {}),
-            /* @__PURE__ */ jsx("td", {}),
-            /* @__PURE__ */ jsx("td", {}),
+            /* @__PURE__ */ jsx("td", { className: T.vline }),
+            /* @__PURE__ */ jsx("td", { className: T.vline }),
+            /* @__PURE__ */ jsx("td", { className: T.vline }),
+            /* @__PURE__ */ jsx("td", { className: T.vline }),
             /* @__PURE__ */ jsx("td", {}),
             /* @__PURE__ */ jsx("td", { className: T.actionCol })
           ] })
