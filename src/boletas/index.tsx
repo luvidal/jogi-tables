@@ -115,11 +115,13 @@ const BoletasTable = ({
                                 return (
                                     <td
                                         key={m.periodo}
-                                        className={`${T.headerAccordionStat} ${canToggle ? 'cursor-pointer select-none' : ''} ${isExcluded ? 'opacity-35 line-through' : ''}`}
+                                        className={`${T.headerAccordionStat} ${isExcluded ? 'opacity-35 line-through' : ''}`}
                                         style={{ width: '110px' }}
-                                        onClick={canToggle ? (e) => { e.stopPropagation(); onToggleMonth!(m.periodo) } : undefined}
                                     >
-                                        <span className="whitespace-nowrap">
+                                        <span
+                                            className={`whitespace-nowrap ${canToggle ? 'cursor-pointer select-none inline-flex items-center rounded-md px-1.5 py-0.5 -mx-1.5 -my-0.5 hover:bg-white/40 active:bg-white/60 transition-colors' : ''}`}
+                                            onClick={canToggle ? (e) => { e.stopPropagation(); onToggleMonth!(m.periodo) } : undefined}
+                                        >
                                             <span className={`${headerText} ${T.headerStatLabel}`}>{label}: </span>
                                             <span className={`${T.headerStat} ${hasValue ? headerText : 'text-gray-400'}`}>
                                                 {hasValue ? displayCurrencyCompact(m.liquido) : '—'}

@@ -2491,19 +2491,25 @@ var BoletasTable = ({
           return /* @__PURE__ */ jsxRuntime.jsx(
             "td",
             {
-              className: `${T.headerAccordionStat} ${canToggle ? "cursor-pointer select-none" : ""} ${isExcluded ? "opacity-35 line-through" : ""}`,
+              className: `${T.headerAccordionStat} ${isExcluded ? "opacity-35 line-through" : ""}`,
               style: { width: "110px" },
-              onClick: canToggle ? (e) => {
-                e.stopPropagation();
-                onToggleMonth(m.periodo);
-              } : void 0,
-              children: /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "whitespace-nowrap", children: [
-                /* @__PURE__ */ jsxRuntime.jsxs("span", { className: `${headerText} ${T.headerStatLabel}`, children: [
-                  label,
-                  ": "
-                ] }),
-                /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.headerStat} ${hasValue ? headerText : "text-gray-400"}`, children: hasValue ? displayCurrencyCompact(m.liquido) : "\u2014" })
-              ] })
+              children: /* @__PURE__ */ jsxRuntime.jsxs(
+                "span",
+                {
+                  className: `whitespace-nowrap ${canToggle ? "cursor-pointer select-none inline-flex items-center rounded-md px-1.5 py-0.5 -mx-1.5 -my-0.5 hover:bg-white/40 active:bg-white/60 transition-colors" : ""}`,
+                  onClick: canToggle ? (e) => {
+                    e.stopPropagation();
+                    onToggleMonth(m.periodo);
+                  } : void 0,
+                  children: [
+                    /* @__PURE__ */ jsxRuntime.jsxs("span", { className: `${headerText} ${T.headerStatLabel}`, children: [
+                      label,
+                      ": "
+                    ] }),
+                    /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.headerStat} ${hasValue ? headerText : "text-gray-400"}`, children: hasValue ? displayCurrencyCompact(m.liquido) : "\u2014" })
+                  ]
+                }
+              )
             },
             m.periodo
           );
