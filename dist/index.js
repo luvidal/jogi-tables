@@ -45,6 +45,8 @@ var T = {
   inputLabel: "bg-transparent border-none outline-none text-xs font-medium truncate",
   inputPlaceholder: "bg-transparent border-none outline-none text-xs text-gray-500 placeholder-gray-400 truncate",
   rowLabel: "bg-transparent border-none outline-none text-xs font-medium text-gray-600 truncate",
+  /** Data row indent (child rows below subheaders) */
+  cellIndent: "pl-6",
   muted: "text-xs text-gray-600",
   cardLabel: "text-xs font-medium",
   cardValue: "text-xs font-semibold",
@@ -3264,7 +3266,7 @@ function formatCell(v, format) {
 var SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, columnWidth = "w-[120px]", colorScheme }) => {
   const extraW = extraColumn?.width ?? "w-[80px]";
   const colors = colorScheme ?? DEFAULT_SCHEME;
-  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntime.jsx("table", { className: `${T.table} text-sm border-collapse`, children: /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: rows.map((row, idx) => {
+  return /* @__PURE__ */ jsxRuntime.jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxRuntime.jsx("table", { className: `${T.table} border-collapse`, children: /* @__PURE__ */ jsxRuntime.jsx("tbody", { children: rows.map((row, idx) => {
     if (row.type === "subheader") {
       return /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: `border-b-2 ${colors.border}`, children: [
         /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cell} ${T.th} font-bold ${colors.text} tracking-wider`, children: row.label }),
@@ -3278,7 +3280,7 @@ var SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, colum
     const fmt = row.format ?? "currency";
     const rowClass = isFinal ? `border-b-2 ${colors.bg} ${colors.border}` : isTotal ? T.rowTotal : T.row;
     return /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: rowClass, children: [
-      /* @__PURE__ */ jsxRuntime.jsxs("td", { className: `${T.cell} ${bold ? T.footerLabel + " text-gray-800" : T.muted + " pl-5"}`, children: [
+      /* @__PURE__ */ jsxRuntime.jsxs("td", { className: `${T.cell} ${bold ? T.footerLabel + " text-gray-800" : T.muted + " " + T.cellIndent}`, children: [
         row.label,
         renderLabelSuffix?.(row, idx)
       ] }),

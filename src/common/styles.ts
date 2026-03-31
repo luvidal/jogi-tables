@@ -48,6 +48,8 @@ export const T = {
 
     // ── Typography helpers ──
     sectionTitle: 'font-normal text-xs',
+    /** Data row indent (child rows below subheaders) */
+    cellIndent: 'pl-6',
     muted: 'text-xs text-gray-600',
     empty: 'text-xs text-gray-400 italic',
     cardLabel: 'text-xs font-medium',

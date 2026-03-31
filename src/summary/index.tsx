@@ -26,7 +26,7 @@ const SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, col
 
   return (
     <div className="overflow-x-auto">
-      <table className={`${T.table} text-sm border-collapse`}>
+      <table className={`${T.table} border-collapse`}>
         <tbody>
           {rows.map((row, idx) => {
             if (row.type === 'subheader') {
@@ -53,7 +53,7 @@ const SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, col
 
             return (
               <tr key={idx} className={rowClass}>
-                <td className={`${T.cell} ${bold ? T.footerLabel + ' text-gray-800' : T.muted + ' pl-5'}`}>
+                <td className={`${T.cell} ${bold ? T.footerLabel + ' text-gray-800' : T.muted + ' ' + T.cellIndent}`}>
                   {row.label}
                   {renderLabelSuffix?.(row, idx)}
                 </td>
