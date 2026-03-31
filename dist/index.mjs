@@ -3310,8 +3310,10 @@ var DeclaracionTable = ({
   onViewSource
 }) => {
   const { text: headerText, border: borderColor } = resolveColors(colorSchemeProp);
+  const showCodeColumn = rows.some((r) => r.code != null);
   return /* @__PURE__ */ jsx("div", { className: "p-3", children: /* @__PURE__ */ jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxs("table", { className: T.table, children: [
     /* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsxs("tr", { className: `border-b ${borderColor}`, children: [
+      showCodeColumn && /* @__PURE__ */ jsx("th", { className: `text-left ${T.cell} font-medium ${headerText} w-16`, children: "C\xF3digo" }),
       /* @__PURE__ */ jsx("th", { className: `text-left ${T.cell} font-medium ${headerText}`, children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1.5", children: [
         "Concepto",
         /* @__PURE__ */ jsx(SourceIcon, { fileIds: sourceFileIds, onViewSource, className: headerText })
@@ -3320,6 +3322,7 @@ var DeclaracionTable = ({
     ] }) }),
     /* @__PURE__ */ jsxs("tbody", { children: [
       rows.map((row) => /* @__PURE__ */ jsxs("tr", { className: T.row, children: [
+        showCodeColumn && /* @__PURE__ */ jsx("td", { className: `${T.cell} text-gray-400 tabular-nums`, children: row.code ?? "" }),
         /* @__PURE__ */ jsx("td", { className: `${T.cell} text-gray-700`, children: row.label }),
         columns3.map((col) => {
           const value = data[row.key]?.[col.key];
@@ -3327,6 +3330,7 @@ var DeclaracionTable = ({
         })
       ] }, row.key)),
       totalLabel && /* @__PURE__ */ jsxs("tr", { className: `border-t-2 ${borderColor} font-semibold`, children: [
+        showCodeColumn && /* @__PURE__ */ jsx("td", { className: T.cell }),
         /* @__PURE__ */ jsx("td", { className: `${T.cell} text-gray-800`, children: totalLabel }),
         columns3.map((col) => {
           const summedRows = rows.filter((r) => r.summed);

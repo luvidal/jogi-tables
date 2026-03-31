@@ -15,12 +15,19 @@ const DeclaracionTable = ({
 }: DeclaracionTableProps) => {
     const { text: headerText, border: borderColor } = resolveColors(colorSchemeProp)
 
+    const showCodeColumn = rows.some(r => r.code != null)
+
     return (
         <div className="p-3">
             <div className="overflow-x-auto">
                 <table className={T.table}>
                     <thead>
                         <tr className={`border-b ${borderColor}`}>
+                            {showCodeColumn && (
+                                <th className={`text-left ${T.cell} font-medium ${headerText} w-16`}>
+                                    Código
+                                </th>
+                            )}
                             <th className={`text-left ${T.cell} font-medium ${headerText}`}>
                                 <div className="flex items-center gap-1.5">
                                     Concepto
@@ -37,6 +44,9 @@ const DeclaracionTable = ({
                     <tbody>
                         {rows.map(row => (
                             <tr key={row.key} className={T.row}>
+                                {showCodeColumn && (
+                                    <td className={`${T.cell} text-gray-400 tabular-nums`}>{row.code ?? ''}</td>
+                                )}
                                 <td className={`${T.cell} text-gray-700`}>{row.label}</td>
                                 {columns.map(col => {
                                     const value = data[row.key]?.[col.key]
@@ -50,6 +60,7 @@ const DeclaracionTable = ({
                         ))}
                         {totalLabel && (
                             <tr className={`border-t-2 ${borderColor} font-semibold`}>
+                                {showCodeColumn && <td className={T.cell} />}
                                 <td className={`${T.cell} text-gray-800`}>{totalLabel}</td>
                                 {columns.map(col => {
                                     const summedRows = rows.filter(r => r.summed)

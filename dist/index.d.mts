@@ -411,6 +411,8 @@ interface DeclaracionColumn {
 interface DeclaracionRow {
     key: string;
     label: string;
+    /** Optional code shown in a leading 'Código' column */
+    code?: string;
     /** Whether this row should be included in the sum total */
     summed?: boolean;
 }
