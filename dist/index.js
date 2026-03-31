@@ -2468,7 +2468,7 @@ var BoletasTable = ({
   excludedMonths,
   onToggleMonth
 }) => {
-  const { bg: headerBg, text: headerText } = resolveColors(colorSchemeProp, headerBgProp, headerTextProp);
+  const { bg: headerBg, text: headerText, border: borderColor } = resolveColors(colorSchemeProp, headerBgProp, headerTextProp);
   const excluded = excludedMonths ?? [];
   return /* @__PURE__ */ jsxRuntime.jsx(
     tableshell_default,
@@ -2496,7 +2496,7 @@ var BoletasTable = ({
               children: /* @__PURE__ */ jsxRuntime.jsxs(
                 "span",
                 {
-                  className: `whitespace-nowrap ${canToggle ? "cursor-pointer select-none inline-flex items-center rounded-full border border-white/50 px-2 py-0.5 -mx-2 -my-0.5" : ""}`,
+                  className: `whitespace-nowrap ${canToggle ? `cursor-pointer select-none inline-flex items-center rounded-full border ${borderColor} px-2 py-0.5 -mx-2 -my-0.5` : ""}`,
                   onClick: canToggle ? (e) => {
                     e.stopPropagation();
                     onToggleMonth(m.periodo);

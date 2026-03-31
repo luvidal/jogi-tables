@@ -85,7 +85,7 @@ const BoletasTable = ({
     excludedMonths,
     onToggleMonth,
 }: BoletasTableProps) => {
-    const { bg: headerBg, text: headerText } = resolveColors(colorSchemeProp, headerBgProp, headerTextProp)
+    const { bg: headerBg, text: headerText, border: borderColor } = resolveColors(colorSchemeProp, headerBgProp, headerTextProp)
     const excluded = excludedMonths ?? []
 
     return (
@@ -119,7 +119,7 @@ const BoletasTable = ({
                                         style={{ width: '110px' }}
                                     >
                                         <span
-                                            className={`whitespace-nowrap ${canToggle ? 'cursor-pointer select-none inline-flex items-center rounded-full border border-white/50 px-2 py-0.5 -mx-2 -my-0.5' : ''}`}
+                                            className={`whitespace-nowrap ${canToggle ? `cursor-pointer select-none inline-flex items-center rounded-full border ${borderColor} px-2 py-0.5 -mx-2 -my-0.5` : ''}`}
                                             onClick={canToggle ? (e) => { e.stopPropagation(); onToggleMonth!(m.periodo) } : undefined}
                                         >
                                             <span className={`${headerText} ${T.headerStatLabel}`}>{label}: </span>
