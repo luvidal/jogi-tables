@@ -132,7 +132,7 @@ const FinalResultsCompact = ({
                                 onChange('total_rentas', newTotal > 0 ? newTotal : null)
                             }}
                             type="currency"
-                            width="120px"
+
                             className={`text-emerald-700 ${T.cardValue}`}
                             asDiv
                         />
@@ -155,7 +155,7 @@ const FinalResultsCompact = ({
                                         onChange('total_rentas', newTotal > 0 ? newTotal : null)
                                     }}
                                     type="currency"
-                                    width="120px"
+        
                                     className={`text-emerald-700 ${T.cardValue}`}
                                     asDiv
                                 />
@@ -172,7 +172,7 @@ const FinalResultsCompact = ({
                                     onChange('total_rentas', newTotal > 0 ? newTotal : null)
                                 }}
                                 type="currency"
-                                width="120px"
+    
                                 className={`text-emerald-700 ${T.cardValue}`}
                                 asDiv
                             />
@@ -204,7 +204,7 @@ const FinalResultsCompact = ({
                             value={values.dividendo_hipotecario}
                             onChange={(v) => onChange('dividendo_hipotecario', v as number | null)}
                             type="currency"
-                            width="120px"
+
                             className={`text-sky-700 ${T.cardValue}`}
                             asDiv
                         />

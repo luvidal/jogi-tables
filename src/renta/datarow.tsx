@@ -137,7 +137,7 @@ const DataRow = ({
             onDragLeave={onDragLeave}
             onDrop={onDrop}
         >
-            <td className={`${T.cellEditLabel} text-gray-700 ${T.cellLabel}`} style={{ width: (showClassificationColumns || showVariableColumn) ? '140px' : '180px' }}>
+            <td className={`${T.cellEditLabel} text-gray-700 ${T.cellLabel} ${T.vline}`}>
                 <div className={`flex items-center gap-0.5 min-w-0 ${indented ? 'pl-4' : ''}`}>
                     {isHovered && onDragStart && !anySelected && (
                         <span
@@ -184,13 +184,13 @@ const DataRow = ({
                 const renta = rentaPill(row.isVariable, row.naturaleza)
                 return (
                     <>
-                        <td className="px-0.5 py-1 text-center" style={{ width: '44px' }}
+                        <td className={`${T.cellCompact} text-center ${T.vline}`}
                             onClick={(e) => { e.stopPropagation(); onToggleNaturaleza?.() }}
                             title={`${row.naturaleza || 'Sin tipo'} — click para cambiar`}
                         >
                             <span className={`${PILL} ${tipo.style}`}>{tipo.label}</span>
                         </td>
-                        <td className="px-0.5 py-1 text-center" style={{ width: '36px' }}
+                        <td className={`${T.cellCompact} text-center ${T.vline}`}
                             onClick={(e) => { e.stopPropagation(); if (row.naturaleza !== 'Legal') onToggleVariable?.() }}
                             title={row.naturaleza === 'Legal' ? 'Descuento legal' : row.isVariable ? 'Variable — click para cambiar a Fija' : 'Fija — click para cambiar a Variable'}
                         >
@@ -202,7 +202,7 @@ const DataRow = ({
             {showVariableColumn && !showClassificationColumns && (() => {
                 const renta = rentaPill(row.isVariable, undefined)
                 return (
-                    <td className="px-0.5 py-1 text-center" style={{ width: '28px' }}
+                    <td className={`${T.cellCompact} text-center ${T.vline}`}
                         onClick={(e) => { e.stopPropagation(); onToggleVariable?.() }}
                         title={row.isVariable ? 'Variable — click para cambiar a Fija' : 'Fija — click para cambiar a Variable'}
                     >
@@ -212,6 +212,7 @@ const DataRow = ({
             })()}
             {months.map((p, mi) => {
                 const cellFocused = isCellFocused?.(mi) ?? false
+                const vline = mi < months.length - 1 ? T.vline : ''
                 return (
                     <EditableCell
                         key={p.id}
@@ -219,7 +220,7 @@ const DataRow = ({
                         onChange={(v) => onValueChange(p.id, v as number | null)}
                         isDeduction={subtract}
                         hasData={row.values[p.id] !== undefined && row.values[p.id] !== null}
-                        width="110px"
+                        className={vline}
                         type="currency"
                         onViewSource={p.sourceFileId && onViewSource ? () => onViewSource([p.sourceFileId!]) : undefined}
                         focused={cellFocused}
@@ -231,7 +232,7 @@ const DataRow = ({
                     />
                 )
             })}
-            <td style={{ width: '40px' }} className="text-center">
+            <td className={`${T.actionCol} text-center`}>
                 <DeleteRowButton onClick={onRemove} isVisible={isHovered && !anySelected} title="Eliminar fila" />
             </td>
         </tr>

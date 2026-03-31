@@ -20,7 +20,6 @@ interface EditableCellProps {
     isDeduction?: boolean
     hasData?: boolean
     className?: string
-    width?: string
     align?: 'left' | 'center' | 'right'
     placeholder?: string
     /** Callback to view source document - shows Eye icon on hover */
@@ -57,7 +56,6 @@ const EditableCell = ({
     isDeduction = false,
     hasData = true,
     className = '',
-    width,
     align = 'right',
     placeholder = '',
     onViewSource,
@@ -193,8 +191,7 @@ const EditableCell = ({
 
     return (
         <Wrapper
-            className={`${T.cellEdit} ${T.colFit} cursor-pointer ${focusRing} ${className}`}
-            style={width ? { minWidth: width } : undefined}
+            className={`${T.cellEdit} cursor-pointer ${focusRing} ${className}`}
             onClick={handleClick}
             onDoubleClick={handleDoubleClick}
             onMouseEnter={() => setIsHovered(true)}

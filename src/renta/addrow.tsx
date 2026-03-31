@@ -32,7 +32,7 @@ const AddRow = ({
 
     return (
         <tr className={`border-b border-dashed ${bgClass}`}>
-            <td className={T.cellEdit} style={{ width: (showClassificationColumns || showVariableColumn) ? '140px' : '180px' }}>
+            <td className={`${T.cellEdit} ${T.vline}`}>
                 <input
                     type="text"
                     placeholder={section.placeholder}
@@ -46,20 +46,20 @@ const AddRow = ({
                     }}
                 />
             </td>
-            {showClassificationColumns && <><td style={{ width: '44px' }} /><td style={{ width: '36px' }} /></>}
-            {showVariableColumn && !showClassificationColumns && <td style={{ width: '28px' }} />}
-            {months.map((p) => (
+            {showClassificationColumns && <><td className={T.vline} /><td className={T.vline} /></>}
+            {showVariableColumn && !showClassificationColumns && <td className={T.vline} />}
+            {months.map((p, mi) => (
                 <EditableCell
                     key={p.id}
                     value={null}
                     onChange={(v) => onAddRowWithValue(p.id, v as number | null)}
                     isDeduction={subtract}
                     hasData={false}
-                    width="110px"
+                    className={mi < months.length - 1 ? T.vline : ''}
                     type="currency"
                 />
             ))}
-            <td style={{ width: '40px' }}></td>
+            <td className={T.actionCol}></td>
         </tr>
     )
 }

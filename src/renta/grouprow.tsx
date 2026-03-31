@@ -64,7 +64,7 @@ const GroupRow = ({
             onDragLeave={onDragLeave}
             onDrop={onDrop}
         >
-            <td className={`${T.cellEditLabel} text-gray-700 overflow-hidden`} style={{ width: (showClassificationColumns || showVariableColumn) ? '140px' : '180px' }}>
+            <td className={`${T.cellEditLabel} text-gray-700 overflow-hidden ${T.vline}`}>
                 <div className="flex items-center gap-0.5 min-w-0">
                     {isHovered && onDragStart && (
                         <span
@@ -96,16 +96,16 @@ const GroupRow = ({
                     />
                 </div>
             </td>
-            {showClassificationColumns && <><td style={{ width: '44px' }} /><td style={{ width: '36px' }} /></>}
-            {showVariableColumn && !showClassificationColumns && <td style={{ width: '28px' }} />}
-            {months.map((p) => {
+            {showClassificationColumns && <><td className={T.vline} /><td className={T.vline} /></>}
+            {showVariableColumn && !showClassificationColumns && <td className={T.vline} />}
+            {months.map((p, mi) => {
                 const value = groupValues[p.id] ?? 0
                 const hasValue = value !== 0
+                const vline = mi < months.length - 1 ? T.vline : ''
                 return (
                     <td
                         key={p.id}
-                        className={`${T.cellEdit} text-right`}
-                        style={{ width: '110px', minWidth: '110px', maxWidth: '110px' }}
+                        className={`${T.cellEdit} text-right ${vline}`}
                     >
                         <div className="h-5 flex items-center justify-end">
                             <span className={`text-xs tabular-nums font-medium ${subtract ? (hasValue ? 'text-rose-600' : 'text-gray-300') : (hasValue ? 'text-gray-800' : 'text-gray-300')}`}>
@@ -115,7 +115,7 @@ const GroupRow = ({
                     </td>
                 )
             })}
-            <td style={{ width: '40px' }} className="text-center">
+            <td className={`${T.actionCol} text-center`}>
                 {isHovered && (
                     <button
                         onClick={onUngroup}

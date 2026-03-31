@@ -327,7 +327,6 @@ interface ColumnDef {
     key: string;
     label: string;
     type: 'text' | 'currency' | 'number';
-    width?: string;
     align?: 'left' | 'right' | 'center';
     placeholder?: string;
     isLabel?: boolean;
@@ -393,16 +392,13 @@ interface SummaryTableProps {
     /** Extra column rendered before data columns (e.g., castigo input) */
     extraColumn?: {
         header: string;
-        width?: string;
         render: (row: SummaryRow, index: number) => ReactNode;
     };
     /** Rendered after the label text (e.g., warning icon) */
     renderLabelSuffix?: (row: SummaryRow, index: number) => ReactNode;
-    /** Column width for data columns */
-    columnWidth?: string;
 }
 
-declare const SummaryTable: ({ columnHeaders, rows, extraColumn, renderLabelSuffix, columnWidth, colorScheme }: SummaryTableProps) => react_jsx_runtime.JSX.Element;
+declare const SummaryTable: ({ columnHeaders, rows, extraColumn, renderLabelSuffix, colorScheme }: SummaryTableProps) => react_jsx_runtime.JSX.Element;
 
 interface DeclaracionColumn {
     key: string;
@@ -438,7 +434,6 @@ interface EditableCellProps {
     isDeduction?: boolean;
     hasData?: boolean;
     className?: string;
-    width?: string;
     align?: 'left' | 'center' | 'right';
     placeholder?: string;
     /** Callback to view source document - shows Eye icon on hover */
@@ -467,7 +462,7 @@ interface EditableCellProps {
  * within a fixed-height container so clicking to edit does NOT scramble/shift
  * the table layout.
  */
-declare const EditableCell: ({ value, onChange, type, isDeduction, hasData, className, width, align, placeholder, onViewSource, asDiv, focused, onCellFocus, onNavigate, requestEdit, requestClear, editInitialValue, }: EditableCellProps) => react_jsx_runtime.JSX.Element;
+declare const EditableCell: ({ value, onChange, type, isDeduction, hasData, className, align, placeholder, onViewSource, asDiv, focused, onCellFocus, onNavigate, requestEdit, requestClear, editInitialValue, }: EditableCellProps) => react_jsx_runtime.JSX.Element;
 
 interface DeleteDialogProps {
     count: number;

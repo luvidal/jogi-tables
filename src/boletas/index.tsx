@@ -98,7 +98,7 @@ const BoletasTable = ({
                 <table className={T.table}>
                     <tbody>
                         <tr>
-                            <td className={`${T.headerAccordion} text-left`} style={{ width: '180px' }}>
+                            <td className={`${T.headerAccordion} text-left ${T.vline}`}>
                                 <div className="flex items-center gap-2">
                                     {!forceExpanded && (
                                         isExpanded ? <ChevronUp size={16} className={headerText} /> : <ChevronDown size={16} className={headerText} />
@@ -116,7 +116,6 @@ const BoletasTable = ({
                                     <td
                                         key={m.periodo}
                                         className={`${T.headerAccordionStat} ${isExcluded ? 'opacity-35 line-through' : ''}`}
-                                        style={{ width: '110px' }}
                                     >
                                         <span
                                             className={`whitespace-nowrap ${canToggle ? `cursor-pointer select-none inline-flex items-center rounded-full border ${borderColor} px-2 py-0.5 -mx-2 -my-0.5` : ''}`}
@@ -139,7 +138,7 @@ const BoletasTable = ({
                 <tbody>
                     {METRICS.map(metric => (
                         <tr key={metric.key} className={T.rowBorder}>
-                            <td className={`${T.cell} font-medium ${T.cellLabel} text-gray-600`} style={{ width: '180px' }}>
+                            <td className={`${T.cell} font-medium ${T.cellLabel} text-gray-600 ${T.vline}`}>
                                 {metric.label}
                             </td>
                             {months.map(m => {
@@ -148,7 +147,6 @@ const BoletasTable = ({
                                     <td
                                         key={m.periodo}
                                         className={`${T.cell} text-right ${m.hasData ? metric.color : 'text-gray-300'} ${isExcluded ? 'opacity-35' : ''}`}
-                                        style={{ width: '110px' }}
                                     >
                                         {m.hasData ? metric.format(m[metric.key]) : '—'}
                                     </td>

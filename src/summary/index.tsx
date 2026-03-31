@@ -20,8 +20,7 @@ function formatCell(v: number | null, format: SummaryRowFormat): { display: stri
   }
 }
 
-const SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, columnWidth = 'w-[120px]', colorScheme }: SummaryTableProps) => {
-  const extraW = extraColumn?.width ?? 'w-[80px]'
+const SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, colorScheme }: SummaryTableProps) => {
   const colors = colorScheme ?? DEFAULT_SCHEME
 
   return (
@@ -32,12 +31,12 @@ const SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, col
             if (row.type === 'subheader') {
               return (
                 <tr key={idx} className={`border-b-2 ${colors.border}`}>
-                  <td className={`${T.cell} ${T.th} font-bold ${colors.text} tracking-wider`}>{row.label}</td>
+                  <td className={`${T.cell} ${T.th} font-bold ${colors.text} tracking-wider ${T.vline}`}>{row.label}</td>
                   {extraColumn && (
-                    <td className={`${T.cell} ${T.th} text-right font-bold ${colors.text} ${extraW}`}>{extraColumn.header}</td>
+                    <td className={`${T.cell} ${T.th} text-right font-bold ${colors.text} ${T.vline}`}>{extraColumn.header}</td>
                   )}
                   {columnHeaders.map((col, i) => (
-                    <td key={i} className={`${T.cell} ${T.th} text-right font-bold ${colors.text} ${columnWidth}`}>{col}</td>
+                    <td key={i} className={`${T.cell} ${T.th} text-right font-bold ${colors.text} ${i < columnHeaders.length - 1 ? T.vline : ''}`}>{col}</td>
                   ))}
                 </tr>
               )
@@ -53,12 +52,12 @@ const SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, col
 
             return (
               <tr key={idx} className={rowClass}>
-                <td className={`${T.cell} ${bold ? T.footerLabel + ' text-gray-800' : T.muted + ' ' + T.cellIndent}`}>
+                <td className={`${T.cell} ${bold ? T.footerLabel + ' text-gray-800' : T.muted + ' ' + T.cellIndent} ${T.vline}`}>
                   {row.label}
                   {renderLabelSuffix?.(row, idx)}
                 </td>
                 {extraColumn && (
-                  <td className={extraW}>
+                  <td className={T.vline}>
                     {extraColumn.render(row, idx)}
                   </td>
                 )}
@@ -68,7 +67,7 @@ const SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, col
                     <td
                       key={i}
                       title={title}
-                      className={`${T.cellValue} ${columnWidth} ${bold ? T.footerValue + ' text-gray-800' : 'text-gray-700'}${title ? ' cursor-default' : ''}`}
+                      className={`${T.cellValue} ${bold ? T.footerValue + ' text-gray-800' : 'text-gray-700'}${title ? ' cursor-default' : ''} ${i < row.values.length - 1 ? T.vline : ''}`}
                     >
                       {display}
                     </td>

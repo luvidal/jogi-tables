@@ -158,14 +158,14 @@ const DeudasTable = ({
                             </th>
                         ) : (
                             <>
-                                <th className={`${T.headerCell} text-left ${T.th} ${headerText}`}>Institución</th>
-                                <th className={`${T.headerCell} text-left ${T.th} ${headerText}`}>Tipo Deuda</th>
-                                <th className={`${T.headerCell} text-right ${T.th} ${headerText} ${T.colFit}`}>Saldo UF</th>
-                                <th className={`${T.headerCell} text-right ${T.th} ${headerText} ${T.colFit}`}>Saldo $</th>
-                                <th className={`${T.headerCell} text-right ${T.th} ${headerText} ${T.colFit}`}>Cuota $</th>
-                                <th className={`${T.headerCell} text-center ${T.th} ${headerText} ${T.colFit}`}>%</th>
-                                <th className={`${T.headerCell} text-center ${T.th} ${headerText} ${T.colFit}`}>Cuotas</th>
-                                <th className={T.colFit} style={{ width: '40px' }}></th>
+                                <th className={`${T.headerCell} text-left ${T.th} ${headerText} ${T.vline}`}>Institución</th>
+                                <th className={`${T.headerCell} text-left ${T.th} ${headerText} ${T.vline}`}>Tipo Deuda</th>
+                                <th className={`${T.headerCell} text-right ${T.th} ${headerText} ${T.vline}`}>Saldo UF</th>
+                                <th className={`${T.headerCell} text-right ${T.th} ${headerText} ${T.vline}`}>Saldo $</th>
+                                <th className={`${T.headerCell} text-right ${T.th} ${headerText} ${T.vline}`}>Cuota $</th>
+                                <th className={`${T.headerCell} text-center ${T.th} ${headerText} ${T.vline}`}>%</th>
+                                <th className={`${T.headerCell} text-center ${T.th} ${headerText}`}>Cuotas</th>
+                                <th className={T.actionCol}></th>
                             </>
                         )}
                     </tr>
@@ -189,7 +189,7 @@ const DeudasTable = ({
                                 onDragLeave={drag.handleDragLeave}
                                 onDrop={drag.handleDrop(rows, onRowsChange)}
                             >
-                                <td className={`${T.cellEditLabel} ${T.cellLabel} relative`}>
+                                <td className={`${T.cellEditLabel} ${T.cellLabel} ${T.vline} relative`}>
                                     <div className="flex items-center gap-0.5 min-w-0">
                                         {hovered && !anySelected && (
                                             <span
@@ -228,7 +228,7 @@ const DeudasTable = ({
                                         </button>
                                     )}
                                 </td>
-                                <td className={T.cellEdit}>
+                                <td className={`${T.cellEdit} ${T.vline}`}>
                                     <input
                                         type="text"
                                         value={row.tipo_deuda}
@@ -242,7 +242,7 @@ const DeudasTable = ({
                                     onChange={v => updateField(row.id, 'saldo_deuda_uf', v as number | null)}
                                     type="number"
                                     hasData={row.saldo_deuda_uf !== null}
-                                    width="100px"
+                                    className={T.vline}
                                     focused={keyboard.isFocused(row.id, 0)}
                                     onCellFocus={() => keyboard.focus(row.id, 0)}
                                     onNavigate={keyboard.navigate}
@@ -255,8 +255,7 @@ const DeudasTable = ({
                                     onChange={v => updateField(row.id, 'saldo_deuda_pesos', v as number | null)}
                                     type="currency"
                                     hasData={row.saldo_deuda_pesos !== null}
-                                    width="120px"
-                                    className={isAutoComputed(row, 'saldo_deuda_pesos') ? 'italic text-rose-400' : ''}
+                                    className={`${T.vline} ${isAutoComputed(row, 'saldo_deuda_pesos') ? 'italic text-rose-400' : ''}`}
                                     focused={keyboard.isFocused(row.id, 1)}
                                     onCellFocus={() => keyboard.focus(row.id, 1)}
                                     onNavigate={keyboard.navigate}
@@ -264,13 +263,12 @@ const DeudasTable = ({
                                     requestClear={keyboard.isFocused(row.id, 1) ? keyboard.clearTrigger : 0}
                                     editInitialValue={keyboard.isFocused(row.id, 1) ? keyboard.editInitialValue : undefined}
                                 />
-                                <td className={`relative ${T.colFit}`}>
+                                <td className={`relative ${T.vline}`}>
                                     <EditableCell
                                         value={row.monto_cuota}
                                         onChange={v => updateField(row.id, 'monto_cuota', v as number | null)}
                                         type="currency"
                                         hasData={row.monto_cuota !== null}
-                                        width="110px"
                                         className={cuotaClassName(row)}
                                         focused={keyboard.isFocused(row.id, 2)}
                                         onCellFocus={() => keyboard.focus(row.id, 2)}
@@ -300,14 +298,13 @@ const DeudasTable = ({
                                         </button>
                                     )}
                                 </td>
-                                <td className={`text-center ${T.colFit}`}>
+                                <td className={`text-center ${T.vline}`}>
                                     {row.cuota_estimated ? (
                                         <EditableCell
                                             value={row.castigo_pct != null ? Math.round(row.castigo_pct * 100) : Math.round(castigo * 100)}
                                             onChange={v => updateField(row.id, 'castigo_pct', v != null ? (v as number) / 100 : castigo)}
                                             type="number"
                                             hasData={true}
-                                            width="50px"
                                             align="center"
                                             className="italic text-gray-400"
                                             asDiv
@@ -322,14 +319,13 @@ const DeudasTable = ({
                                         <span className="text-[11px] text-gray-300">—</span>
                                     )}
                                 </td>
-                                <td className={`text-center text-xs text-gray-500 ${T.colFit}`}>
+                                <td className="text-center text-xs text-gray-500">
                                     <div className="flex items-center justify-center gap-0.5">
                                         <EditableCell
                                             value={row.cuotas_pagadas}
                                             onChange={v => updateField(row.id, 'cuotas_pagadas', v as number | null)}
                                             type="number"
                                             hasData={row.cuotas_pagadas !== null}
-                                            width="35px"
                                             align="center"
                                             asDiv
                                             focused={keyboard.isFocused(row.id, 4)}
@@ -345,7 +341,6 @@ const DeudasTable = ({
                                             onChange={v => updateField(row.id, 'cuotas_total', v as number | null)}
                                             type="number"
                                             hasData={row.cuotas_total !== null}
-                                            width="35px"
                                             align="center"
                                             asDiv
                                             focused={keyboard.isFocused(row.id, 5)}
@@ -357,7 +352,7 @@ const DeudasTable = ({
                                         />
                                     </div>
                                 </td>
-                                <td className={`text-center ${T.colFit}`} style={{ width: '40px' }}>
+                                <td className={`text-center ${T.actionCol}`}>
                                     <DeleteRowButton onClick={() => requestDelete(row.id)} isVisible={hovered && !anySelected} />
                                 </td>
                             </tr>
@@ -385,18 +380,18 @@ const DeudasTable = ({
                                 className={`w-full ${T.inputPlaceholder}`}
                             />
                         </td>
-                        <td className={T.colFit}></td>
-                        <td className={T.colFit}></td>
-                        <td className={T.colFit}></td>
-                        <td className={T.colFit}></td>
-                        <td className={T.colFit}></td>
-                        <td className={T.colFit} style={{ width: '40px' }}></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td className={T.actionCol}></td>
                     </tr>
                 </tbody>
                 <tfoot>
                     <tr className={`${headerBg} font-semibold text-xs border-b ${borderColor}`}>
-                        <td colSpan={3} className={`${T.totalCell} ${headerText} ${T.totalLabel}`}>TOTAL</td>
-                        <td className={`${T.totalCell} text-right ${headerText} ${T.totalValue}`}>
+                        <td colSpan={3} className={`${T.totalCell} ${headerText} ${T.totalLabel} ${T.vline}`}>TOTAL</td>
+                        <td className={`${T.totalCell} text-right ${headerText} ${T.totalValue} ${T.vline}`}>
                             {totalSaldoPesos ? formatCurrency(totalSaldoPesos) : '—'}
                         </td>
                         <td className={`${T.totalCell} text-right ${headerText} ${T.totalValue}`}>

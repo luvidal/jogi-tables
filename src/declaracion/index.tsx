@@ -24,18 +24,18 @@ const DeclaracionTable = ({
                     <thead>
                         <tr className={`border-b ${borderColor}`}>
                             {showCodeColumn && (
-                                <th className={`text-left ${T.cell} font-medium ${headerText} w-16`}>
+                                <th className={`text-left ${T.cell} font-medium ${headerText} ${T.vline}`}>
                                     Código
                                 </th>
                             )}
-                            <th className={`text-left ${T.cell} font-medium ${headerText}`}>
+                            <th className={`text-left ${T.cell} font-medium ${headerText} ${T.vline}`}>
                                 <div className="flex items-center gap-1.5">
                                     Concepto
                                     <SourceIcon fileIds={sourceFileIds} onViewSource={onViewSource} className={headerText} />
                                 </div>
                             </th>
-                            {columns.map(col => (
-                                <th key={col.key} className={`text-right ${T.cell} font-medium ${headerText}`}>
+                            {columns.map((col, i) => (
+                                <th key={col.key} className={`text-right ${T.cell} font-medium ${headerText} ${i < columns.length - 1 ? T.vline : ''}`}>
                                     {col.label}
                                 </th>
                             ))}
@@ -45,13 +45,13 @@ const DeclaracionTable = ({
                         {rows.map(row => (
                             <tr key={row.key} className={T.row}>
                                 {showCodeColumn && (
-                                    <td className={`${T.cell} text-gray-400 tabular-nums`}>{row.code ?? ''}</td>
+                                    <td className={`${T.cell} text-gray-400 tabular-nums ${T.vline}`}>{row.code ?? ''}</td>
                                 )}
-                                <td className={`${T.cell} text-gray-700`}>{row.label}</td>
-                                {columns.map(col => {
+                                <td className={`${T.cell} text-gray-700 ${T.vline}`}>{row.label}</td>
+                                {columns.map((col, ci) => {
                                     const value = data[row.key]?.[col.key]
                                     return (
-                                        <td key={col.key} className={`${T.cellValue} ${value != null ? 'text-gray-900' : 'text-gray-400'}`}>
+                                        <td key={col.key} className={`${T.cellValue} ${value != null ? 'text-gray-900' : 'text-gray-400'} ${ci < columns.length - 1 ? T.vline : ''}`}>
                                             {value != null ? formatCurrency(value) : '—'}
                                         </td>
                                     )

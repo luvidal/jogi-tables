@@ -122,7 +122,7 @@ function AssetTable<T extends AssetRow>({
     // Map from editable column index to resolved column
     const editableColIndex = (col: ColumnDef): number => editableCols.indexOf(col)
 
-    const renderEditableCell = (row: T, col: ColumnDef) => {
+    const renderEditableCell = (row: T, col: ColumnDef, vline = '') => {
         const colIdx = editableColIndex(col)
         const value = row[col.key] as number | null
         const autoClass = col.autoComputedClass?.(row) || ''
@@ -133,9 +133,8 @@ function AssetTable<T extends AssetRow>({
                 onChange={v => updateField(row.id, col.key, v as number | null)}
                 type={col.type as 'currency' | 'number'}
                 hasData={value !== null}
-                width={col.width}
                 align={col.align}
-                className={autoClass}
+                className={`${autoClass} ${vline}`}
                 focused={keyboard.isFocused(row.id, colIdx)}
                 onCellFocus={() => keyboard.focus(row.id, colIdx)}
                 onNavigate={keyboard.navigate}
@@ -156,20 +155,18 @@ function AssetTable<T extends AssetRow>({
             <table className={T.table}>
                 <thead>
                     <tr className={`${headerBg} border-t ${borderColor} ${headerText}`}>
-                        {resolvedColumns.map(col => {
-                            // Default alignment: currency/number right-align (matching EditableCell default), text left-aligns
+                        {resolvedColumns.map((col, i) => {
                             const effectiveAlign = col.align ?? (col.type === 'currency' || col.type === 'number' ? 'right' : 'left')
-                            const fit = (col.type === 'currency' || col.type === 'number') ? T.colFit : ''
+                            const vline = i < resolvedColumns.length - 1 ? T.vline : ''
                             return (
                             <th
                                 key={col.key}
-                                className={`${T.headerCell} ${effectiveAlign === 'right' ? 'text-right' : effectiveAlign === 'center' ? 'text-center' : 'text-left'} ${T.th} ${headerText} ${fit}`}
-                                style={col.width ? { width: col.width } : undefined}
+                                className={`${T.headerCell} ${effectiveAlign === 'right' ? 'text-right' : effectiveAlign === 'center' ? 'text-center' : 'text-left'} ${T.th} ${headerText} ${vline}`}
                             >
                                 {col === labelCol && title ? title : col.label}
                             </th>
                         )})}
-                        <th className={T.colFit} style={{ width: '40px' }}></th>
+                        <th className={T.actionCol}></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -181,10 +178,11 @@ function AssetTable<T extends AssetRow>({
                                 className={`${T.rowBorder} ${T.rowHover}`}
                                 {...getHoverProps(row.id)}
                             >
-                                {resolvedColumns.map(col => {
+                                {resolvedColumns.map((col, i) => {
+                                    const vline = i < resolvedColumns.length - 1 ? T.vline : ''
                                     if (col.isLabel) {
                                         return (
-                                            <td key={col.key} className={`${T.cellEdit} ${T.cellLabel}`} style={col.width ? { width: col.width } : undefined}>
+                                            <td key={col.key} className={`${T.cellEdit} ${T.cellLabel} ${vline}`}>
                                                 <div className="flex items-center gap-1 min-w-0">
                                                     <DeleteRowButton onClick={() => requestDelete(row.id)} isVisible={hovered} />
                                                     <input
@@ -202,7 +200,7 @@ function AssetTable<T extends AssetRow>({
                                         const isRight = col.align === 'right'
                                         const textAlign = isRight ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
                                         return (
-                                            <td key={col.key} className={T.cellEdit} style={col.width ? { width: col.width } : undefined}>
+                                            <td key={col.key} className={`${T.cellEdit} ${vline}`}>
                                                 <input
                                                     type="text"
                                                     value={(row[col.key] as string) || ''}
@@ -214,9 +212,9 @@ function AssetTable<T extends AssetRow>({
                                             </td>
                                         )
                                     }
-                                    return renderEditableCell(row, col)
+                                    return renderEditableCell(row, col, vline)
                                 })}
-                                <td className={T.colFit} style={{ width: '40px' }}></td>
+                                <td className={T.actionCol}></td>
                             </tr>
                         )
                     })}
@@ -224,9 +222,10 @@ function AssetTable<T extends AssetRow>({
                     {/* Add row */}
                     <tr className={`border-b border-dashed ${borderColor.replace('200', '100')} ${headerBg}/20`}>
                         {resolvedColumns.map((col, i) => {
+                            const vline = i < resolvedColumns.length - 1 ? T.vline : ''
                             if (col.isLabel) {
                                 return (
-                                    <td key={col.key} className={T.cellEdit} style={col.width ? { width: col.width } : undefined}>
+                                    <td key={col.key} className={`${T.cellEdit} ${vline}`}>
                                         <input
                                             type="text"
                                             placeholder={addPlaceholder || `Agregar...`}
@@ -244,7 +243,7 @@ function AssetTable<T extends AssetRow>({
                                 const isAddRight = col.align === 'right'
                                 const addTextAlign = isAddRight ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
                                 return (
-                                    <td key={col.key} className={T.cellEdit} style={col.width ? { width: col.width } : undefined}>
+                                    <td key={col.key} className={`${T.cellEdit} ${vline}`}>
                                         <input
                                             type="text"
                                             placeholder={col.placeholder || col.label}
@@ -256,7 +255,6 @@ function AssetTable<T extends AssetRow>({
                                     </td>
                                 )
                             }
-                            // Editable cell in add row — triggers addRow on value entry
                             return (
                                 <EditableCell
                                     key={col.key}
@@ -264,19 +262,19 @@ function AssetTable<T extends AssetRow>({
                                     onChange={v => addRow({ [col.key]: v } as Partial<T>)}
                                     type={col.type as 'currency' | 'number'}
                                     hasData={false}
-                                    width={col.width}
                                     align={col.align}
+                                    className={vline}
                                 />
                             )
                         })}
-                        <td className={T.colFit} style={{ width: '40px' }}></td>
+                        <td className={T.actionCol}></td>
                     </tr>
                 </tbody>
                 <tfoot>
                     <tr className={`${headerBg} font-semibold text-xs border-b ${borderColor}`}>
-                        <td colSpan={textCols.length} className={`${T.totalCell} ${headerText} ${T.totalLabel}`}>TOTAL</td>
-                        {editableCols.map(col => (
-                            <td key={col.key} className={`${T.totalCell} ${col.align === 'center' ? 'text-center' : 'text-right'} ${headerText} ${T.totalValue}`}>
+                        <td colSpan={textCols.length} className={`${T.totalCell} ${headerText} ${T.totalLabel} ${T.vline}`}>TOTAL</td>
+                        {editableCols.map((col, i) => (
+                            <td key={col.key} className={`${T.totalCell} ${col.align === 'center' ? 'text-center' : 'text-right'} ${headerText} ${T.totalValue} ${i < editableCols.length - 1 ? T.vline : ''}`}>
                                 {totals[col.key] ? (
                                     col.type === 'number'
                                         ? totals[col.key].toLocaleString('es-CL', { maximumFractionDigits: 2 })
@@ -294,17 +292,17 @@ function AssetTable<T extends AssetRow>({
                 onRestore={restoreRow}
                 renderCells={(row) => (
                     <>
-                        {editableCols.map(col => {
+                        {editableCols.map((col, i) => {
                             const v = row[col.key] as number | null
                             return (
-                                <td key={col.key} className={`${T.totalCell} text-right tabular-nums`} style={col.width ? { width: col.width } : undefined}>
+                                <td key={col.key} className={`${T.totalCell} text-right tabular-nums ${i < editableCols.length - 1 ? T.vline : ''}`}>
                                     <span className={`${T.totalValue} ${v != null ? 'text-gray-400' : 'text-gray-200'}`}>
                                         {v != null ? (col.type === 'number' ? String(v) : formatCurrency(v)) : '—'}
                                     </span>
                                 </td>
                             )
                         })}
-                        <td style={{ width: '40px' }} />
+                        <td className={T.actionCol} />
                     </>
                 )}
             />

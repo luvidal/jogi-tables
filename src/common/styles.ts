@@ -23,8 +23,12 @@ export const T = {
     // ── Header: column headers (th) ──
     th: 'text-gray-500 font-medium text-xs uppercase',
     headerCell: 'px-2 py-1.5',
-    /** Shrink column to fit content — apply to th/td of non-label columns */
-    colFit: 'w-[1%] whitespace-nowrap',
+    /** Vertical divider between columns */
+    vline: 'border-r border-gray-200',
+    /** Action column (delete button) — fixed narrow width */
+    actionCol: 'w-10',
+    /** Compact cell padding for small icon/badge columns */
+    cellCompact: 'px-0.5 py-1',
 
     // ── Body: read-only cells (compact) ──
     cell: 'py-1.5 px-3',
