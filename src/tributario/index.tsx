@@ -80,7 +80,7 @@ const TributarioTable = ({
             forceExpanded={forceExpanded}
             flush={flush}
             renderHeader={({ isExpanded }) => (
-                    <table className={T.table} style={{ tableLayout: 'fixed' }}>
+                    <table className={T.table}>
                         <tbody>
                             <tr>
                                 <td className={`${T.headerAccordion} text-left`} style={{ width: '200px' }}>
@@ -128,7 +128,7 @@ const TributarioTable = ({
                     </table>
             )}
         >
-                <table className={T.table} style={{ tableLayout: 'fixed' }}>
+                <table className={T.table}>
                     <thead>
                         <tr className="border-b border-gray-200 bg-gray-50/50">
                             <th className={`${T.headerCell} text-left ${T.th}`} style={{ width: '200px' }}>Documento</th>

@@ -23,6 +23,8 @@ export const T = {
     // ── Header: column headers (th) ──
     th: 'text-gray-500 font-medium text-xs uppercase',
     headerCell: 'px-2 py-1.5',
+    /** Shrink column to fit content — apply to th/td of non-label columns */
+    colFit: 'w-[1%] whitespace-nowrap',
 
     // ── Body: read-only cells (compact) ──
     cell: 'py-1.5 px-3',

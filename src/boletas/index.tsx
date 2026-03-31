@@ -95,7 +95,7 @@ const BoletasTable = ({
             forceExpanded={forceExpanded}
             flush={flush}
             renderHeader={({ isExpanded }) => (
-                <table className={T.table} style={{ tableLayout: 'fixed' }}>
+                <table className={T.table}>
                     <tbody>
                         <tr>
                             <td className={`${T.headerAccordion} text-left`} style={{ width: '180px' }}>
@@ -135,7 +135,7 @@ const BoletasTable = ({
                 </table>
             )}
         >
-            <table className={T.table} style={{ tableLayout: 'fixed' }}>
+            <table className={T.table}>
                 <tbody>
                     {METRICS.map(metric => (
                         <tr key={metric.key} className={T.rowBorder}>

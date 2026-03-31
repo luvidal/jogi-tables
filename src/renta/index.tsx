@@ -392,7 +392,7 @@ const RentaTable = ({
                 onKeyDown: keyboard.handleContainerKeyDown,
             }}
             renderHeader={({ isExpanded }) => (
-                    <table className={T.table} style={{ tableLayout: 'fixed' }}>
+                    <table className={T.table}>
                         <tbody>
                             <tr>
                                 {anySelected ? (
@@ -497,7 +497,7 @@ const RentaTable = ({
                 </>
             )}
         >
-                <table className={T.table} style={{ tableLayout: 'fixed' }}>
+                <table className={T.table}>
                     <tbody>
                         {effectiveSections.map((section) => {
                             const items = getOrderedItems(rows, section.type)

@@ -32,7 +32,7 @@ function RecycleBin<T extends RecycleBinRow>({ deletedRows, getLabel, onRestore,
             </button>
 
             {expanded && (
-                <table className={T.table} style={{ tableLayout: 'fixed' }}>
+                <table className={T.table}>
                     <tbody>
                         {deletedRows.map(row => (
                             <tr key={row.id} className={`${T.rowBorder} opacity-75`}>

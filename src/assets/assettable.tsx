@@ -159,16 +159,17 @@ function AssetTable<T extends AssetRow>({
                         {resolvedColumns.map(col => {
                             // Default alignment: currency/number right-align (matching EditableCell default), text left-aligns
                             const effectiveAlign = col.align ?? (col.type === 'currency' || col.type === 'number' ? 'right' : 'left')
+                            const fit = (col.type === 'currency' || col.type === 'number') ? T.colFit : ''
                             return (
                             <th
                                 key={col.key}
-                                className={`${T.headerCell} ${effectiveAlign === 'right' ? 'text-right' : effectiveAlign === 'center' ? 'text-center' : 'text-left'} ${T.th} ${headerText}`}
-                                style={{ width: col.width }}
+                                className={`${T.headerCell} ${effectiveAlign === 'right' ? 'text-right' : effectiveAlign === 'center' ? 'text-center' : 'text-left'} ${T.th} ${headerText} ${fit}`}
+                                style={col.width ? { width: col.width } : undefined}
                             >
                                 {col === labelCol && title ? title : col.label}
                             </th>
                         )})}
-                        <th style={{ width: '40px' }}></th>
+                        <th className={T.colFit} style={{ width: '40px' }}></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -183,7 +184,7 @@ function AssetTable<T extends AssetRow>({
                                 {resolvedColumns.map(col => {
                                     if (col.isLabel) {
                                         return (
-                                            <td key={col.key} className={`${T.cellEdit} ${T.cellLabel}`} style={{ width: col.width }}>
+                                            <td key={col.key} className={`${T.cellEdit} ${T.cellLabel}`} style={col.width ? { width: col.width } : undefined}>
                                                 <div className="flex items-center gap-1 min-w-0">
                                                     <DeleteRowButton onClick={() => requestDelete(row.id)} isVisible={hovered} />
                                                     <input
@@ -198,13 +199,16 @@ function AssetTable<T extends AssetRow>({
                                         )
                                     }
                                     if (col.type === 'text') {
+                                        const isRight = col.align === 'right'
+                                        const textAlign = isRight ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
                                         return (
-                                            <td key={col.key} className={T.cellEdit} style={{ width: col.width }}>
+                                            <td key={col.key} className={T.cellEdit} style={col.width ? { width: col.width } : undefined}>
                                                 <input
                                                     type="text"
                                                     value={(row[col.key] as string) || ''}
                                                     onChange={e => updateField(row.id, col.key, e.target.value)}
-                                                    className={`w-full ${T.input} pl-1`}
+                                                    className={`w-full ${T.input} ${textAlign} pl-1`}
+                                                    style={isRight ? { padding: 0 } : undefined}
                                                     placeholder={col.placeholder || col.label}
                                                 />
                                             </td>
@@ -212,7 +216,7 @@ function AssetTable<T extends AssetRow>({
                                     }
                                     return renderEditableCell(row, col)
                                 })}
-                                <td style={{ width: '40px' }}></td>
+                                <td className={T.colFit} style={{ width: '40px' }}></td>
                             </tr>
                         )
                     })}
@@ -222,7 +226,7 @@ function AssetTable<T extends AssetRow>({
                         {resolvedColumns.map((col, i) => {
                             if (col.isLabel) {
                                 return (
-                                    <td key={col.key} className={T.cellEdit} style={{ width: col.width }}>
+                                    <td key={col.key} className={T.cellEdit} style={col.width ? { width: col.width } : undefined}>
                                         <input
                                             type="text"
                                             placeholder={addPlaceholder || `Agregar...`}
@@ -237,14 +241,17 @@ function AssetTable<T extends AssetRow>({
                                 )
                             }
                             if (col.type === 'text') {
+                                const isAddRight = col.align === 'right'
+                                const addTextAlign = isAddRight ? 'text-right' : col.align === 'center' ? 'text-center' : 'text-left'
                                 return (
-                                    <td key={col.key} className={T.cellEdit} style={{ width: col.width }}>
+                                    <td key={col.key} className={T.cellEdit} style={col.width ? { width: col.width } : undefined}>
                                         <input
                                             type="text"
                                             placeholder={col.placeholder || col.label}
                                             value={newRowValues[col.key] || ''}
                                             onChange={e => setNewRowValues(prev => ({ ...prev, [col.key]: e.target.value }))}
-                                            className={`w-full ${T.inputPlaceholder}`}
+                                            className={`w-full ${T.inputPlaceholder} ${addTextAlign}`}
+                                            style={isAddRight ? { padding: 0 } : undefined}
                                         />
                                     </td>
                                 )
@@ -262,7 +269,7 @@ function AssetTable<T extends AssetRow>({
                                 />
                             )
                         })}
-                        <td style={{ width: '40px' }}></td>
+                        <td className={T.colFit} style={{ width: '40px' }}></td>
                     </tr>
                 </tbody>
                 <tfoot>
@@ -290,7 +297,7 @@ function AssetTable<T extends AssetRow>({
                         {editableCols.map(col => {
                             const v = row[col.key] as number | null
                             return (
-                                <td key={col.key} className={`${T.totalCell} text-right tabular-nums`} style={{ width: col.width }}>
+                                <td key={col.key} className={`${T.totalCell} text-right tabular-nums`} style={col.width ? { width: col.width } : undefined}>
                                     <span className={`${T.totalValue} ${v != null ? 'text-gray-400' : 'text-gray-200'}`}>
                                         {v != null ? (col.type === 'number' ? String(v) : formatCurrency(v)) : '—'}
                                     </span>

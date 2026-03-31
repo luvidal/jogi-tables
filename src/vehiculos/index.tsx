@@ -3,10 +3,10 @@ import type { ColumnDef } from '../assets/types'
 import type { VehiculoRow, VehiculosTableProps } from './types'
 
 const columns: ColumnDef[] = [
-    { key: 'marca', label: 'Marca', type: 'text', width: '160px', isLabel: true, placeholder: 'Marca' },
-    { key: 'modelo', label: 'Modelo', type: 'text', width: '140px', placeholder: 'Modelo' },
-    { key: 'monto', label: 'Monto $', type: 'currency', width: '120px' },
-    { key: 'anio', label: 'Año', type: 'number', width: '80px', align: 'center' },
+    { key: 'marca', label: 'Marca', type: 'text', isLabel: true, placeholder: 'Marca' },
+    { key: 'modelo', label: 'Modelo', type: 'text', placeholder: 'Modelo' },
+    { key: 'monto', label: 'Monto $', type: 'currency' },
+    { key: 'anio', label: 'Año', type: 'number', align: 'center' },
 ]
 
 const VehiculosTable = ({

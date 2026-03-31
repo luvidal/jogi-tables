@@ -7,7 +7,7 @@ export interface ColumnDef {
     key: string
     label: string
     type: 'text' | 'currency' | 'number'
-    width: string
+    width?: string
     align?: 'left' | 'right' | 'center'
     placeholder?: string
     isLabel?: boolean

@@ -20,16 +20,16 @@ const PropiedadesTable = ({
     title,
 }: PropiedadesTableProps) => {
     const columns: ColumnDef[] = [
-        { key: 'direccion', label: 'Dirección', type: 'text', width: '140px', isLabel: true, placeholder: 'Dirección' },
-        { key: 'comuna', label: 'Comuna', type: 'text', width: '100px', placeholder: 'Comuna' },
+        { key: 'direccion', label: 'Dirección', type: 'text', isLabel: true, placeholder: 'Dirección' },
+        { key: 'comuna', label: 'Comuna', type: 'text', placeholder: 'Comuna' },
         {
-            key: 'valor_uf', label: 'Valor UF', type: 'number', width: '100px',
+            key: 'valor_uf', label: 'Valor UF', type: 'number',
             ufPair: 'valor_pesos',
             autoComputedClass: (row) => (ufValue && row.valor_uf != null && row.valor_pesos != null) ? 'italic text-amber-500' : '',
         },
-        { key: 'arriendo_real', label: 'Arr. Real $', type: 'currency', width: '100px' },
+        { key: 'arriendo_real', label: 'Arr. Real $', type: 'currency' },
         {
-            key: 'arriendo_futuro', label: 'Arr. Fut $', type: 'currency', width: '100px',
+            key: 'arriendo_futuro', label: 'Arr. Fut $', type: 'currency',
             autoComputedClass: (row) => (ufValue && row.valor_uf != null) ? 'italic text-amber-500' : '',
         },
     ]

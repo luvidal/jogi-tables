@@ -57,7 +57,7 @@ const EditableCell = ({
     isDeduction = false,
     hasData = true,
     className = '',
-    width = '100px',
+    width,
     align = 'right',
     placeholder = '',
     onViewSource,
@@ -193,8 +193,8 @@ const EditableCell = ({
 
     return (
         <Wrapper
-            className={`${T.cellEdit} cursor-pointer ${focusRing} ${className}`}
-            style={{ minWidth: width }}
+            className={`${T.cellEdit} ${T.colFit} cursor-pointer ${focusRing} ${className}`}
+            style={width ? { minWidth: width } : undefined}
             onClick={handleClick}
             onDoubleClick={handleDoubleClick}
             onMouseEnter={() => setIsHovered(true)}

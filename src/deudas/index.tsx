@@ -131,7 +131,7 @@ const DeudasTable = ({
 
     return (<>
         <div className="overflow-x-auto" onKeyDown={keyboard.handleContainerKeyDown} tabIndex={0}>
-            <table className={T.table} style={{ tableLayout: 'fixed' }}>
+            <table className={T.table}>
                 <thead>
                     <tr className={`${headerBg} border-t ${borderColor} ${headerText}`}>
                         {anySelected ? (
@@ -158,14 +158,14 @@ const DeudasTable = ({
                             </th>
                         ) : (
                             <>
-                                <th className={`${T.headerCell} text-left ${T.th} ${headerText}`} style={{ width: '160px' }}>Institución</th>
-                                <th className={`${T.headerCell} text-left ${T.th} ${headerText}`} style={{ width: '120px' }}>Tipo Deuda</th>
-                                <th className={`${T.headerCell} text-right ${T.th} ${headerText}`} style={{ width: '100px' }}>Saldo UF</th>
-                                <th className={`${T.headerCell} text-right ${T.th} ${headerText}`} style={{ width: '120px' }}>Saldo $</th>
-                                <th className={`${T.headerCell} text-right ${T.th} ${headerText}`} style={{ width: '110px' }}>Cuota $</th>
-                                <th className={`${T.headerCell} text-center ${T.th} ${headerText}`} style={{ width: '50px' }}>%</th>
-                                <th className={`${T.headerCell} text-center ${T.th} ${headerText}`} style={{ width: '90px' }}>Cuotas</th>
-                                <th style={{ width: '40px' }}></th>
+                                <th className={`${T.headerCell} text-left ${T.th} ${headerText}`}>Institución</th>
+                                <th className={`${T.headerCell} text-left ${T.th} ${headerText}`}>Tipo Deuda</th>
+                                <th className={`${T.headerCell} text-right ${T.th} ${headerText} ${T.colFit}`}>Saldo UF</th>
+                                <th className={`${T.headerCell} text-right ${T.th} ${headerText} ${T.colFit}`}>Saldo $</th>
+                                <th className={`${T.headerCell} text-right ${T.th} ${headerText} ${T.colFit}`}>Cuota $</th>
+                                <th className={`${T.headerCell} text-center ${T.th} ${headerText} ${T.colFit}`}>%</th>
+                                <th className={`${T.headerCell} text-center ${T.th} ${headerText} ${T.colFit}`}>Cuotas</th>
+                                <th className={T.colFit} style={{ width: '40px' }}></th>
                             </>
                         )}
                     </tr>
@@ -189,7 +189,7 @@ const DeudasTable = ({
                                 onDragLeave={drag.handleDragLeave}
                                 onDrop={drag.handleDrop(rows, onRowsChange)}
                             >
-                                <td className={`${T.cellEditLabel} ${T.cellLabel} relative`} style={{ width: '160px' }}>
+                                <td className={`${T.cellEditLabel} ${T.cellLabel} relative`}>
                                     <div className="flex items-center gap-0.5 min-w-0">
                                         {hovered && !anySelected && (
                                             <span
@@ -228,7 +228,7 @@ const DeudasTable = ({
                                         </button>
                                     )}
                                 </td>
-                                <td className={T.cellEdit} style={{ width: '120px' }}>
+                                <td className={T.cellEdit}>
                                     <input
                                         type="text"
                                         value={row.tipo_deuda}
@@ -264,7 +264,7 @@ const DeudasTable = ({
                                     requestClear={keyboard.isFocused(row.id, 1) ? keyboard.clearTrigger : 0}
                                     editInitialValue={keyboard.isFocused(row.id, 1) ? keyboard.editInitialValue : undefined}
                                 />
-                                <td className="relative" style={{ width: '110px' }}>
+                                <td className={`relative ${T.colFit}`}>
                                     <EditableCell
                                         value={row.monto_cuota}
                                         onChange={v => updateField(row.id, 'monto_cuota', v as number | null)}
@@ -300,7 +300,7 @@ const DeudasTable = ({
                                         </button>
                                     )}
                                 </td>
-                                <td className="text-center" style={{ width: '50px' }}>
+                                <td className={`text-center ${T.colFit}`}>
                                     {row.cuota_estimated ? (
                                         <EditableCell
                                             value={row.castigo_pct != null ? Math.round(row.castigo_pct * 100) : Math.round(castigo * 100)}
@@ -322,7 +322,7 @@ const DeudasTable = ({
                                         <span className="text-[11px] text-gray-300">—</span>
                                     )}
                                 </td>
-                                <td className="text-center text-xs text-gray-500" style={{ width: '90px' }}>
+                                <td className={`text-center text-xs text-gray-500 ${T.colFit}`}>
                                     <div className="flex items-center justify-center gap-0.5">
                                         <EditableCell
                                             value={row.cuotas_pagadas}
@@ -357,7 +357,7 @@ const DeudasTable = ({
                                         />
                                     </div>
                                 </td>
-                                <td style={{ width: '40px' }} className="text-center">
+                                <td className={`text-center ${T.colFit}`} style={{ width: '40px' }}>
                                     <DeleteRowButton onClick={() => requestDelete(row.id)} isVisible={hovered && !anySelected} />
                                 </td>
                             </tr>
@@ -366,7 +366,7 @@ const DeudasTable = ({
 
                     {/* Add row */}
                     <tr className={`border-b border-dashed ${borderColor.replace('200', '100')} ${headerBg}/20`}>
-                        <td className={T.cellEdit} style={{ width: '160px' }}>
+                        <td className={T.cellEdit}>
                             <input
                                 type="text"
                                 placeholder="Agregar deuda..."
@@ -376,7 +376,7 @@ const DeudasTable = ({
                                 onKeyDown={e => { if (e.key === 'Enter' && newRow.institucion.trim()) addRow() }}
                             />
                         </td>
-                        <td className={T.cellEdit} style={{ width: '120px' }}>
+                        <td className={T.cellEdit}>
                             <input
                                 type="text"
                                 placeholder="Tipo"
@@ -385,12 +385,12 @@ const DeudasTable = ({
                                 className={`w-full ${T.inputPlaceholder}`}
                             />
                         </td>
-                        <td style={{ width: '100px' }}></td>
-                        <td style={{ width: '120px' }}></td>
-                        <td style={{ width: '110px' }}></td>
-                        <td style={{ width: '50px' }}></td>
-                        <td style={{ width: '90px' }}></td>
-                        <td style={{ width: '40px' }}></td>
+                        <td className={T.colFit}></td>
+                        <td className={T.colFit}></td>
+                        <td className={T.colFit}></td>
+                        <td className={T.colFit}></td>
+                        <td className={T.colFit}></td>
+                        <td className={T.colFit} style={{ width: '40px' }}></td>
                     </tr>
                 </tbody>
                 <tfoot>
