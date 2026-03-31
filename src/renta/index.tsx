@@ -419,8 +419,8 @@ const RentaTable = ({
                                                 <SourceIcon fileIds={sourceFileIds} onViewSource={onViewSource} className={headerText} />
                                             </div>
                                         </td>
-                                        {showClassificationColumns && <><td className="text-center"><span className={`${headerText} text-[9px] font-semibold opacity-60`}>Tipo</span></td><td className="text-center"><span className={`${headerText} text-[9px] font-semibold opacity-60`}>Renta</span></td></>}
-                                        {showVariableColumn && !showClassificationColumns && <td />}
+                                        {showClassificationColumns && <><td className={`text-center ${T.vline}`}><span className={`${headerText} text-[9px] font-semibold opacity-60`}>Tipo</span></td><td className={`text-center ${T.vline}`}><span className={`${headerText} text-[9px] font-semibold opacity-60`}>Renta</span></td></>}
+                                        {showVariableColumn && !showClassificationColumns && <td className={T.vline} />}
                                         {monthsArray.map((p) => {
                                             const total = calculateTotal(p.id, rows)
                                             const hasValue = total !== 0
@@ -510,11 +510,11 @@ const RentaTable = ({
                                         const label = isSubtract ? 'Total descuentos' : 'Total haberes'
                                         return (
                                             <tr className={`border-b-2 ${isSubtract ? 'border-b-rose-200 bg-red-50/30' : 'border-b-emerald-200 bg-emerald-50/30'}`}>
-                                                <td className={`${T.totalCell} text-gray-700`}>
+                                                <td className={`${T.totalCell} text-gray-700 ${T.vline}`}>
                                                     <span className={`${T.totalLabel} ${isSubtract ? 'text-rose-700' : 'text-emerald-700'}`}>{label}</span>
                                                 </td>
-                                                {showClassificationColumns && <><td /><td /></>}
-                                                {showVariableColumn && !showClassificationColumns && <td />}
+                                                {showClassificationColumns && <><td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td><td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td></>}
+                                                {showVariableColumn && !showClassificationColumns && <td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td>}
                                                 {monthsArray.map(p => {
                                                     const value = subtotals[p.id] ?? 0
                                                     const hasValue = value !== 0
@@ -589,11 +589,11 @@ const RentaTable = ({
                                 <>
                                     {/* Renta Variable */}
                                     <tr className="border-t-2 border-t-gray-200 border-b border-gray-100 bg-amber-50/30">
-                                        <td className={T.totalCell}>
+                                        <td className={`${T.totalCell} ${T.vline}`}>
                                             <span className={`${T.totalLabel} text-amber-700`}>Renta Variable</span>
                                         </td>
-                                        {showClassificationColumns && <><td /><td /></>}
-                                        {showVariableColumn && !showClassificationColumns && <td />}
+                                        {showClassificationColumns && <><td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td><td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td></>}
+                                        {showVariableColumn && !showClassificationColumns && <td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td>}
                                         {monthsArray.map(p => {
                                             const rliq = reliquidacion?.[p.id]
                                             const value = rliq ? rliq.rentaVariable : (naiveVariable[p.id] ?? 0)
@@ -616,11 +616,11 @@ const RentaTable = ({
                                     </tr>
                                     {/* Renta Fija */}
                                     <tr className="border-b border-gray-200 bg-sky-50/30">
-                                        <td className={T.totalCell}>
+                                        <td className={`${T.totalCell} ${T.vline}`}>
                                             <span className={`${T.totalLabel} text-sky-700`}>Renta Fija</span>
                                         </td>
-                                        {showClassificationColumns && <><td /><td /></>}
-                                        {showVariableColumn && !showClassificationColumns && <td />}
+                                        {showClassificationColumns && <><td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td><td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td></>}
+                                        {showVariableColumn && !showClassificationColumns && <td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td>}
                                         {monthsArray.map(p => {
                                             const rliq = reliquidacion?.[p.id]
                                             const fija = rliq ? rliq.rentaFija : (calculateTotal(p.id, rows) - (naiveVariable[p.id] ?? 0))

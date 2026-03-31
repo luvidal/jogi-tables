@@ -54,6 +54,7 @@ var T = {
   /** Data row indent (child rows below subheaders) */
   cellIndent: "pl-6",
   muted: "text-xs text-gray-600",
+  empty: "text-xs text-gray-400 italic",
   cardLabel: "text-xs font-medium",
   cardValue: "text-xs font-semibold",
   // ── Row classes ──
@@ -759,10 +760,10 @@ var AddRow = ({
       }
     ) }),
     showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-      /* @__PURE__ */ jsxRuntime.jsx("td", { className: T.vline }),
-      /* @__PURE__ */ jsxRuntime.jsx("td", { className: T.vline })
+      /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.empty, children: "\u2014" }) }),
+      /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.empty, children: "\u2014" }) })
     ] }),
-    showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsx("td", { className: T.vline }),
+    showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.empty, children: "\u2014" }) }),
     months.map((p, mi) => /* @__PURE__ */ jsxRuntime.jsx(
       editablecell_default,
       {
@@ -849,10 +850,10 @@ var GroupRow = ({
           )
         ] }) }),
         showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntime.jsx("td", { className: T.vline }),
-          /* @__PURE__ */ jsxRuntime.jsx("td", { className: T.vline })
+          /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.empty, children: "\u2014" }) }),
+          /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.empty, children: "\u2014" }) })
         ] }),
-        showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsx("td", { className: T.vline }),
+        showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.empty, children: "\u2014" }) }),
         months.map((p, mi) => {
           const value = groupValues[p.id] ?? 0;
           const hasValue = value !== 0;
@@ -1757,10 +1758,10 @@ var RentaTable = ({
           /* @__PURE__ */ jsxRuntime.jsx(SourceIcon, { fileIds: sourceFileIds, onViewSource, className: headerText })
         ] }) }),
         showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntime.jsx("td", { className: "text-center", children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${headerText} text-[9px] font-semibold opacity-60`, children: "Tipo" }) }),
-          /* @__PURE__ */ jsxRuntime.jsx("td", { className: "text-center", children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${headerText} text-[9px] font-semibold opacity-60`, children: "Renta" }) })
+          /* @__PURE__ */ jsxRuntime.jsx("td", { className: `text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${headerText} text-[9px] font-semibold opacity-60`, children: "Tipo" }) }),
+          /* @__PURE__ */ jsxRuntime.jsx("td", { className: `text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${headerText} text-[9px] font-semibold opacity-60`, children: "Renta" }) })
         ] }),
-        showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsx("td", {}),
+        showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsx("td", { className: T.vline }),
         monthsArray.map((p) => {
           const total = calculateTotal(p.id, rows);
           const hasValue = total !== 0;
@@ -1826,12 +1827,12 @@ var RentaTable = ({
               const isSubtract = isSubtractType(section.type);
               const label = isSubtract ? "Total descuentos" : "Total haberes";
               return /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: `border-b-2 ${isSubtract ? "border-b-rose-200 bg-red-50/30" : "border-b-emerald-200 bg-emerald-50/30"}`, children: [
-                /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.totalCell} text-gray-700`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalLabel} ${isSubtract ? "text-rose-700" : "text-emerald-700"}`, children: label }) }),
+                /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.totalCell} text-gray-700 ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalLabel} ${isSubtract ? "text-rose-700" : "text-emerald-700"}`, children: label }) }),
                 showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-                  /* @__PURE__ */ jsxRuntime.jsx("td", {}),
-                  /* @__PURE__ */ jsxRuntime.jsx("td", {})
+                  /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.empty, children: "\u2014" }) }),
+                  /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.empty, children: "\u2014" }) })
                 ] }),
-                showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsx("td", {}),
+                showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.empty, children: "\u2014" }) }),
                 monthsArray.map((p) => {
                   const value = subtotals[p.id] ?? 0;
                   const hasValue = value !== 0;
@@ -1895,12 +1896,12 @@ var RentaTable = ({
           const fmtSigned = (v) => v < 0 ? `-${formatValue(-v)}` : formatValue(v);
           return /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
             /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-t-2 border-t-gray-200 border-b border-gray-100 bg-amber-50/30", children: [
-              /* @__PURE__ */ jsxRuntime.jsx("td", { className: T.totalCell, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalLabel} text-amber-700`, children: "Renta Variable" }) }),
+              /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.totalCell} ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalLabel} text-amber-700`, children: "Renta Variable" }) }),
               showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-                /* @__PURE__ */ jsxRuntime.jsx("td", {}),
-                /* @__PURE__ */ jsxRuntime.jsx("td", {})
+                /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.empty, children: "\u2014" }) }),
+                /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.empty, children: "\u2014" }) })
               ] }),
-              showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsx("td", {}),
+              showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.empty, children: "\u2014" }) }),
               monthsArray.map((p) => {
                 const rliq = reliquidacion?.[p.id];
                 const value = rliq ? rliq.rentaVariable : naiveVariable[p.id] ?? 0;
@@ -1916,12 +1917,12 @@ var RentaTable = ({
               /* @__PURE__ */ jsxRuntime.jsx("td", {})
             ] }),
             /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "border-b border-gray-200 bg-sky-50/30", children: [
-              /* @__PURE__ */ jsxRuntime.jsx("td", { className: T.totalCell, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalLabel} text-sky-700`, children: "Renta Fija" }) }),
+              /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.totalCell} ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalLabel} text-sky-700`, children: "Renta Fija" }) }),
               showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-                /* @__PURE__ */ jsxRuntime.jsx("td", {}),
-                /* @__PURE__ */ jsxRuntime.jsx("td", {})
+                /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.empty, children: "\u2014" }) }),
+                /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.empty, children: "\u2014" }) })
               ] }),
-              showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsx("td", {}),
+              showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: T.empty, children: "\u2014" }) }),
               monthsArray.map((p) => {
                 const rliq = reliquidacion?.[p.id];
                 const fija = rliq ? rliq.rentaFija : calculateTotal(p.id, rows) - (naiveVariable[p.id] ?? 0);
