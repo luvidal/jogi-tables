@@ -1831,21 +1831,21 @@ var RentaTable = ({
                   const subtotals = computeSectionSubtotal(rows, section.type, monthsArray);
                   const isSubtract = isSubtractType(section.type);
                   const label = isSubtract ? "Total descuentos" : "Total haberes";
-                  return /* @__PURE__ */ jsxs("tr", { className: `border-b border-gray-200 ${isSubtract ? "bg-red-50/30" : "bg-emerald-50/30"}`, children: [
-                    /* @__PURE__ */ jsx("td", { className: `${T.totalCell} border-t-2 border-t-gray-200 ${showClassificationColumns ? "" : T.vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.footerLabel} text-xs`, children: label }) }),
+                  return /* @__PURE__ */ jsxs("tr", { className: `${isSubtract ? "bg-red-50/30" : "bg-emerald-50/30"}`, children: [
+                    /* @__PURE__ */ jsx("td", { className: `${T.totalCell} border-b border-b-gray-200 ${showClassificationColumns ? "" : T.vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.footerLabel} text-xs`, children: label }) }),
                     showClassificationColumns && /* @__PURE__ */ jsxs(Fragment, { children: [
-                      /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} border-t-2 border-t-gray-200` }),
-                      /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} border-t-2 border-t-gray-200 ${T.vline}` })
+                      /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} border-b border-b-gray-200` }),
+                      /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} border-b border-b-gray-200 ${T.vline}` })
                     ] }),
-                    showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} border-t-2 border-t-gray-200 ${T.vline}` }),
+                    showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} border-b border-b-gray-200 ${T.vline}` }),
                     monthsArray.map((p, mi) => {
                       const value = subtotals[p.id] ?? 0;
                       const hasValue = value !== 0;
                       const display = isSubtract ? `-${formatValue(value)}` : formatValue(value);
                       const vline = mi < monthsArray.length - 1 ? T.vline : "";
-                      return /* @__PURE__ */ jsx("td", { className: `${T.totalCell} text-right border-t-2 border-t-gray-200 ${vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.footerValue} text-xs tabular-nums ${hasValue ? "" : "text-gray-300"}`, children: hasValue ? display : "\u2014" }) }, p.id);
+                      return /* @__PURE__ */ jsx("td", { className: `${T.totalCell} text-right border-b border-b-gray-200 ${vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.footerValue} text-xs tabular-nums ${hasValue ? "" : "text-gray-300"}`, children: hasValue ? display : "\u2014" }) }, p.id);
                     }),
-                    /* @__PURE__ */ jsx("td", { className: `${T.actionCol} border-t-2 border-t-gray-200` })
+                    /* @__PURE__ */ jsx("td", { className: `${T.actionCol} border-b border-b-gray-200` })
                   ] });
                 })()
               ] }, section.type);
@@ -1855,18 +1855,18 @@ var RentaTable = ({
               const fmtSigned = (v) => v < 0 ? `-${formatValue(-v)}` : formatValue(v);
               return /* @__PURE__ */ jsxs(Fragment, { children: [
                 /* @__PURE__ */ jsxs("tr", { className: "border-b border-gray-100 bg-amber-50/30 group/rv", children: [
-                  /* @__PURE__ */ jsx("td", { className: `${T.totalCell} border-t-2 border-t-gray-200 ${showClassificationColumns ? "" : T.vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.totalLabel} text-amber-700`, children: "Renta Variable" }) }),
+                  /* @__PURE__ */ jsx("td", { className: `${T.totalCell} border-t border-t-gray-200 ${showClassificationColumns ? "" : T.vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.totalLabel} text-amber-700`, children: "Renta Variable" }) }),
                   showClassificationColumns && /* @__PURE__ */ jsxs(Fragment, { children: [
-                    /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} border-t-2 border-t-gray-200` }),
-                    /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} border-t-2 border-t-gray-200 ${T.vline}` })
+                    /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} border-t border-t-gray-200` }),
+                    /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} border-t border-t-gray-200 ${T.vline}` })
                   ] }),
-                  showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center border-t-2 border-t-gray-200 ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) }),
+                  showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center border-t border-t-gray-200 ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) }),
                   monthsArray.map((p, mi) => {
                     const rliq = reliquidacion?.[p.id];
                     const value = rliq ? rliq.rentaVariable : naiveVariable[p.id] ?? 0;
                     const hasValue = value !== 0;
                     const vline = mi < monthsArray.length - 1 ? T.vline : "";
-                    return /* @__PURE__ */ jsxs("td", { className: `${T.totalCell} text-right relative border-t-2 border-t-gray-200 ${vline}`, children: [
+                    return /* @__PURE__ */ jsxs("td", { className: `${T.totalCell} text-right relative border-t border-t-gray-200 ${vline}`, children: [
                       rliq && hasValue && /* @__PURE__ */ jsxs("span", { className: "group/reliq absolute cursor-help opacity-0 group-hover/rv:opacity-100 transition-opacity", style: { top: "9px", left: "12px" }, children: [
                         /* @__PURE__ */ jsx(Info, { size: 14, className: "text-gray-400 hover:text-gray-600 p-0.5 rounded hover:bg-gray-200" }),
                         /* @__PURE__ */ jsx(ReliqInfoTooltip, { data: rliq, type: "variable" })
@@ -1874,7 +1874,7 @@ var RentaTable = ({
                       /* @__PURE__ */ jsx("span", { className: `${T.totalValue} tabular-nums ${hasValue ? "text-amber-700" : "text-gray-300"}`, children: hasValue ? fmtSigned(value) : "\u2014" })
                     ] }, p.id);
                   }),
-                  /* @__PURE__ */ jsx("td", { className: `${T.actionCol} border-t-2 border-t-gray-200` })
+                  /* @__PURE__ */ jsx("td", { className: `${T.actionCol} border-t border-t-gray-200` })
                 ] }),
                 /* @__PURE__ */ jsxs("tr", { className: "border-b border-gray-200 bg-sky-50/30 group/rf", children: [
                   /* @__PURE__ */ jsx("td", { className: `${T.totalCell} ${showClassificationColumns ? "" : T.vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.totalLabel} text-sky-700`, children: "Renta Fija" }) }),
