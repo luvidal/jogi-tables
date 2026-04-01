@@ -13,6 +13,7 @@ import { useDragReorder } from '../common/usedragreorder'
 import DeleteDialog from '../common/deletedialog'
 import DeleteRowButton from '../common/deletebutton'
 import RecycleBin from '../common/recyclebin'
+import ClickableHeader from '../common/clickableheader'
 import { useRowHover } from '../common/userowhover'
 import type { DeudaRow, DeudasTableProps } from './types'
 
@@ -33,9 +34,10 @@ const DeudasTable = ({
     const { getHoverProps, isHovered: isRowHovered } = useRowHover()
     const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set())
     const [newRow, setNewRow] = useState({ institucion: '', tipo_deuda: '' })
+    const [showUF, setShowUF] = useState(false)
     const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange)
     const visibleRowIds = useMemo(() => activeRows.map(r => r.id), [activeRows])
-    const keyboard = useGridKeyboard({ visibleRowIds, colCount: 6 })
+    const keyboard = useGridKeyboard({ visibleRowIds, colCount: 5 })
     const drag = useDragReorder()
 
     const anySelected = selectedRows.size > 0
@@ -115,7 +117,13 @@ const DeudasTable = ({
     }
 
     const totalSaldoPesos = activeRows.reduce((s, r) => s + (r.saldo_deuda_pesos || 0), 0)
+    const totalSaldoUF = activeRows.reduce((s, r) => s + (r.saldo_deuda_uf || 0), 0)
     const totalMontoCuota = activeRows.reduce((s, r) => s + (r.monto_cuota || 0), 0)
+
+    const canToggleSaldo = ufValue != null
+    const saldoKey = showUF ? 'saldo_deuda_uf' : 'saldo_deuda_pesos'
+    const saldoLabel = showUF ? 'Saldo UF' : 'Saldo $'
+    const saldoType = showUF ? 'number' : 'currency'
 
     const isAutoComputed = (row: DeudaRow, field: string): boolean => {
         if (field === 'saldo_deuda_pesos' && row.saldo_deuda_uf != null && ufValue) return true
@@ -137,7 +145,7 @@ const DeudasTable = ({
                 headerClassName={`border-t ${borderColor} ${headerText}`}
                 renderHeader={() => (
                     anySelected ? (
-                        <th colSpan={8} className={`${T.headerCell} text-left`} onClick={e => e.stopPropagation()}>
+                        <th colSpan={7} className={`${T.headerCell} text-left`} onClick={e => e.stopPropagation()}>
                             <div className="flex items-center gap-2">
                                 <span className="text-xs text-rose-600">
                                     {selectedRows.size} fila{selectedRows.size !== 1 ? 's' : ''}
@@ -162,8 +170,13 @@ const DeudasTable = ({
                         <>
                             <th className={`${T.headerCell} text-left ${T.th} ${headerText} ${T.vline}`}>Institución</th>
                             <th className={`${T.headerCell} text-left ${T.th} ${headerText} ${T.vline}`}>Tipo Deuda</th>
-                            <th className={`${T.headerCell} text-right ${T.th} ${headerText} ${T.vline}`}>Saldo UF</th>
-                            <th className={`${T.headerCell} text-right ${T.th} ${headerText} ${T.vline}`}>Saldo $</th>
+                            <th className={`${T.headerCell} text-right ${T.th} ${headerText} ${T.vline}`}>
+                                {canToggleSaldo ? (
+                                    <ClickableHeader onClick={() => setShowUF(prev => !prev)} borderColor={borderColor}>
+                                        {saldoLabel}
+                                    </ClickableHeader>
+                                ) : saldoLabel}
+                            </th>
                             <th className={`${T.headerCell} text-right ${T.th} ${headerText} ${T.vline}`}>Cuota $</th>
                             <th className={`${T.headerCell} text-center ${T.th} ${headerText} ${T.vline}`}>%</th>
                             <th className={`${T.headerCell} text-center ${T.th} ${headerText}`}>Cuotas</th>
@@ -173,12 +186,14 @@ const DeudasTable = ({
                 )}
                 renderFooter={() => (
                     <tr className="font-semibold text-xs">
-                        <td colSpan={3} className={`${T.totalCell} ${T.totalLabel} border-t border-gray-200`}>TOTAL</td>
+                        <td colSpan={2} className={`${T.totalCell} ${T.totalLabel} border-t border-gray-200`}>TOTAL</td>
                         <td className={`${T.totalCell} text-right ${T.totalValue} border-t border-gray-200`}>
-                            {totalSaldoPesos ? formatCurrency(totalSaldoPesos) : '—'}
+                            {showUF
+                                ? (totalSaldoUF ? totalSaldoUF.toLocaleString('es-CL', { maximumFractionDigits: 2 }) : '')
+                                : (totalSaldoPesos ? formatCurrency(totalSaldoPesos) : '')}
                         </td>
                         <td className={`${T.totalCell} text-right ${T.totalValue} border-t border-gray-200`}>
-                            {totalMontoCuota ? formatCurrency(totalMontoCuota) : '—'}
+                            {totalMontoCuota ? formatCurrency(totalMontoCuota) : ''}
                         </td>
                         <td colSpan={3} className="border-t border-gray-200"></td>
                     </tr>
@@ -250,30 +265,17 @@ const DeudasTable = ({
                                 />
                             </td>
                             <EditableCell
-                                value={row.saldo_deuda_uf}
-                                onChange={v => updateField(row.id, 'saldo_deuda_uf', v as number | null)}
-                                type="number"
-                                hasData={row.saldo_deuda_uf !== null}
-                                className={T.vline}
+                                value={row[saldoKey] as number | null}
+                                onChange={v => updateField(row.id, saldoKey, v as number | null)}
+                                type={saldoType as 'currency' | 'number'}
+                                hasData={row[saldoKey] !== null}
+                                className={`${T.vline} ${!showUF && isAutoComputed(row, 'saldo_deuda_pesos') ? 'text-rose-400' : ''}`}
                                 focused={keyboard.isFocused(row.id, 0)}
                                 onCellFocus={() => keyboard.focus(row.id, 0)}
                                 onNavigate={keyboard.navigate}
                                 requestEdit={keyboard.isFocused(row.id, 0) ? keyboard.editTrigger : 0}
                                 requestClear={keyboard.isFocused(row.id, 0) ? keyboard.clearTrigger : 0}
                                 editInitialValue={keyboard.isFocused(row.id, 0) ? keyboard.editInitialValue : undefined}
-                            />
-                            <EditableCell
-                                value={row.saldo_deuda_pesos}
-                                onChange={v => updateField(row.id, 'saldo_deuda_pesos', v as number | null)}
-                                type="currency"
-                                hasData={row.saldo_deuda_pesos !== null}
-                                className={`${T.vline} ${isAutoComputed(row, 'saldo_deuda_pesos') ? 'text-rose-400' : ''}`}
-                                focused={keyboard.isFocused(row.id, 1)}
-                                onCellFocus={() => keyboard.focus(row.id, 1)}
-                                onNavigate={keyboard.navigate}
-                                requestEdit={keyboard.isFocused(row.id, 1) ? keyboard.editTrigger : 0}
-                                requestClear={keyboard.isFocused(row.id, 1) ? keyboard.clearTrigger : 0}
-                                editInitialValue={keyboard.isFocused(row.id, 1) ? keyboard.editInitialValue : undefined}
                             />
                             <td className={`relative ${T.vline}`}>
                                 <EditableCell
@@ -282,12 +284,12 @@ const DeudasTable = ({
                                     type="currency"
                                     hasData={row.monto_cuota !== null}
                                     className={cuotaClassName(row)}
-                                    focused={keyboard.isFocused(row.id, 2)}
-                                    onCellFocus={() => keyboard.focus(row.id, 2)}
+                                    focused={keyboard.isFocused(row.id, 1)}
+                                    onCellFocus={() => keyboard.focus(row.id, 1)}
                                     onNavigate={keyboard.navigate}
-                                    requestEdit={keyboard.isFocused(row.id, 2) ? keyboard.editTrigger : 0}
-                                    requestClear={keyboard.isFocused(row.id, 2) ? keyboard.clearTrigger : 0}
-                                    editInitialValue={keyboard.isFocused(row.id, 2) ? keyboard.editInitialValue : undefined}
+                                    requestEdit={keyboard.isFocused(row.id, 1) ? keyboard.editTrigger : 0}
+                                    requestClear={keyboard.isFocused(row.id, 1) ? keyboard.clearTrigger : 0}
+                                    editInitialValue={keyboard.isFocused(row.id, 1) ? keyboard.editInitialValue : undefined}
                                     asDiv
                                 />
                                 {row.cuota_estimated && row.saldo_deuda_pesos != null && !row.castigo_pct && (
@@ -320,12 +322,12 @@ const DeudasTable = ({
                                         align="center"
                                         className="bg-blue-50/50 rounded !py-0.5 !px-1.5 [&>div]:h-4 text-[11px]"
                                         asDiv
-                                        focused={keyboard.isFocused(row.id, 3)}
-                                        onCellFocus={() => keyboard.focus(row.id, 3)}
+                                        focused={keyboard.isFocused(row.id, 2)}
+                                        onCellFocus={() => keyboard.focus(row.id, 2)}
                                         onNavigate={keyboard.navigate}
-                                        requestEdit={keyboard.isFocused(row.id, 3) ? keyboard.editTrigger : 0}
-                                        requestClear={keyboard.isFocused(row.id, 3) ? keyboard.clearTrigger : 0}
-                                        editInitialValue={keyboard.isFocused(row.id, 3) ? keyboard.editInitialValue : undefined}
+                                        requestEdit={keyboard.isFocused(row.id, 2) ? keyboard.editTrigger : 0}
+                                        requestClear={keyboard.isFocused(row.id, 2) ? keyboard.clearTrigger : 0}
+                                        editInitialValue={keyboard.isFocused(row.id, 2) ? keyboard.editInitialValue : undefined}
                                     />
                                 ) : (
                                     <span className="text-[11px] text-gray-300">—</span>
@@ -340,12 +342,12 @@ const DeudasTable = ({
                                         hasData={row.cuotas_pagadas !== null}
                                         align="center"
                                         asDiv
-                                        focused={keyboard.isFocused(row.id, 4)}
-                                        onCellFocus={() => keyboard.focus(row.id, 4)}
+                                        focused={keyboard.isFocused(row.id, 3)}
+                                        onCellFocus={() => keyboard.focus(row.id, 3)}
                                         onNavigate={keyboard.navigate}
-                                        requestEdit={keyboard.isFocused(row.id, 4) ? keyboard.editTrigger : 0}
-                                        requestClear={keyboard.isFocused(row.id, 4) ? keyboard.clearTrigger : 0}
-                                        editInitialValue={keyboard.isFocused(row.id, 4) ? keyboard.editInitialValue : undefined}
+                                        requestEdit={keyboard.isFocused(row.id, 3) ? keyboard.editTrigger : 0}
+                                        requestClear={keyboard.isFocused(row.id, 3) ? keyboard.clearTrigger : 0}
+                                        editInitialValue={keyboard.isFocused(row.id, 3) ? keyboard.editInitialValue : undefined}
                                     />
                                     <span className="text-gray-400">/</span>
                                     <EditableCell
@@ -355,12 +357,12 @@ const DeudasTable = ({
                                         hasData={row.cuotas_total !== null}
                                         align="center"
                                         asDiv
-                                        focused={keyboard.isFocused(row.id, 5)}
-                                        onCellFocus={() => keyboard.focus(row.id, 5)}
+                                        focused={keyboard.isFocused(row.id, 4)}
+                                        onCellFocus={() => keyboard.focus(row.id, 4)}
                                         onNavigate={keyboard.navigate}
-                                        requestEdit={keyboard.isFocused(row.id, 5) ? keyboard.editTrigger : 0}
-                                        requestClear={keyboard.isFocused(row.id, 5) ? keyboard.clearTrigger : 0}
-                                        editInitialValue={keyboard.isFocused(row.id, 5) ? keyboard.editInitialValue : undefined}
+                                        requestEdit={keyboard.isFocused(row.id, 4) ? keyboard.editTrigger : 0}
+                                        requestClear={keyboard.isFocused(row.id, 4) ? keyboard.clearTrigger : 0}
+                                        editInitialValue={keyboard.isFocused(row.id, 4) ? keyboard.editInitialValue : undefined}
                                     />
                                 </div>
                             </td>
@@ -392,7 +394,6 @@ const DeudasTable = ({
                             className={`w-full ${T.inputPlaceholder}`}
                         />
                     </td>
-                    <td className={T.vline}></td>
                     <td className={T.vline}></td>
                     <td className={T.vline}></td>
                     <td className={T.vline}></td>

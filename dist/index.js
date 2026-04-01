@@ -2025,6 +2025,18 @@ var useDragReorder2 = () => {
     handleDragEnd
   };
 };
+var ClickableHeader = ({ onClick, borderColor, className, children }) => /* @__PURE__ */ jsxRuntime.jsx(
+  "span",
+  {
+    className: `whitespace-nowrap ${onClick ? `cursor-pointer select-none inline-flex items-center rounded-full border ${borderColor || "border-gray-300"} px-2 py-0.5 -mx-2 -my-0.5 transition-colors` : ""} ${className || ""}`,
+    onClick: onClick ? (e) => {
+      e.stopPropagation();
+      onClick();
+    } : void 0,
+    children
+  }
+);
+var clickableheader_default = ClickableHeader;
 var LINEAS_TC_PATTERN = /l[ií]nea|tarjeta|tc/i;
 var DeudasTable = ({
   rows,
@@ -2041,9 +2053,10 @@ var DeudasTable = ({
   const { getHoverProps, isHovered: isRowHovered } = useRowHover();
   const [selectedRows, setSelectedRows] = React3.useState(/* @__PURE__ */ new Set());
   const [newRow, setNewRow] = React3.useState({ institucion: "", tipo_deuda: "" });
+  const [showUF, setShowUF] = React3.useState(false);
   const { activeRows, deletedRows, deleteTargetId, requestDelete, confirmDelete, cancelDelete, restoreRow } = useSoftDelete(rows, onRowsChange);
   const visibleRowIds = React3.useMemo(() => activeRows.map((r) => r.id), [activeRows]);
-  const keyboard = useGridKeyboard({ visibleRowIds, colCount: 6 });
+  const keyboard = useGridKeyboard({ visibleRowIds, colCount: 5 });
   const drag = useDragReorder2();
   const anySelected = selectedRows.size > 0;
   const toggleSelect = React3.useCallback((rowId) => {
@@ -2109,7 +2122,12 @@ var DeudasTable = ({
     onRowsChange([...rows, row]);
   };
   const totalSaldoPesos = activeRows.reduce((s, r) => s + (r.saldo_deuda_pesos || 0), 0);
+  const totalSaldoUF = activeRows.reduce((s, r) => s + (r.saldo_deuda_uf || 0), 0);
   const totalMontoCuota = activeRows.reduce((s, r) => s + (r.monto_cuota || 0), 0);
+  const canToggleSaldo = ufValue != null;
+  const saldoKey = showUF ? "saldo_deuda_uf" : "saldo_deuda_pesos";
+  const saldoLabel = showUF ? "Saldo UF" : "Saldo $";
+  const saldoType = showUF ? "number" : "currency";
   const isAutoComputed = (row, field) => {
     if (field === "saldo_deuda_pesos" && row.saldo_deuda_uf != null && ufValue) return true;
     if (field === "monto_cuota" && LINEAS_TC_PATTERN.test(row.tipo_deuda) && row.saldo_deuda_pesos != null) return true;
@@ -2126,7 +2144,7 @@ var DeudasTable = ({
       {
         colorScheme: colorSchemeProp,
         headerClassName: `border-t ${borderColor} ${headerText}`,
-        renderHeader: () => anySelected ? /* @__PURE__ */ jsxRuntime.jsx("th", { colSpan: 8, className: `${T.headerCell} text-left`, onClick: (e) => e.stopPropagation(), children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-2", children: [
+        renderHeader: () => anySelected ? /* @__PURE__ */ jsxRuntime.jsx("th", { colSpan: 7, className: `${T.headerCell} text-left`, onClick: (e) => e.stopPropagation(), children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-2", children: [
           /* @__PURE__ */ jsxRuntime.jsxs("span", { className: "text-xs text-rose-600", children: [
             selectedRows.size,
             " fila",
@@ -2155,17 +2173,16 @@ var DeudasTable = ({
         ] }) }) : /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
           /* @__PURE__ */ jsxRuntime.jsx("th", { className: `${T.headerCell} text-left ${T.th} ${headerText} ${T.vline}`, children: "Instituci\xF3n" }),
           /* @__PURE__ */ jsxRuntime.jsx("th", { className: `${T.headerCell} text-left ${T.th} ${headerText} ${T.vline}`, children: "Tipo Deuda" }),
-          /* @__PURE__ */ jsxRuntime.jsx("th", { className: `${T.headerCell} text-right ${T.th} ${headerText} ${T.vline}`, children: "Saldo UF" }),
-          /* @__PURE__ */ jsxRuntime.jsx("th", { className: `${T.headerCell} text-right ${T.th} ${headerText} ${T.vline}`, children: "Saldo $" }),
+          /* @__PURE__ */ jsxRuntime.jsx("th", { className: `${T.headerCell} text-right ${T.th} ${headerText} ${T.vline}`, children: canToggleSaldo ? /* @__PURE__ */ jsxRuntime.jsx(clickableheader_default, { onClick: () => setShowUF((prev) => !prev), borderColor, children: saldoLabel }) : saldoLabel }),
           /* @__PURE__ */ jsxRuntime.jsx("th", { className: `${T.headerCell} text-right ${T.th} ${headerText} ${T.vline}`, children: "Cuota $" }),
           /* @__PURE__ */ jsxRuntime.jsx("th", { className: `${T.headerCell} text-center ${T.th} ${headerText} ${T.vline}`, children: "%" }),
           /* @__PURE__ */ jsxRuntime.jsx("th", { className: `${T.headerCell} text-center ${T.th} ${headerText}`, children: "Cuotas" }),
           /* @__PURE__ */ jsxRuntime.jsx("th", { className: T.actionCol })
         ] }),
         renderFooter: () => /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "font-semibold text-xs", children: [
-          /* @__PURE__ */ jsxRuntime.jsx("td", { colSpan: 3, className: `${T.totalCell} ${T.totalLabel} border-t border-gray-200`, children: "TOTAL" }),
-          /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.totalCell} text-right ${T.totalValue} border-t border-gray-200`, children: totalSaldoPesos ? formatCurrency(totalSaldoPesos) : "\u2014" }),
-          /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.totalCell} text-right ${T.totalValue} border-t border-gray-200`, children: totalMontoCuota ? formatCurrency(totalMontoCuota) : "\u2014" }),
+          /* @__PURE__ */ jsxRuntime.jsx("td", { colSpan: 2, className: `${T.totalCell} ${T.totalLabel} border-t border-gray-200`, children: "TOTAL" }),
+          /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.totalCell} text-right ${T.totalValue} border-t border-gray-200`, children: showUF ? totalSaldoUF ? totalSaldoUF.toLocaleString("es-CL", { maximumFractionDigits: 2 }) : "" : totalSaldoPesos ? formatCurrency(totalSaldoPesos) : "" }),
+          /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.totalCell} text-right ${T.totalValue} border-t border-gray-200`, children: totalMontoCuota ? formatCurrency(totalMontoCuota) : "" }),
           /* @__PURE__ */ jsxRuntime.jsx("td", { colSpan: 3, className: "border-t border-gray-200" })
         ] }),
         renderAfterContent: () => /* @__PURE__ */ jsxRuntime.jsx(recyclebin_default, { deletedRows, getLabel: (r) => r.institucion, onRestore: restoreRow }),
@@ -2242,33 +2259,17 @@ var DeudasTable = ({
                   /* @__PURE__ */ jsxRuntime.jsx(
                     editablecell_default,
                     {
-                      value: row.saldo_deuda_uf,
-                      onChange: (v) => updateField(row.id, "saldo_deuda_uf", v),
-                      type: "number",
-                      hasData: row.saldo_deuda_uf !== null,
-                      className: T.vline,
+                      value: row[saldoKey],
+                      onChange: (v) => updateField(row.id, saldoKey, v),
+                      type: saldoType,
+                      hasData: row[saldoKey] !== null,
+                      className: `${T.vline} ${!showUF && isAutoComputed(row, "saldo_deuda_pesos") ? "text-rose-400" : ""}`,
                       focused: keyboard.isFocused(row.id, 0),
                       onCellFocus: () => keyboard.focus(row.id, 0),
                       onNavigate: keyboard.navigate,
                       requestEdit: keyboard.isFocused(row.id, 0) ? keyboard.editTrigger : 0,
                       requestClear: keyboard.isFocused(row.id, 0) ? keyboard.clearTrigger : 0,
                       editInitialValue: keyboard.isFocused(row.id, 0) ? keyboard.editInitialValue : void 0
-                    }
-                  ),
-                  /* @__PURE__ */ jsxRuntime.jsx(
-                    editablecell_default,
-                    {
-                      value: row.saldo_deuda_pesos,
-                      onChange: (v) => updateField(row.id, "saldo_deuda_pesos", v),
-                      type: "currency",
-                      hasData: row.saldo_deuda_pesos !== null,
-                      className: `${T.vline} ${isAutoComputed(row, "saldo_deuda_pesos") ? "text-rose-400" : ""}`,
-                      focused: keyboard.isFocused(row.id, 1),
-                      onCellFocus: () => keyboard.focus(row.id, 1),
-                      onNavigate: keyboard.navigate,
-                      requestEdit: keyboard.isFocused(row.id, 1) ? keyboard.editTrigger : 0,
-                      requestClear: keyboard.isFocused(row.id, 1) ? keyboard.clearTrigger : 0,
-                      editInitialValue: keyboard.isFocused(row.id, 1) ? keyboard.editInitialValue : void 0
                     }
                   ),
                   /* @__PURE__ */ jsxRuntime.jsxs("td", { className: `relative ${T.vline}`, children: [
@@ -2280,12 +2281,12 @@ var DeudasTable = ({
                         type: "currency",
                         hasData: row.monto_cuota !== null,
                         className: cuotaClassName(row),
-                        focused: keyboard.isFocused(row.id, 2),
-                        onCellFocus: () => keyboard.focus(row.id, 2),
+                        focused: keyboard.isFocused(row.id, 1),
+                        onCellFocus: () => keyboard.focus(row.id, 1),
                         onNavigate: keyboard.navigate,
-                        requestEdit: keyboard.isFocused(row.id, 2) ? keyboard.editTrigger : 0,
-                        requestClear: keyboard.isFocused(row.id, 2) ? keyboard.clearTrigger : 0,
-                        editInitialValue: keyboard.isFocused(row.id, 2) ? keyboard.editInitialValue : void 0,
+                        requestEdit: keyboard.isFocused(row.id, 1) ? keyboard.editTrigger : 0,
+                        requestClear: keyboard.isFocused(row.id, 1) ? keyboard.clearTrigger : 0,
+                        editInitialValue: keyboard.isFocused(row.id, 1) ? keyboard.editInitialValue : void 0,
                         asDiv: true
                       }
                     ),
@@ -2318,12 +2319,12 @@ var DeudasTable = ({
                       align: "center",
                       className: "bg-blue-50/50 rounded !py-0.5 !px-1.5 [&>div]:h-4 text-[11px]",
                       asDiv: true,
-                      focused: keyboard.isFocused(row.id, 3),
-                      onCellFocus: () => keyboard.focus(row.id, 3),
+                      focused: keyboard.isFocused(row.id, 2),
+                      onCellFocus: () => keyboard.focus(row.id, 2),
                       onNavigate: keyboard.navigate,
-                      requestEdit: keyboard.isFocused(row.id, 3) ? keyboard.editTrigger : 0,
-                      requestClear: keyboard.isFocused(row.id, 3) ? keyboard.clearTrigger : 0,
-                      editInitialValue: keyboard.isFocused(row.id, 3) ? keyboard.editInitialValue : void 0
+                      requestEdit: keyboard.isFocused(row.id, 2) ? keyboard.editTrigger : 0,
+                      requestClear: keyboard.isFocused(row.id, 2) ? keyboard.clearTrigger : 0,
+                      editInitialValue: keyboard.isFocused(row.id, 2) ? keyboard.editInitialValue : void 0
                     }
                   ) : /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-[11px] text-gray-300", children: "\u2014" }) }),
                   /* @__PURE__ */ jsxRuntime.jsx("td", { className: "text-center text-xs text-gray-500", children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center justify-center gap-0.5", children: [
@@ -2336,12 +2337,12 @@ var DeudasTable = ({
                         hasData: row.cuotas_pagadas !== null,
                         align: "center",
                         asDiv: true,
-                        focused: keyboard.isFocused(row.id, 4),
-                        onCellFocus: () => keyboard.focus(row.id, 4),
+                        focused: keyboard.isFocused(row.id, 3),
+                        onCellFocus: () => keyboard.focus(row.id, 3),
                         onNavigate: keyboard.navigate,
-                        requestEdit: keyboard.isFocused(row.id, 4) ? keyboard.editTrigger : 0,
-                        requestClear: keyboard.isFocused(row.id, 4) ? keyboard.clearTrigger : 0,
-                        editInitialValue: keyboard.isFocused(row.id, 4) ? keyboard.editInitialValue : void 0
+                        requestEdit: keyboard.isFocused(row.id, 3) ? keyboard.editTrigger : 0,
+                        requestClear: keyboard.isFocused(row.id, 3) ? keyboard.clearTrigger : 0,
+                        editInitialValue: keyboard.isFocused(row.id, 3) ? keyboard.editInitialValue : void 0
                       }
                     ),
                     /* @__PURE__ */ jsxRuntime.jsx("span", { className: "text-gray-400", children: "/" }),
@@ -2354,12 +2355,12 @@ var DeudasTable = ({
                         hasData: row.cuotas_total !== null,
                         align: "center",
                         asDiv: true,
-                        focused: keyboard.isFocused(row.id, 5),
-                        onCellFocus: () => keyboard.focus(row.id, 5),
+                        focused: keyboard.isFocused(row.id, 4),
+                        onCellFocus: () => keyboard.focus(row.id, 4),
                         onNavigate: keyboard.navigate,
-                        requestEdit: keyboard.isFocused(row.id, 5) ? keyboard.editTrigger : 0,
-                        requestClear: keyboard.isFocused(row.id, 5) ? keyboard.clearTrigger : 0,
-                        editInitialValue: keyboard.isFocused(row.id, 5) ? keyboard.editInitialValue : void 0
+                        requestEdit: keyboard.isFocused(row.id, 4) ? keyboard.editTrigger : 0,
+                        requestClear: keyboard.isFocused(row.id, 4) ? keyboard.clearTrigger : 0,
+                        editInitialValue: keyboard.isFocused(row.id, 4) ? keyboard.editInitialValue : void 0
                       }
                     )
                   ] }) }),
@@ -2396,7 +2397,6 @@ var DeudasTable = ({
             /* @__PURE__ */ jsxRuntime.jsx("td", { className: T.vline }),
             /* @__PURE__ */ jsxRuntime.jsx("td", { className: T.vline }),
             /* @__PURE__ */ jsxRuntime.jsx("td", { className: T.vline }),
-            /* @__PURE__ */ jsxRuntime.jsx("td", { className: T.vline }),
             /* @__PURE__ */ jsxRuntime.jsx("td", {}),
             /* @__PURE__ */ jsxRuntime.jsx("td", { className: T.actionCol })
           ] })
@@ -2407,18 +2407,6 @@ var DeudasTable = ({
   ] });
 };
 var deudas_default = DeudasTable;
-var ClickableHeader = ({ onClick, borderColor, className, children }) => /* @__PURE__ */ jsxRuntime.jsx(
-  "span",
-  {
-    className: `whitespace-nowrap ${onClick ? `cursor-pointer select-none inline-flex items-center rounded-full border ${borderColor || "border-gray-300"} px-2 py-0.5 -mx-2 -my-0.5 transition-colors` : ""} ${className || ""}`,
-    onClick: onClick ? (e) => {
-      e.stopPropagation();
-      onClick();
-    } : void 0,
-    children
-  }
-);
-var clickableheader_default = ClickableHeader;
 var SHORT_MONTHS = {
   enero: "ENE",
   febrero: "FEB",
@@ -3018,13 +3006,13 @@ var PropiedadesTable = ({
     { key: "direccion", label: "Direcci\xF3n", type: "text", isLabel: true, placeholder: "Direcci\xF3n" },
     { key: "comuna", label: "Comuna", type: "text", placeholder: "Comuna" },
     {
-      key: "valor_uf",
-      label: "Valor UF",
-      type: "number",
-      ufPair: "valor_pesos",
-      ufPairLabel: "Valor $",
-      ufPairType: "currency",
-      autoComputedClass: (row) => ufValue && row.valor_uf != null && row.valor_pesos != null ? "italic text-amber-500" : ""
+      key: "valor_pesos",
+      label: "Valor $",
+      type: "currency",
+      ufPair: "valor_uf",
+      ufPairLabel: "Valor UF",
+      ufPairType: "number",
+      autoComputedClass: (row) => ufValue && row.valor_uf != null && row.valor_pesos != null ? "text-amber-500" : ""
     },
     {
       key: "arriendo_real",
@@ -3041,7 +3029,7 @@ var PropiedadesTable = ({
       ufPair: "arriendo_futuro_uf",
       ufPairLabel: "Arr. Fut UF",
       ufPairType: "number",
-      autoComputedClass: (row) => ufValue && row.valor_uf != null ? "italic text-amber-500" : ""
+      autoComputedClass: (row) => ufValue && row.valor_uf != null ? "text-amber-500" : ""
     }
   ];
   const conversionRules = React3.useMemo(() => ufValue ? [

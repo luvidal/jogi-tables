@@ -21,9 +21,9 @@ const PropiedadesTable = ({
         { key: 'direccion', label: 'Dirección', type: 'text', isLabel: true, placeholder: 'Dirección' },
         { key: 'comuna', label: 'Comuna', type: 'text', placeholder: 'Comuna' },
         {
-            key: 'valor_uf', label: 'Valor UF', type: 'number',
-            ufPair: 'valor_pesos', ufPairLabel: 'Valor $', ufPairType: 'currency',
-            autoComputedClass: (row) => (ufValue && row.valor_uf != null && row.valor_pesos != null) ? 'italic text-amber-500' : '',
+            key: 'valor_pesos', label: 'Valor $', type: 'currency',
+            ufPair: 'valor_uf', ufPairLabel: 'Valor UF', ufPairType: 'number',
+            autoComputedClass: (row) => (ufValue && row.valor_uf != null && row.valor_pesos != null) ? 'text-amber-500' : '',
         },
         {
             key: 'arriendo_real', label: 'Arr. Real $', type: 'currency',
@@ -32,7 +32,7 @@ const PropiedadesTable = ({
         {
             key: 'arriendo_futuro', label: 'Arr. Fut $', type: 'currency',
             ufPair: 'arriendo_futuro_uf', ufPairLabel: 'Arr. Fut UF', ufPairType: 'number',
-            autoComputedClass: (row) => (ufValue && row.valor_uf != null) ? 'italic text-amber-500' : '',
+            autoComputedClass: (row) => (ufValue && row.valor_uf != null) ? 'text-amber-500' : '',
         },
     ]
 
