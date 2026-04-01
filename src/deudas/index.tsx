@@ -207,25 +207,21 @@ const DeudasTable = ({
                         >
                             <td className={`${T.cellEditLabel} ${T.cellLabel} ${T.vline} relative`}>
                                 <div className="flex items-center gap-0.5 min-w-0">
-                                    {hovered && !anySelected && (
-                                        <span
-                                            draggable
-                                            onDragStart={drag.handleDragStart(row.id)}
-                                            onDragEnd={drag.handleDragEnd}
-                                            className="shrink-0 cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500"
-                                            title="Arrastrar para reordenar"
-                                        >
-                                            <GripVertical size={14} />
-                                        </span>
-                                    )}
-                                    {showCheckbox ? (
-                                        <input
-                                            type="checkbox"
-                                            checked={selected}
-                                            onChange={() => toggleSelect(row.id)}
-                                            className="shrink-0 w-3.5 h-3.5 rounded border-gray-300 text-rose-600 focus:ring-rose-500 cursor-pointer"
-                                        />
-                                    ) : null}
+                                    <span
+                                        draggable={hovered}
+                                        onDragStart={drag.handleDragStart(row.id)}
+                                        onDragEnd={drag.handleDragEnd}
+                                        className={`shrink-0 cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 transition-opacity ${hovered && !anySelected ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                                        title="Arrastrar para reordenar"
+                                    >
+                                        <GripVertical size={14} />
+                                    </span>
+                                    <input
+                                        type="checkbox"
+                                        checked={selected}
+                                        onChange={() => toggleSelect(row.id)}
+                                        className={`shrink-0 w-3.5 h-3.5 rounded border-gray-300 text-rose-600 focus:ring-rose-500 cursor-pointer transition-opacity ${showCheckbox ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                                    />
                                     <input
                                         type="text"
                                         value={row.institucion}
@@ -234,10 +230,10 @@ const DeudasTable = ({
                                         placeholder="Institución"
                                     />
                                 </div>
-                                {hovered && row.sourceFileId && onViewSource && (
+                                {row.sourceFileId && onViewSource && (
                                     <button
                                         onClick={() => onViewSource([row.sourceFileId!])}
-                                        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] p-0.5 rounded text-rose-400 hover:text-rose-600 hover:bg-rose-100"
+                                        className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] p-0.5 rounded text-rose-400 hover:text-rose-600 hover:bg-rose-100 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                                         title="Ver documento fuente"
                                     >
                                         <Eye size={14} />
@@ -294,8 +290,8 @@ const DeudasTable = ({
                                     editInitialValue={keyboard.isFocused(row.id, 2) ? keyboard.editInitialValue : undefined}
                                     asDiv
                                 />
-                                {hovered && row.cuota_estimated && row.saldo_deuda_pesos != null && !row.castigo_pct && (
-                                    <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] group/info">
+                                {row.cuota_estimated && row.saldo_deuda_pesos != null && !row.castigo_pct && (
+                                    <div className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] group/info transition-opacity ${hovered ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                                         <button className="p-0.5 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100">
                                             <Info size={13} />
                                         </button>
@@ -304,10 +300,10 @@ const DeudasTable = ({
                                         </div>
                                     </div>
                                 )}
-                                {hovered && row.cuota_source_file_id && onViewSource && (
+                                {row.cuota_source_file_id && onViewSource && (
                                     <button
                                         onClick={() => onViewSource([row.cuota_source_file_id!])}
-                                        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] p-0.5 rounded text-rose-400 hover:text-rose-600 hover:bg-rose-100"
+                                        className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] p-0.5 rounded text-rose-400 hover:text-rose-600 hover:bg-rose-100 transition-opacity ${hovered ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                                         title="Ver documento fuente"
                                     >
                                         <Eye size={13} />

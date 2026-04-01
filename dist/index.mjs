@@ -2180,26 +2180,26 @@ var DeudasTable = ({
                 children: [
                   /* @__PURE__ */ jsxs("td", { className: `${T.cellEditLabel} ${T.cellLabel} ${T.vline} relative`, children: [
                     /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-0.5 min-w-0", children: [
-                      hovered && !anySelected && /* @__PURE__ */ jsx(
+                      /* @__PURE__ */ jsx(
                         "span",
                         {
-                          draggable: true,
+                          draggable: hovered,
                           onDragStart: drag.handleDragStart(row.id),
                           onDragEnd: drag.handleDragEnd,
-                          className: "shrink-0 cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500",
+                          className: `shrink-0 cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 transition-opacity ${hovered && !anySelected ? "opacity-100" : "opacity-0 pointer-events-none"}`,
                           title: "Arrastrar para reordenar",
                           children: /* @__PURE__ */ jsx(GripVertical, { size: 14 })
                         }
                       ),
-                      showCheckbox ? /* @__PURE__ */ jsx(
+                      /* @__PURE__ */ jsx(
                         "input",
                         {
                           type: "checkbox",
                           checked: selected,
                           onChange: () => toggleSelect(row.id),
-                          className: "shrink-0 w-3.5 h-3.5 rounded border-gray-300 text-rose-600 focus:ring-rose-500 cursor-pointer"
+                          className: `shrink-0 w-3.5 h-3.5 rounded border-gray-300 text-rose-600 focus:ring-rose-500 cursor-pointer transition-opacity ${showCheckbox ? "opacity-100" : "opacity-0 pointer-events-none"}`
                         }
-                      ) : null,
+                      ),
                       /* @__PURE__ */ jsx(
                         "input",
                         {
@@ -2211,11 +2211,11 @@ var DeudasTable = ({
                         }
                       )
                     ] }),
-                    hovered && row.sourceFileId && onViewSource && /* @__PURE__ */ jsx(
+                    row.sourceFileId && onViewSource && /* @__PURE__ */ jsx(
                       "button",
                       {
                         onClick: () => onViewSource([row.sourceFileId]),
-                        className: "absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] p-0.5 rounded text-rose-400 hover:text-rose-600 hover:bg-rose-100",
+                        className: `absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] p-0.5 rounded text-rose-400 hover:text-rose-600 hover:bg-rose-100 transition-opacity ${hovered ? "opacity-100" : "opacity-0 pointer-events-none"}`,
                         title: "Ver documento fuente",
                         children: /* @__PURE__ */ jsx(Eye, { size: 14 })
                       }
@@ -2281,7 +2281,7 @@ var DeudasTable = ({
                         asDiv: true
                       }
                     ),
-                    hovered && row.cuota_estimated && row.saldo_deuda_pesos != null && !row.castigo_pct && /* @__PURE__ */ jsxs("div", { className: "absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] group/info", children: [
+                    row.cuota_estimated && row.saldo_deuda_pesos != null && !row.castigo_pct && /* @__PURE__ */ jsxs("div", { className: `absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] group/info transition-opacity ${hovered ? "opacity-100" : "opacity-0 pointer-events-none"}`, children: [
                       /* @__PURE__ */ jsx("button", { className: "p-0.5 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100", children: /* @__PURE__ */ jsx(Info, { size: 13 }) }),
                       /* @__PURE__ */ jsxs("div", { className: "hidden group-hover/info:block absolute bottom-full right-0 mb-1 px-2 py-1 rounded bg-gray-800 text-white text-[10px] whitespace-nowrap z-50 shadow-lg", children: [
                         "Estimado: ",
@@ -2290,11 +2290,11 @@ var DeudasTable = ({
                         formatCurrency(row.saldo_deuda_pesos)
                       ] })
                     ] }),
-                    hovered && row.cuota_source_file_id && onViewSource && /* @__PURE__ */ jsx(
+                    row.cuota_source_file_id && onViewSource && /* @__PURE__ */ jsx(
                       "button",
                       {
                         onClick: () => onViewSource([row.cuota_source_file_id]),
-                        className: "absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] p-0.5 rounded text-rose-400 hover:text-rose-600 hover:bg-rose-100",
+                        className: `absolute right-0 top-1/2 -translate-y-1/2 translate-x-[2px] p-0.5 rounded text-rose-400 hover:text-rose-600 hover:bg-rose-100 transition-opacity ${hovered ? "opacity-100" : "opacity-0 pointer-events-none"}`,
                         title: "Ver documento fuente",
                         children: /* @__PURE__ */ jsx(Eye, { size: 13 })
                       }
