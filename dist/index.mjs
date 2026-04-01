@@ -1715,8 +1715,8 @@ var RentaTable = ({
               /* @__PURE__ */ jsx(SourceIcon, { fileIds: sourceFileIds, onViewSource, className: headerText })
             ] }) }),
             showClassificationColumns && /* @__PURE__ */ jsxs(Fragment, { children: [
-              /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center`, children: /* @__PURE__ */ jsx("span", { className: `${headerText} text-[11px] font-semibold opacity-60`, children: "Tipo" }) }),
-              /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: `${headerText} text-[11px] font-semibold opacity-60`, children: "Renta" }) })
+              /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center`, children: /* @__PURE__ */ jsx("span", { className: `${headerText} text-xs font-semibold opacity-60`, children: "Tipo" }) }),
+              /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: `${headerText} text-xs font-semibold opacity-60`, children: "Renta" }) })
             ] }),
             showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsx("td", { className: T.vline }),
             monthsArray.map((p) => {
@@ -1832,7 +1832,7 @@ var RentaTable = ({
                   const isSubtract = isSubtractType(section.type);
                   const label = isSubtract ? "Total descuentos" : "Total haberes";
                   return /* @__PURE__ */ jsxs("tr", { className: `${isSubtract ? "bg-red-50/30" : "bg-emerald-50/30"}`, children: [
-                    /* @__PURE__ */ jsx("td", { className: `${T.totalCell} border-b border-gray-200 ${showClassificationColumns ? "" : T.vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.totalLabel} font-semibold text-gray-500`, children: label }) }),
+                    /* @__PURE__ */ jsx("td", { className: `${T.totalCell} border-b border-gray-200 ${showClassificationColumns ? "" : T.vline}`, children: /* @__PURE__ */ jsx("span", { className: "font-semibold text-xs text-gray-500", children: label }) }),
                     showClassificationColumns && /* @__PURE__ */ jsxs(Fragment, { children: [
                       /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} border-b border-gray-200` }),
                       /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} border-b border-gray-200 ${T.vline}` })
@@ -1843,7 +1843,7 @@ var RentaTable = ({
                       const hasValue = value !== 0;
                       const display = isSubtract ? `-${formatValue(value)}` : formatValue(value);
                       const vline = mi < monthsArray.length - 1 ? T.vline : "";
-                      return /* @__PURE__ */ jsx("td", { className: `${T.totalCell} text-right border-b border-gray-200 ${vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.totalValue} font-semibold tabular-nums ${hasValue ? "text-gray-500" : "text-gray-300"}`, children: hasValue ? display : "\u2014" }) }, p.id);
+                      return /* @__PURE__ */ jsx("td", { className: `${T.totalCell} text-right border-b border-gray-200 ${vline}`, children: /* @__PURE__ */ jsx("span", { className: `font-semibold text-xs tabular-nums ${hasValue ? "text-gray-500" : "text-gray-300"}`, children: hasValue ? display : "\u2014" }) }, p.id);
                     }),
                     /* @__PURE__ */ jsx("td", { className: `${T.actionCol} border-b border-gray-200` })
                   ] });

@@ -407,7 +407,7 @@ const RentaTable = ({
                                     <SourceIcon fileIds={sourceFileIds} onViewSource={onViewSource} className={headerText} />
                                 </div>
                             </td>
-                            {showClassificationColumns && <><td className={`${T.cellCompact} text-center`}><span className={`${headerText} text-[11px] font-semibold opacity-60`}>Tipo</span></td><td className={`${T.cellCompact} text-center ${T.vline}`}><span className={`${headerText} text-[11px] font-semibold opacity-60`}>Renta</span></td></>}
+                            {showClassificationColumns && <><td className={`${T.cellCompact} text-center`}><span className={`${headerText} text-xs font-semibold opacity-60`}>Tipo</span></td><td className={`${T.cellCompact} text-center ${T.vline}`}><span className={`${headerText} text-xs font-semibold opacity-60`}>Renta</span></td></>}
                             {showVariableColumn && !showClassificationColumns && <td className={T.vline} />}
                             {monthsArray.map((p) => {
                                 const total = calculateTotal(p.id, rows)
@@ -532,7 +532,7 @@ const RentaTable = ({
                                 return (
                                     <tr className={`${isSubtract ? 'bg-red-50/30' : 'bg-emerald-50/30'}`}>
                                         <td className={`${T.totalCell} border-b border-gray-200 ${showClassificationColumns ? '' : T.vline}`}>
-                                            <span className={`${T.totalLabel} font-semibold text-gray-500`}>{label}</span>
+                                            <span className="font-semibold text-xs text-gray-500">{label}</span>
                                         </td>
                                         {showClassificationColumns && <><td className={`${T.cellCompact} border-b border-gray-200`} /><td className={`${T.cellCompact} border-b border-gray-200 ${T.vline}`} /></>}
                                         {showVariableColumn && !showClassificationColumns && <td className={`${T.cellCompact} border-b border-gray-200 ${T.vline}`} />}
@@ -543,7 +543,7 @@ const RentaTable = ({
                                             const vline = mi < monthsArray.length - 1 ? T.vline : ''
                                             return (
                                                 <td key={p.id} className={`${T.totalCell} text-right border-b border-gray-200 ${vline}`}>
-                                                    <span className={`${T.totalValue} font-semibold tabular-nums ${hasValue ? 'text-gray-500' : 'text-gray-300'}`}>
+                                                    <span className={`font-semibold text-xs tabular-nums ${hasValue ? 'text-gray-500' : 'text-gray-300'}`}>
                                                         {hasValue ? display : '—'}
                                                     </span>
                                                 </td>
