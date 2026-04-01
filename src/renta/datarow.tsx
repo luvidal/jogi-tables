@@ -184,13 +184,13 @@ const DataRow = ({
                 const renta = rentaPill(row.isVariable, row.naturaleza)
                 return (
                     <>
-                        <td className={`${T.cellCompact} text-center ${T.vline}`}
+                        <td className={`${T.cellCompact} text-center`}
                             onClick={(e) => { e.stopPropagation(); onToggleNaturaleza?.() }}
                             title={`${row.naturaleza || 'Sin tipo'} — click para cambiar`}
                         >
                             <span className={`${PILL} ${tipo.style}`}>{tipo.label}</span>
                         </td>
-                        <td className={`${T.cellCompact} text-center ${T.vline}`}
+                        <td className={`${T.cellCompact} text-center`}
                             onClick={(e) => { e.stopPropagation(); if (row.naturaleza !== 'Legal') onToggleVariable?.() }}
                             title={row.naturaleza === 'Legal' ? 'Descuento legal' : row.isVariable ? 'Variable — click para cambiar a Fija' : 'Fija — click para cambiar a Variable'}
                         >

@@ -46,7 +46,7 @@ const AddRow = ({
                     }}
                 />
             </td>
-            {showClassificationColumns && <><td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td><td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td></>}
+            {showClassificationColumns && <><td className={`${T.cellCompact} text-center`}><span className={T.empty}>—</span></td><td className={`${T.cellCompact} text-center`}><span className={T.empty}>—</span></td></>}
             {showVariableColumn && !showClassificationColumns && <td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td>}
             {months.map((p, mi) => (
                 <EditableCell
