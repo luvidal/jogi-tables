@@ -530,7 +530,7 @@ const RentaTable = ({
                                 const isSubtract = isSubtractType(section.type)
                                 const label = isSubtract ? 'Total descuentos' : 'Total haberes'
                                 return (
-                                    <tr className={`border-b-2 ${isSubtract ? 'border-b-rose-200 bg-red-50/30' : 'border-b-emerald-200 bg-emerald-50/30'}`}>
+                                    <tr className={`border-b border-gray-200 ${isSubtract ? 'bg-red-50/30' : 'bg-emerald-50/30'}`}>
                                         <td className={`${T.totalCell} ${showClassificationColumns ? '' : T.vline}`}>
                                             <span className={`${T.footerLabel} text-xs`}>{label}</span>
                                         </td>
