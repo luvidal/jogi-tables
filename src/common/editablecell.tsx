@@ -197,7 +197,7 @@ const EditableCell = ({
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            <div className={`h-5 flex items-center ${alignClass} gap-1`}>
+            <div className={`h-5 flex items-center ${alignClass} gap-1 relative`}>
                 {onViewSource && (isMobile || isHovered) && !isEditing && (
                     <button
                         onClick={(e) => {
@@ -210,7 +210,7 @@ const EditableCell = ({
                         <Eye size={14} className="text-gray-400" />
                     </button>
                 )}
-                {isEditing ? (
+                {isEditing && (
                     <input
                         ref={inputRef}
                         type="text"
@@ -219,17 +219,16 @@ const EditableCell = ({
                         onChange={e => setEditValue(e.target.value)}
                         onBlur={commitEdit}
                         onKeyDown={handleKeyDown}
-                        className={`w-full ${inputAlignClass} text-xs tabular-nums bg-transparent border-none outline-none p-0`}
+                        className={`absolute inset-0 ${inputAlignClass} text-xs tabular-nums bg-white border-none outline-none p-0 z-10`}
                         autoComplete="off"
                     />
-                ) : (
-                    <span
-                        className={`text-xs tabular-nums ${colorClass} ${!hasData ? 'text-gray-300' : ''}`}
-                        title={type === 'currency' && hasData ? displayCurrency(value as number) : undefined}
-                    >
-                        {displayValue}
-                    </span>
                 )}
+                <span
+                    className={`text-xs tabular-nums ${colorClass} ${!hasData ? 'text-gray-300' : ''} ${isEditing ? 'invisible' : ''}`}
+                    title={type === 'currency' && hasData ? displayCurrency(value as number) : undefined}
+                >
+                    {displayValue}
+                </span>
             </div>
         </Wrapper>
     )

@@ -451,7 +451,7 @@ var EditableCell = ({
       onDoubleClick: handleDoubleClick,
       onMouseEnter: () => setIsHovered(true),
       onMouseLeave: () => setIsHovered(false),
-      children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `h-5 flex items-center ${alignClass} gap-1`, children: [
+      children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `h-5 flex items-center ${alignClass} gap-1 relative`, children: [
         onViewSource && (isMobile || isHovered) && !isEditing && /* @__PURE__ */ jsxRuntime.jsx(
           "button",
           {
@@ -464,7 +464,7 @@ var EditableCell = ({
             children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Eye, { size: 14, className: "text-gray-400" })
           }
         ),
-        isEditing ? /* @__PURE__ */ jsxRuntime.jsx(
+        isEditing && /* @__PURE__ */ jsxRuntime.jsx(
           "input",
           {
             ref: inputRef,
@@ -474,13 +474,14 @@ var EditableCell = ({
             onChange: (e) => setEditValue(e.target.value),
             onBlur: commitEdit,
             onKeyDown: handleKeyDown,
-            className: `w-full ${inputAlignClass} text-xs tabular-nums bg-transparent border-none outline-none p-0`,
+            className: `absolute inset-0 ${inputAlignClass} text-xs tabular-nums bg-white border-none outline-none p-0 z-10`,
             autoComplete: "off"
           }
-        ) : /* @__PURE__ */ jsxRuntime.jsx(
+        ),
+        /* @__PURE__ */ jsxRuntime.jsx(
           "span",
           {
-            className: `text-xs tabular-nums ${colorClass} ${!hasData ? "text-gray-300" : ""}`,
+            className: `text-xs tabular-nums ${colorClass} ${!hasData ? "text-gray-300" : ""} ${isEditing ? "invisible" : ""}`,
             title: type === "currency" && hasData ? displayCurrency(value) : void 0,
             children: displayValue
           }
