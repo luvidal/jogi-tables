@@ -568,18 +568,18 @@ const RentaTable = ({
                         <>
                             {/* Renta Variable */}
                             <tr className="border-b border-gray-100 bg-amber-50/30 group/rv">
-                                <td className={`${T.totalCell} border-t border-t-gray-200 ${showClassificationColumns ? '' : T.vline}`}>
+                                <td className={`${T.totalCell} ${showClassificationColumns ? '' : T.vline}`}>
                                     <span className={`${T.totalLabel} text-amber-700`}>Renta Variable</span>
                                 </td>
-                                {showClassificationColumns && <><td className={`${T.cellCompact} border-t border-t-gray-200`} /><td className={`${T.cellCompact} border-t border-t-gray-200 ${T.vline}`} /></>}
-                                {showVariableColumn && !showClassificationColumns && <td className={`${T.cellCompact} text-center border-t border-t-gray-200 ${T.vline}`}><span className={T.empty}>—</span></td>}
+                                {showClassificationColumns && <><td className={T.cellCompact} /><td className={`${T.cellCompact} ${T.vline}`} /></>}
+                                {showVariableColumn && !showClassificationColumns && <td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td>}
                                 {monthsArray.map((p, mi) => {
                                     const rliq = reliquidacion?.[p.id]
                                     const value = rliq ? rliq.rentaVariable : (naiveVariable[p.id] ?? 0)
                                     const hasValue = value !== 0
                                     const vline = mi < monthsArray.length - 1 ? T.vline : ''
                                     return (
-                                        <td key={p.id} className={`${T.totalCell} text-right relative border-t border-t-gray-200 ${vline}`}>
+                                        <td key={p.id} className={`${T.totalCell} text-right relative ${vline}`}>
                                             {rliq && hasValue && (
                                                 <span className="group/reliq absolute cursor-help opacity-0 group-hover/rv:opacity-100 transition-opacity" style={{ top: '9px', left: '12px' }}>
                                                     <Info size={14} className="text-gray-400 hover:text-gray-600 p-0.5 rounded hover:bg-gray-200" />
@@ -592,7 +592,7 @@ const RentaTable = ({
                                         </td>
                                     )
                                 })}
-                                <td className={`${T.actionCol} border-t border-t-gray-200`} />
+                                <td className={T.actionCol} />
                             </tr>
                             {/* Renta Fija */}
                             <tr className="border-b border-gray-200 bg-sky-50/30 group/rf">
