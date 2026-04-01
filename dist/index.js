@@ -1840,20 +1840,20 @@ var RentaTable = ({
                   const isSubtract = isSubtractType(section.type);
                   const label = isSubtract ? "Total descuentos" : "Total haberes";
                   return /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: `${isSubtract ? "bg-red-50/30" : "bg-emerald-50/30"}`, children: [
-                    /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.totalCell} border-b border-b-gray-200 ${showClassificationColumns ? "" : T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalLabel}`, children: label }) }),
+                    /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.totalCell} border-b border-gray-200 ${showClassificationColumns ? "" : T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalLabel}`, children: label }) }),
                     showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-                      /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} border-b border-b-gray-200` }),
-                      /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} border-b border-b-gray-200 ${T.vline}` })
+                      /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} border-b border-gray-200` }),
+                      /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} border-b border-gray-200 ${T.vline}` })
                     ] }),
-                    showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} border-b border-b-gray-200 ${T.vline}` }),
+                    showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} border-b border-gray-200 ${T.vline}` }),
                     monthsArray.map((p, mi) => {
                       const value = subtotals[p.id] ?? 0;
                       const hasValue = value !== 0;
                       const display = isSubtract ? `-${formatValue(value)}` : formatValue(value);
                       const vline = mi < monthsArray.length - 1 ? T.vline : "";
-                      return /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.totalCell} text-right border-b border-b-gray-200 ${vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalValue} tabular-nums ${hasValue ? "" : "text-gray-300"}`, children: hasValue ? display : "\u2014" }) }, p.id);
+                      return /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.totalCell} text-right border-b border-gray-200 ${vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${T.totalValue} tabular-nums ${hasValue ? "" : "text-gray-300"}`, children: hasValue ? display : "\u2014" }) }, p.id);
                     }),
-                    /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.actionCol} border-b border-b-gray-200` })
+                    /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.actionCol} border-b border-gray-200` })
                   ] });
                 })()
               ] }, section.type);

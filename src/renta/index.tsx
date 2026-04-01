@@ -531,25 +531,25 @@ const RentaTable = ({
                                 const label = isSubtract ? 'Total descuentos' : 'Total haberes'
                                 return (
                                     <tr className={`${isSubtract ? 'bg-red-50/30' : 'bg-emerald-50/30'}`}>
-                                        <td className={`${T.totalCell} border-b border-b-gray-200 ${showClassificationColumns ? '' : T.vline}`}>
+                                        <td className={`${T.totalCell} border-b border-gray-200 ${showClassificationColumns ? '' : T.vline}`}>
                                             <span className={`${T.totalLabel}`}>{label}</span>
                                         </td>
-                                        {showClassificationColumns && <><td className={`${T.cellCompact} border-b border-b-gray-200`} /><td className={`${T.cellCompact} border-b border-b-gray-200 ${T.vline}`} /></>}
-                                        {showVariableColumn && !showClassificationColumns && <td className={`${T.cellCompact} border-b border-b-gray-200 ${T.vline}`} />}
+                                        {showClassificationColumns && <><td className={`${T.cellCompact} border-b border-gray-200`} /><td className={`${T.cellCompact} border-b border-gray-200 ${T.vline}`} /></>}
+                                        {showVariableColumn && !showClassificationColumns && <td className={`${T.cellCompact} border-b border-gray-200 ${T.vline}`} />}
                                         {monthsArray.map((p, mi) => {
                                             const value = subtotals[p.id] ?? 0
                                             const hasValue = value !== 0
                                             const display = isSubtract ? `-${formatValue(value)}` : formatValue(value)
                                             const vline = mi < monthsArray.length - 1 ? T.vline : ''
                                             return (
-                                                <td key={p.id} className={`${T.totalCell} text-right border-b border-b-gray-200 ${vline}`}>
+                                                <td key={p.id} className={`${T.totalCell} text-right border-b border-gray-200 ${vline}`}>
                                                     <span className={`${T.totalValue} tabular-nums ${hasValue ? '' : 'text-gray-300'}`}>
                                                         {hasValue ? display : '—'}
                                                     </span>
                                                 </td>
                                             )
                                         })}
-                                        <td className={`${T.actionCol} border-b border-b-gray-200`} />
+                                        <td className={`${T.actionCol} border-b border-gray-200`} />
                                     </tr>
                                 )
                             })()}
