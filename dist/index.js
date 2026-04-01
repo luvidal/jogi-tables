@@ -31,8 +31,8 @@ var T = {
   vline: "border-r border-gray-200",
   /** Action column (delete button) — fixed narrow width */
   actionCol: "w-10",
-  /** Compact cell padding for small icon/badge columns (w-8 = 32px min) */
-  cellCompact: "w-8 px-0.5 py-1",
+  /** Compact cell padding for small icon/badge columns (32px min) */
+  cellCompact: "min-w-8 px-0.5 py-1",
   // ── Body: read-only cells (compact) ──
   cell: "py-1.5 px-3",
   cellValue: "py-1.5 px-3 text-right tabular-nums",
@@ -1758,8 +1758,8 @@ var RentaTable = ({
           /* @__PURE__ */ jsxRuntime.jsx(SourceIcon, { fileIds: sourceFileIds, onViewSource, className: headerText })
         ] }) }),
         showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsxs(jsxRuntime.Fragment, { children: [
-          /* @__PURE__ */ jsxRuntime.jsx("td", { className: `text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${headerText} text-[9px] font-semibold opacity-60`, children: "Tipo" }) }),
-          /* @__PURE__ */ jsxRuntime.jsx("td", { className: `text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${headerText} text-[9px] font-semibold opacity-60`, children: "Renta" }) })
+          /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${headerText} text-[9px] font-semibold opacity-60`, children: "Tipo" }) }),
+          /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("span", { className: `${headerText} text-[9px] font-semibold opacity-60`, children: "Renta" }) })
         ] }),
         showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsxRuntime.jsx("td", { className: T.vline }),
         monthsArray.map((p) => {

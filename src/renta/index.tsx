@@ -419,7 +419,7 @@ const RentaTable = ({
                                                 <SourceIcon fileIds={sourceFileIds} onViewSource={onViewSource} className={headerText} />
                                             </div>
                                         </td>
-                                        {showClassificationColumns && <><td className={`text-center ${T.vline}`}><span className={`${headerText} text-[9px] font-semibold opacity-60`}>Tipo</span></td><td className={`text-center ${T.vline}`}><span className={`${headerText} text-[9px] font-semibold opacity-60`}>Renta</span></td></>}
+                                        {showClassificationColumns && <><td className={`${T.cellCompact} text-center ${T.vline}`}><span className={`${headerText} text-[9px] font-semibold opacity-60`}>Tipo</span></td><td className={`${T.cellCompact} text-center ${T.vline}`}><span className={`${headerText} text-[9px] font-semibold opacity-60`}>Renta</span></td></>}
                                         {showVariableColumn && !showClassificationColumns && <td className={T.vline} />}
                                         {monthsArray.map((p) => {
                                             const total = calculateTotal(p.id, rows)
