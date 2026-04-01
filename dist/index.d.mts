@@ -60,9 +60,7 @@ interface RentaTableProps {
     headerBg?: string;
     /** @deprecated Use colorScheme instead */
     headerText?: string;
-    defaultCollapsed?: boolean;
     forceExpanded?: boolean;
-    flush?: boolean;
     formatValue?: (value: number | null | undefined) => string;
     calculateTotal?: (monthId: string, rows: RowData[]) => number;
     showVariableColumn?: boolean;
@@ -87,7 +85,7 @@ interface ReliquidacionBreakdown {
     liquidoTotal: number;
 }
 
-declare const RentaTable: ({ title, months, rows, onRowsChange, sections, colorScheme: colorSchemeProp, headerBg: headerBgProp, headerText: headerTextProp, defaultCollapsed, forceExpanded, flush, formatValue, calculateTotal, showVariableColumn, showClassificationColumns, sourceFileIds, onViewSource, reliquidacion, }: RentaTableProps) => react_jsx_runtime.JSX.Element;
+declare const RentaTable: ({ title, months, rows, onRowsChange, sections, colorScheme: colorSchemeProp, headerBg: headerBgProp, headerText: headerTextProp, forceExpanded, formatValue, calculateTotal, showVariableColumn, showClassificationColumns, sourceFileIds, onViewSource, reliquidacion, }: RentaTableProps) => react_jsx_runtime.JSX.Element;
 
 declare const generateLastNMonths: (count: number) => Month[];
 
@@ -150,9 +148,6 @@ interface BoletasTableProps {
     headerBg?: string;
     /** @deprecated Use colorScheme instead */
     headerText?: string;
-    defaultCollapsed?: boolean;
-    forceExpanded?: boolean;
-    flush?: boolean;
     sourceFileIds?: string[];
     onViewSource?: (fileIds: string[]) => void;
     onRemoveMonth?: (periodo: string) => void;
@@ -160,36 +155,7 @@ interface BoletasTableProps {
     excludedMonths?: string[];
     onToggleMonth?: (periodo: string) => void;
 }
-declare const BoletasTable: ({ title, months, colorScheme: colorSchemeProp, headerBg: headerBgProp, headerText: headerTextProp, defaultCollapsed, forceExpanded, flush, sourceFileIds, onViewSource, excludedMonths, onToggleMonth, }: BoletasTableProps) => react_jsx_runtime.JSX.Element;
-
-type TributarioEntry = {
-    id: string;
-    source: 'carpeta-tributaria' | 'balance-anual';
-    label: string;
-    rut?: string;
-    nombre?: string;
-    actividades?: string[];
-    empresa?: string;
-    year?: string;
-    ingresos?: number | null;
-    egresos?: number | null;
-    sourceFileId?: string;
-};
-interface TributarioTableProps {
-    title: string;
-    entries: TributarioEntry[];
-    colorScheme?: ColorScheme;
-    /** @deprecated Use colorScheme instead */
-    headerBg?: string;
-    /** @deprecated Use colorScheme instead */
-    headerText?: string;
-    defaultCollapsed?: boolean;
-    forceExpanded?: boolean;
-    flush?: boolean;
-    sourceFileIds?: string[];
-    onViewSource?: (fileIds: string[]) => void;
-}
-declare const TributarioTable: ({ title, entries, colorScheme: colorSchemeProp, headerBg: headerBgProp, headerText: headerTextProp, defaultCollapsed, forceExpanded, flush, sourceFileIds, onViewSource, }: TributarioTableProps) => react_jsx_runtime.JSX.Element;
+declare const BoletasTable: ({ title, months, colorScheme: colorSchemeProp, headerBg: headerBgProp, headerText: headerTextProp, sourceFileIds, onViewSource, excludedMonths, onToggleMonth, }: BoletasTableProps) => react_jsx_runtime.JSX.Element;
 
 interface FinalResultsValues {
     renta_liquida_ajustada_comprador?: number | null;
@@ -464,6 +430,30 @@ interface EditableCellProps {
  */
 declare const EditableCell: ({ value, onChange, type, isDeduction, hasData, className, align, placeholder, onViewSource, asDiv, focused, onCellFocus, onNavigate, requestEdit, requestClear, editInitialValue, }: EditableCellProps) => react_jsx_runtime.JSX.Element;
 
+/**
+ * EditableField — a compact inline-editable field for use outside table grids.
+ *
+ * Wraps EditableCell with a light-blue pill styling (bg-blue-50/50, rounded,
+ * compact padding). Designed for percentage inputs like castigo rates.
+ *
+ * Unlike EditableCell used inside grids (with keyboard nav, focus ring, etc.),
+ * EditableField is a standalone field — click to select, double-click to edit.
+ */
+interface EditableFieldProps {
+    /** Current value (0–100 for percent) */
+    value: number | null;
+    /** Called with the new value after edit */
+    onChange: (v: number) => void;
+    /** Input type — defaults to 'percent' */
+    type?: 'percent' | 'number';
+    /** Clamp range [min, max] — defaults to [0, 100] */
+    min?: number;
+    max?: number;
+    /** Extra Tailwind classes appended to the wrapper */
+    className?: string;
+}
+declare function EditableField({ value, onChange, type, min, max, className, }: EditableFieldProps): react_jsx_runtime.JSX.Element;
+
 interface DeleteDialogProps {
     count: number;
     onConfirm: (reason: string) => void;
@@ -504,21 +494,11 @@ interface TableShellProps {
     colorScheme?: ColorScheme;
     /** @deprecated Use colorScheme instead */
     headerBg?: string;
-    defaultCollapsed?: boolean;
-    forceExpanded?: boolean;
-    disableToggle?: boolean;
-    flush?: boolean;
-    renderHeader: (ctx: {
-        isExpanded: boolean;
-    }) => React$1.ReactNode;
+    renderHeader: () => React$1.ReactNode;
     children: React$1.ReactNode;
-    renderAfterContent?: (ctx: {
-        isExpanded: boolean;
-    }) => React$1.ReactNode;
-    contentClassName?: string;
-    contentProps?: React$1.HTMLAttributes<HTMLDivElement>;
+    renderAfterContent?: () => React$1.ReactNode;
 }
-declare const TableShell: ({ colorScheme: colorSchemeProp, headerBg: headerBgProp, defaultCollapsed, forceExpanded, disableToggle, flush, renderHeader, children, renderAfterContent, contentClassName, contentProps, }: TableShellProps) => react_jsx_runtime.JSX.Element;
+declare const TableShell: ({ colorScheme: colorSchemeProp, headerBg: headerBgProp, renderHeader, children, renderAfterContent, }: TableShellProps) => react_jsx_runtime.JSX.Element;
 
 declare const generateId: (prefix: string) => string;
 declare const formatDeletedDate: (iso: string) => string;
@@ -540,4 +520,4 @@ declare const CurrencyToggle: ({ value, onChange }: {
     onChange: (v: "uf" | "clp") => void;
 }) => react_jsx_runtime.JSX.Element;
 
-export { ActivosSummary, type ActivosSummaryItem, type ActivosSummaryProps, AssetTable, type AssetTableProps, type AutoComputeRule, type AutoConvertRule, type BoletaMonth, BoletasTable, type BoletasTableProps, type CodeudorIncomeInfo, type ColorScheme, type ColumnDef, CurrencyToggle, DEFAULT_SCHEME, type DeclaracionColumn, type DeclaracionRow, DeclaracionTable, type DeclaracionTableProps, DeleteDialog, type DeudaRow, DeudasTable, type DeudasTableProps, EditableCell, FinalResultsCompact, type FinalResultsCompactProps, type FinalResultsValues, type InversionRow, InversionesTable, type InversionesTableProps, MONTH_LABELS, type Month, type PromptOptions, type PropiedadRow, PropiedadesTable, type PropiedadesTableProps, RecycleBin, type ReliquidacionBreakdown, type RentaTableProps, type RowData, type RowType, type SoftDeletable, SourceIcon, type SummaryRow, type SummaryRowFormat, type SummaryRowType, SummaryTable, type SummaryTableProps, TableShell, type TableShellProps, type TributarioEntry, TributarioTable, type TributarioTableProps, type VehiculoRow, VehiculosTable, type VehiculosTableProps, applyAutoCompute, applyAutoConversions, RentaTable as default, defaultFormatCurrency, displayCurrency, displayCurrencyCompact, formatDeletedDate, generateId, generateLastNMonths, resolveColors, useSoftDelete };
+export { ActivosSummary, type ActivosSummaryItem, type ActivosSummaryProps, AssetTable, type AssetTableProps, type AutoComputeRule, type AutoConvertRule, type BoletaMonth, BoletasTable, type BoletasTableProps, type CodeudorIncomeInfo, type ColorScheme, type ColumnDef, CurrencyToggle, DEFAULT_SCHEME, type DeclaracionColumn, type DeclaracionRow, DeclaracionTable, type DeclaracionTableProps, DeleteDialog, type DeudaRow, DeudasTable, type DeudasTableProps, EditableCell, EditableField, FinalResultsCompact, type FinalResultsCompactProps, type FinalResultsValues, type InversionRow, InversionesTable, type InversionesTableProps, MONTH_LABELS, type Month, type PromptOptions, type PropiedadRow, PropiedadesTable, type PropiedadesTableProps, RecycleBin, type ReliquidacionBreakdown, type RentaTableProps, type RowData, type RowType, type SoftDeletable, SourceIcon, type SummaryRow, type SummaryRowFormat, type SummaryRowType, SummaryTable, type SummaryTableProps, TableShell, type TableShellProps, type VehiculoRow, VehiculosTable, type VehiculosTableProps, applyAutoCompute, applyAutoConversions, RentaTable as default, defaultFormatCurrency, displayCurrency, displayCurrencyCompact, formatDeletedDate, generateId, generateLastNMonths, resolveColors, useSoftDelete };

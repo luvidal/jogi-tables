@@ -28,7 +28,7 @@ export const T = {
     /** Action column (delete button) — fixed narrow width */
     actionCol: 'w-10',
     /** Compact cell padding for small icon/badge columns (80px min) */
-    cellCompact: 'min-w-20 px-0.5 py-1',
+    cellCompact: 'px-0.5 py-1',
 
     // ── Body: read-only cells (compact) ──
     cell: 'py-1.5 px-3',

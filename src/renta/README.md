@@ -29,13 +29,12 @@ Editable monthly spreadsheet with CRUD, grouping, drag-reorder, keyboard navigat
 
 ## Dependencies
 
-- `../common/tableshell` — `TableShell` accordion wrapper + `SourceIcon` (see [Adding a New Table](#adding-a-new-table))
+- `../common/tableshell` — `TableShell` single-table wrapper + `SourceIcon`
 - `../common/styles` — `T` object for Tailwind classes
 - `../common/editablecell` — inline-editable cells (via datarow, addrow)
 - `../common/userowhover` — `useRowHover()` for row hover state
 - `../common/deletedialog` — `DeleteDialog` for soft-delete confirmation
 - `../common/recyclebin` — `RecycleBin` with `renderCells` for monthly value columns
-- `../common/utils` — `displayCurrencyCompact` (via helpers)
 
 ## Props
 
@@ -48,8 +47,7 @@ interface MonthlyTableProps {
     sections?: SectionDef[]           // Explicit sections (auto-detected if omitted)
     headerBg?: string                 // Tailwind bg class (default: 'bg-gray-100')
     headerText?: string               // Tailwind text class (default: 'text-gray-700')
-    defaultCollapsed?: boolean        // Start collapsed (default: true)
-    forceExpanded?: boolean           // Force expanded / print mode (default: false)
+    forceExpanded?: boolean           // Force group headers expanded (e.g., print mode)
     formatValue?: (value: number) => string
     calculateTotal?: (monthId: string, rows: RowData[]) => number
     sourceFileIds?: string[]

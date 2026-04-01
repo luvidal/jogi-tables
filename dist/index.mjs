@@ -1,4 +1,4 @@
-import React4, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import React3, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { Eye, Trash2, ChevronUp, ChevronDown, Undo2, Info, GripVertical, ChevronRight, Ungroup, Check, X, FoldVertical } from 'lucide-react';
 import { jsx, jsxs, Fragment } from 'react/jsx-runtime';
 import { createPortal } from 'react-dom';
@@ -15,7 +15,6 @@ var T = {
   headerTitle: "font-normal text-xs truncate",
   headerStat: "font-normal text-xs",
   headerStatLabel: "font-normal text-xs uppercase",
-  headerCount: "font-medium text-xs",
   // ── Header: column headers (th) ──
   th: "text-gray-500 font-medium text-xs uppercase",
   headerCell: "px-2 py-1.5",
@@ -24,7 +23,7 @@ var T = {
   /** Action column (delete button) — fixed narrow width */
   actionCol: "w-10",
   /** Compact cell padding for small icon/badge columns (80px min) */
-  cellCompact: "min-w-20 px-0.5 py-1",
+  cellCompact: "px-0.5 py-1",
   // ── Body: read-only cells (compact) ──
   cell: "py-1.5 px-3",
   cellValue: "py-1.5 px-3 text-right tabular-nums",
@@ -93,50 +92,18 @@ var SourceIcon = ({
 var TableShell = ({
   colorScheme: colorSchemeProp,
   headerBg: headerBgProp = "bg-gray-100",
-  defaultCollapsed = false,
-  forceExpanded = false,
-  disableToggle = false,
-  flush = false,
   renderHeader,
   children,
-  renderAfterContent,
-  contentClassName,
-  contentProps
+  renderAfterContent
 }) => {
   const { bg: headerBg } = resolveColors(colorSchemeProp, headerBgProp);
-  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
-  const isExpanded = forceExpanded || !isCollapsed;
-  const canToggle = !forceExpanded && !disableToggle;
-  const outerBorder = flush ? "" : isExpanded ? "border border-gray-200" : "";
-  const outerRadius = flush ? "" : `rounded-xl overflow-hidden`;
-  const headerRadius = flush ? "" : isExpanded ? "rounded-t-xl" : "rounded-xl";
-  return /* @__PURE__ */ jsx("div", { className: `${outerRadius} ${outerBorder}`, children: /* @__PURE__ */ jsx("div", { className: "overflow-x-auto", children: /* @__PURE__ */ jsxs("div", { className: "inline-block min-w-full", children: [
-    /* @__PURE__ */ jsx(
-      "div",
-      {
-        role: canToggle ? "button" : void 0,
-        tabIndex: canToggle ? 0 : void 0,
-        onClick: () => canToggle && setIsCollapsed(!isCollapsed),
-        onKeyDown: (e) => {
-          if (canToggle && (e.key === "Enter" || e.key === " ")) {
-            e.preventDefault();
-            setIsCollapsed(!isCollapsed);
-          }
-        },
-        className: `${headerBg} hover:brightness-95 transition-all ${canToggle ? "cursor-pointer" : "cursor-default"} ${headerRadius}`,
-        children: renderHeader({ isExpanded })
-      }
-    ),
-    /* @__PURE__ */ jsx(
-      "div",
-      {
-        ...contentProps,
-        className: `bg-white ${!isExpanded ? "hidden print:block" : ""} ${contentClassName || ""}`,
-        children
-      }
-    ),
-    renderAfterContent?.({ isExpanded })
-  ] }) }) });
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsxs("table", { className: T.table, children: [
+      /* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsx("tr", { className: headerBg, children: renderHeader() }) }),
+      /* @__PURE__ */ jsx("tbody", { children })
+    ] }),
+    renderAfterContent?.()
+  ] });
 };
 var tableshell_default = TableShell;
 
@@ -1481,9 +1448,7 @@ var RentaTable = ({
   colorScheme: colorSchemeProp,
   headerBg: headerBgProp,
   headerText: headerTextProp,
-  defaultCollapsed = false,
   forceExpanded = false,
-  flush = false,
   formatValue = defaultFormatValue,
   calculateTotal = defaultCalculateTotal,
   showVariableColumn = false,
@@ -1714,232 +1679,252 @@ var RentaTable = ({
     r.id
   );
   return /* @__PURE__ */ jsx(
-    tableshell_default,
+    "div",
     {
-      headerBg,
-      defaultCollapsed,
-      forceExpanded,
-      flush,
-      disableToggle: anySelected,
-      contentClassName: "outline-none",
-      contentProps: {
-        tabIndex: 0,
-        onKeyDown: keyboard.handleContainerKeyDown
-      },
-      renderHeader: ({ isExpanded }) => /* @__PURE__ */ jsx("table", { className: T.table, children: /* @__PURE__ */ jsx("tbody", { children: /* @__PURE__ */ jsx("tr", { children: anySelected ? /* @__PURE__ */ jsx(
-        HeaderSelectionBar,
+      tabIndex: 0,
+      onKeyDown: keyboard.handleContainerKeyDown,
+      className: "outline-none",
+      children: /* @__PURE__ */ jsxs(
+        tableshell_default,
         {
-          selectedCount: selectedRows.size,
-          canGroup,
-          monthCount: monthsArray.length,
-          naming,
-          onNamingChange: setNaming,
-          onGroup: handleGroup,
-          onDeleteSelected: requestDeleteSelected,
-          onCancel: () => {
-            clearSelection();
-            setNaming(false);
-          },
-          showVariableColumn,
-          showClassificationColumns
-        }
-      ) : /* @__PURE__ */ jsxs(Fragment, { children: [
-        /* @__PURE__ */ jsx("td", { className: `${T.headerAccordion} text-left ${T.vline}`, children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
-          !forceExpanded && (isExpanded ? /* @__PURE__ */ jsx(ChevronUp, { size: 16, className: headerText }) : /* @__PURE__ */ jsx(ChevronDown, { size: 16, className: headerText })),
-          /* @__PURE__ */ jsx("span", { className: `${headerText} ${T.headerTitle}`, children: title }),
-          /* @__PURE__ */ jsx(SourceIcon, { fileIds: sourceFileIds, onViewSource, className: headerText })
-        ] }) }),
-        showClassificationColumns && /* @__PURE__ */ jsxs(Fragment, { children: [
-          /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: `${headerText} text-[9px] font-semibold opacity-60`, children: "Tipo" }) }),
-          /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: `${headerText} text-[9px] font-semibold opacity-60`, children: "Renta" }) })
-        ] }),
-        showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsx("td", { className: T.vline }),
-        monthsArray.map((p) => {
-          const total = calculateTotal(p.id, rows);
-          const hasValue = total !== 0;
-          return /* @__PURE__ */ jsxs("td", { className: `${T.headerAccordionStat}`, children: [
-            /* @__PURE__ */ jsxs("span", { className: `${headerText} ${T.headerStatLabel}`, children: [
-              p.label,
-              ": "
-            ] }),
-            /* @__PURE__ */ jsx("span", { className: `${T.headerStat} ${hasValue ? headerText : "text-gray-400"}`, children: hasValue ? formatValue(total) : "\u2014" })
-          ] }, p.id);
-        }),
-        /* @__PURE__ */ jsx("td", { className: T.actionCol })
-      ] }) }) }) }),
-      renderAfterContent: ({ isExpanded }) => /* @__PURE__ */ jsxs(Fragment, { children: [
-        isExpanded && /* @__PURE__ */ jsx(
-          recyclebin_default,
-          {
-            deletedRows,
-            getLabel: (r) => r.label,
-            onRestore: handleRestore,
-            renderCells: (row) => {
-              const subtract = isSubtractType(row.type);
-              return /* @__PURE__ */ jsxs(Fragment, { children: [
-                showVariableColumn && /* @__PURE__ */ jsx("td", { className: T.vline }),
-                monthsArray.map((m, mi) => {
-                  const v = row.values[m.id];
-                  const hasValue = v != null;
-                  const vline = mi < monthsArray.length - 1 ? T.vline : "";
-                  return /* @__PURE__ */ jsx("td", { className: `${T.cellEdit} text-right tabular-nums ${vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.totalValue} ${hasValue ? subtract ? "text-rose-300" : "text-gray-400" : "text-gray-200"}`, children: hasValue ? formatValue(v) : "\u2014" }) }, m.id);
-                }),
-                /* @__PURE__ */ jsx("td", { className: T.actionCol })
-              ] });
+          headerBg,
+          renderHeader: () => anySelected ? /* @__PURE__ */ jsx(
+            HeaderSelectionBar,
+            {
+              selectedCount: selectedRows.size,
+              canGroup,
+              monthCount: monthsArray.length,
+              naming,
+              onNamingChange: setNaming,
+              onGroup: handleGroup,
+              onDeleteSelected: requestDeleteSelected,
+              onCancel: () => {
+                clearSelection();
+                setNaming(false);
+              },
+              showVariableColumn,
+              showClassificationColumns
             }
-          }
-        ),
-        deleteTarget && /* @__PURE__ */ jsx(
-          deletedialog_default,
-          {
-            count: deleteTarget.size,
-            onConfirm: confirmDelete,
-            onCancel: () => setDeleteTarget(null)
-          }
-        ),
-        contextMenu && anySelected && /* @__PURE__ */ jsx(
-          ContextMenu,
-          {
-            x: contextMenu.x,
-            y: contextMenu.y,
-            canGroup,
-            selectedCount: selectedRows.size,
-            onGroup: startGroupNaming,
-            onDeleteSelected: requestDeleteSelected,
-            onCancel: clearSelection,
-            onClose: () => setContextMenu(null)
-          }
-        )
-      ] }),
-      children: /* @__PURE__ */ jsx("table", { className: T.table, children: /* @__PURE__ */ jsxs("tbody", { children: [
-        effectiveSections.map((section) => {
-          const items = getOrderedItems(rows, section.type);
-          return /* @__PURE__ */ jsxs(React4.Fragment, { children: [
-            effectiveSections.length > 1 && (() => {
-              const subtotals = computeSectionSubtotal(rows, section.type, monthsArray);
-              const isSubtract = isSubtractType(section.type);
-              const label = isSubtract ? "Total descuentos" : "Total haberes";
-              return /* @__PURE__ */ jsxs("tr", { className: `border-b-2 ${isSubtract ? "border-b-rose-200 bg-red-50/30" : "border-b-emerald-200 bg-emerald-50/30"}`, children: [
-                /* @__PURE__ */ jsx("td", { className: `${T.totalCell} text-gray-700 ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.totalLabel} ${isSubtract ? "text-rose-700" : "text-emerald-700"}`, children: label }) }),
-                showClassificationColumns && /* @__PURE__ */ jsxs(Fragment, { children: [
-                  /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) }),
-                  /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) })
+          ) : /* @__PURE__ */ jsxs(Fragment, { children: [
+            /* @__PURE__ */ jsx("td", { className: `${T.headerAccordion} text-left ${T.vline}`, children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
+              /* @__PURE__ */ jsx("span", { className: `${headerText} ${T.headerTitle}`, children: title }),
+              /* @__PURE__ */ jsx(SourceIcon, { fileIds: sourceFileIds, onViewSource, className: headerText })
+            ] }) }),
+            showClassificationColumns && /* @__PURE__ */ jsxs(Fragment, { children: [
+              /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: `${headerText} text-[9px] font-semibold opacity-60`, children: "Tipo" }) }),
+              /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: `${headerText} text-[9px] font-semibold opacity-60`, children: "Renta" }) })
+            ] }),
+            showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsx("td", { className: T.vline }),
+            monthsArray.map((p) => {
+              const total = calculateTotal(p.id, rows);
+              const hasValue = total !== 0;
+              return /* @__PURE__ */ jsxs("td", { className: `${T.headerAccordionStat}`, children: [
+                /* @__PURE__ */ jsxs("span", { className: `${headerText} ${T.headerStatLabel}`, children: [
+                  p.label,
+                  ": "
                 ] }),
-                showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) }),
-                monthsArray.map((p, mi) => {
-                  const value = subtotals[p.id] ?? 0;
-                  const hasValue = value !== 0;
-                  const display = isSubtract ? `-${formatValue(value)}` : formatValue(value);
-                  const vline = mi < monthsArray.length - 1 ? T.vline : "";
-                  return /* @__PURE__ */ jsx("td", { className: `${T.totalCell} text-right ${vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.totalValue} tabular-nums ${isSubtract ? hasValue ? "text-rose-600" : "text-gray-300" : hasValue ? "text-emerald-700" : "text-gray-300"}`, children: hasValue ? display : "\u2014" }) }, p.id);
-                }),
-                /* @__PURE__ */ jsx("td", { className: T.actionCol })
-              ] });
-            })(),
-            items.map((item) => {
-              if (item.kind === "group") {
-                const { group, children: groupChildren } = item;
-                const showChildren = forceExpanded || !group.collapsed;
-                return /* @__PURE__ */ jsxs(React4.Fragment, { children: [
-                  /* @__PURE__ */ jsx(
-                    grouprow_default,
-                    {
-                      group,
-                      childRows: groupChildren,
-                      months: monthsArray,
-                      isHovered: isRowHovered(group.id),
-                      forceExpanded,
-                      formatValue,
-                      hoverProps: getHoverProps(group.id),
-                      onToggleCollapse: () => toggleGroupCollapse(group.id),
-                      onUngroup: () => handleUngroup(group.id),
-                      onLabelChange: (label) => updateRowLabel(group.id, label),
-                      showVariableColumn,
-                      showClassificationColumns,
-                      isDragging: drag.dragRowId === group.id,
-                      dropIndicator: drag.dropTargetId === group.id ? drag.dropPosition : null,
-                      onDragStart: drag.handleDragStart(group.id),
-                      onDragOver: drag.handleDragOver(group.id),
-                      onDragLeave: drag.handleDragLeave,
-                      onDrop: drag.handleDrop(rows, onRowsChange),
-                      onDragEnd: drag.handleDragEnd
-                    }
-                  ),
-                  showChildren && groupChildren.map((child) => renderDataRow(child))
-                ] }, group.id);
-              }
-              return renderDataRow(item.row);
+                /* @__PURE__ */ jsx("span", { className: `${T.headerStat} ${hasValue ? headerText : "text-gray-400"}`, children: hasValue ? formatValue(total) : "\u2014" })
+              ] }, p.id);
             }),
+            /* @__PURE__ */ jsx("td", { className: T.actionCol })
+          ] }),
+          renderAfterContent: () => /* @__PURE__ */ jsxs(Fragment, { children: [
             /* @__PURE__ */ jsx(
-              addrow_default,
+              recyclebin_default,
               {
-                section,
-                months: monthsArray,
-                labelValue: newRowLabels[section.type] || "",
-                onLabelChange: (v) => setNewRowLabels((prev) => ({ ...prev, [section.type]: v })),
-                onAddRow: (label) => addRow(section.type, label),
-                onAddRowWithValue: (monthId, value) => addRowWithValue(section.type, monthId, value),
-                showVariableColumn,
-                showClassificationColumns
+                deletedRows,
+                getLabel: (r) => r.label,
+                onRestore: handleRestore,
+                renderCells: (row) => {
+                  const subtract = isSubtractType(row.type);
+                  return /* @__PURE__ */ jsxs(Fragment, { children: [
+                    showVariableColumn && /* @__PURE__ */ jsx("td", { className: T.vline }),
+                    monthsArray.map((m, mi) => {
+                      const v = row.values[m.id];
+                      const hasValue = v != null;
+                      const vline = mi < monthsArray.length - 1 ? T.vline : "";
+                      return /* @__PURE__ */ jsx("td", { className: `${T.cellEdit} text-right tabular-nums ${vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.totalValue} ${hasValue ? subtract ? "text-rose-300" : "text-gray-400" : "text-gray-200"}`, children: hasValue ? formatValue(v) : "\u2014" }) }, m.id);
+                    }),
+                    /* @__PURE__ */ jsx("td", { className: T.actionCol })
+                  ] });
+                }
+              }
+            ),
+            deleteTarget && /* @__PURE__ */ jsx(
+              deletedialog_default,
+              {
+                count: deleteTarget.size,
+                onConfirm: confirmDelete,
+                onCancel: () => setDeleteTarget(null)
+              }
+            ),
+            contextMenu && anySelected && /* @__PURE__ */ jsx(
+              ContextMenu,
+              {
+                x: contextMenu.x,
+                y: contextMenu.y,
+                canGroup,
+                selectedCount: selectedRows.size,
+                onGroup: startGroupNaming,
+                onDeleteSelected: requestDeleteSelected,
+                onCancel: clearSelection,
+                onClose: () => setContextMenu(null)
               }
             )
-          ] }, section.type);
-        }),
-        (showVariableColumn || showClassificationColumns) && effectiveSections.length > 1 && (() => {
-          const naiveVariable = computeRentaVariable(rows, monthsArray);
-          const fmtSigned = (v) => v < 0 ? `-${formatValue(-v)}` : formatValue(v);
-          return /* @__PURE__ */ jsxs(Fragment, { children: [
-            /* @__PURE__ */ jsxs("tr", { className: "border-t-2 border-t-gray-200 border-b border-gray-100 bg-amber-50/30", children: [
-              /* @__PURE__ */ jsx("td", { className: `${T.totalCell} ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.totalLabel} text-amber-700`, children: "Renta Variable" }) }),
-              showClassificationColumns && /* @__PURE__ */ jsxs(Fragment, { children: [
-                /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) }),
-                /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) })
-              ] }),
-              showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) }),
-              monthsArray.map((p, mi) => {
-                const rliq = reliquidacion?.[p.id];
-                const value = rliq ? rliq.rentaVariable : naiveVariable[p.id] ?? 0;
-                const hasValue = value !== 0;
-                const vline = mi < monthsArray.length - 1 ? T.vline : "";
-                return /* @__PURE__ */ jsxs("td", { className: `${T.totalCell} text-right relative ${vline}`, children: [
-                  rliq && hasValue && /* @__PURE__ */ jsxs("span", { className: "group/reliq absolute cursor-help", style: { top: "9px", left: "30px" }, children: [
-                    /* @__PURE__ */ jsx(Info, { size: 12, className: "text-amber-400 hover:text-amber-500" }),
-                    /* @__PURE__ */ jsx(ReliqInfoTooltip, { data: rliq, type: "variable" })
+          ] }),
+          children: [
+            effectiveSections.map((section) => {
+              const items = getOrderedItems(rows, section.type);
+              return /* @__PURE__ */ jsxs(React3.Fragment, { children: [
+                effectiveSections.length > 1 && (() => {
+                  const subtotals = computeSectionSubtotal(rows, section.type, monthsArray);
+                  const isSubtract = isSubtractType(section.type);
+                  const label = isSubtract ? "Total descuentos" : "Total haberes";
+                  return /* @__PURE__ */ jsxs("tr", { className: `border-b-2 ${isSubtract ? "border-b-rose-200 bg-red-50/30" : "border-b-emerald-200 bg-emerald-50/30"}`, children: [
+                    /* @__PURE__ */ jsx("td", { className: `${T.totalCell} text-gray-700 ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.totalLabel} ${isSubtract ? "text-rose-700" : "text-emerald-700"}`, children: label }) }),
+                    showClassificationColumns && /* @__PURE__ */ jsxs(Fragment, { children: [
+                      /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) }),
+                      /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) })
+                    ] }),
+                    showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) }),
+                    monthsArray.map((p, mi) => {
+                      const value = subtotals[p.id] ?? 0;
+                      const hasValue = value !== 0;
+                      const display = isSubtract ? `-${formatValue(value)}` : formatValue(value);
+                      const vline = mi < monthsArray.length - 1 ? T.vline : "";
+                      return /* @__PURE__ */ jsx("td", { className: `${T.totalCell} text-right ${vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.totalValue} tabular-nums ${isSubtract ? hasValue ? "text-rose-600" : "text-gray-300" : hasValue ? "text-emerald-700" : "text-gray-300"}`, children: hasValue ? display : "\u2014" }) }, p.id);
+                    }),
+                    /* @__PURE__ */ jsx("td", { className: T.actionCol })
+                  ] });
+                })(),
+                items.map((item) => {
+                  if (item.kind === "group") {
+                    const { group, children: groupChildren } = item;
+                    const showChildren = forceExpanded || !group.collapsed;
+                    return /* @__PURE__ */ jsxs(React3.Fragment, { children: [
+                      /* @__PURE__ */ jsx(
+                        grouprow_default,
+                        {
+                          group,
+                          childRows: groupChildren,
+                          months: monthsArray,
+                          isHovered: isRowHovered(group.id),
+                          forceExpanded,
+                          formatValue,
+                          hoverProps: getHoverProps(group.id),
+                          onToggleCollapse: () => toggleGroupCollapse(group.id),
+                          onUngroup: () => handleUngroup(group.id),
+                          onLabelChange: (label) => updateRowLabel(group.id, label),
+                          showVariableColumn,
+                          showClassificationColumns,
+                          isDragging: drag.dragRowId === group.id,
+                          dropIndicator: drag.dropTargetId === group.id ? drag.dropPosition : null,
+                          onDragStart: drag.handleDragStart(group.id),
+                          onDragOver: drag.handleDragOver(group.id),
+                          onDragLeave: drag.handleDragLeave,
+                          onDrop: drag.handleDrop(rows, onRowsChange),
+                          onDragEnd: drag.handleDragEnd
+                        }
+                      ),
+                      showChildren && groupChildren.map((child) => renderDataRow(child))
+                    ] }, group.id);
+                  }
+                  return renderDataRow(item.row);
+                }),
+                /* @__PURE__ */ jsx(
+                  addrow_default,
+                  {
+                    section,
+                    months: monthsArray,
+                    labelValue: newRowLabels[section.type] || "",
+                    onLabelChange: (v) => setNewRowLabels((prev) => ({ ...prev, [section.type]: v })),
+                    onAddRow: (label) => addRow(section.type, label),
+                    onAddRowWithValue: (monthId, value) => addRowWithValue(section.type, monthId, value),
+                    showVariableColumn,
+                    showClassificationColumns
+                  }
+                )
+              ] }, section.type);
+            }),
+            (showVariableColumn || showClassificationColumns) && effectiveSections.length > 1 && (() => {
+              const naiveVariable = computeRentaVariable(rows, monthsArray);
+              const fmtSigned = (v) => v < 0 ? `-${formatValue(-v)}` : formatValue(v);
+              return /* @__PURE__ */ jsxs(Fragment, { children: [
+                /* @__PURE__ */ jsxs("tr", { className: "border-t-2 border-t-gray-200 border-b border-gray-100 bg-amber-50/30", children: [
+                  /* @__PURE__ */ jsx("td", { className: `${T.totalCell} ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.totalLabel} text-amber-700`, children: "Renta Variable" }) }),
+                  showClassificationColumns && /* @__PURE__ */ jsxs(Fragment, { children: [
+                    /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) }),
+                    /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) })
                   ] }),
-                  /* @__PURE__ */ jsx("span", { className: `${T.totalValue} tabular-nums ${hasValue ? "text-amber-700" : "text-gray-300"}`, children: hasValue ? fmtSigned(value) : "\u2014" })
-                ] }, p.id);
-              }),
-              /* @__PURE__ */ jsx("td", { className: T.actionCol })
-            ] }),
-            /* @__PURE__ */ jsxs("tr", { className: "border-b border-gray-200 bg-sky-50/30", children: [
-              /* @__PURE__ */ jsx("td", { className: `${T.totalCell} ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.totalLabel} text-sky-700`, children: "Renta Fija" }) }),
-              showClassificationColumns && /* @__PURE__ */ jsxs(Fragment, { children: [
-                /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) }),
-                /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) })
-              ] }),
-              showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) }),
-              monthsArray.map((p, mi) => {
-                const rliq = reliquidacion?.[p.id];
-                const fija = rliq ? rliq.rentaFija : calculateTotal(p.id, rows) - (naiveVariable[p.id] ?? 0);
-                const hasValue = fija !== 0;
-                const vline = mi < monthsArray.length - 1 ? T.vline : "";
-                return /* @__PURE__ */ jsxs("td", { className: `${T.totalCell} text-right relative ${vline}`, children: [
-                  rliq && hasValue && /* @__PURE__ */ jsxs("span", { className: "group/reliq absolute cursor-help", style: { top: "9px", left: "30px" }, children: [
-                    /* @__PURE__ */ jsx(Info, { size: 12, className: "text-sky-400 hover:text-sky-500" }),
-                    /* @__PURE__ */ jsx(ReliqInfoTooltip, { data: rliq, type: "fija" })
+                  showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) }),
+                  monthsArray.map((p, mi) => {
+                    const rliq = reliquidacion?.[p.id];
+                    const value = rliq ? rliq.rentaVariable : naiveVariable[p.id] ?? 0;
+                    const hasValue = value !== 0;
+                    const vline = mi < monthsArray.length - 1 ? T.vline : "";
+                    return /* @__PURE__ */ jsxs("td", { className: `${T.totalCell} text-right relative ${vline}`, children: [
+                      rliq && hasValue && /* @__PURE__ */ jsxs("span", { className: "group/reliq absolute cursor-help", style: { top: "9px", left: "30px" }, children: [
+                        /* @__PURE__ */ jsx(Info, { size: 12, className: "text-amber-400 hover:text-amber-500" }),
+                        /* @__PURE__ */ jsx(ReliqInfoTooltip, { data: rliq, type: "variable" })
+                      ] }),
+                      /* @__PURE__ */ jsx("span", { className: `${T.totalValue} tabular-nums ${hasValue ? "text-amber-700" : "text-gray-300"}`, children: hasValue ? fmtSigned(value) : "\u2014" })
+                    ] }, p.id);
+                  }),
+                  /* @__PURE__ */ jsx("td", { className: T.actionCol })
+                ] }),
+                /* @__PURE__ */ jsxs("tr", { className: "border-b border-gray-200 bg-sky-50/30", children: [
+                  /* @__PURE__ */ jsx("td", { className: `${T.totalCell} ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: `${T.totalLabel} text-sky-700`, children: "Renta Fija" }) }),
+                  showClassificationColumns && /* @__PURE__ */ jsxs(Fragment, { children: [
+                    /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) }),
+                    /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) })
                   ] }),
-                  /* @__PURE__ */ jsx("span", { className: `${T.totalValue} tabular-nums ${hasValue ? "text-blue-700" : "text-gray-300"}`, children: hasValue ? fmtSigned(fija) : "\u2014" })
-                ] }, p.id);
-              }),
-              /* @__PURE__ */ jsx("td", { className: T.actionCol })
-            ] })
-          ] });
-        })()
-      ] }) })
+                  showVariableColumn && !showClassificationColumns && /* @__PURE__ */ jsx("td", { className: `${T.cellCompact} text-center ${T.vline}`, children: /* @__PURE__ */ jsx("span", { className: T.empty, children: "\u2014" }) }),
+                  monthsArray.map((p, mi) => {
+                    const rliq = reliquidacion?.[p.id];
+                    const fija = rliq ? rliq.rentaFija : calculateTotal(p.id, rows) - (naiveVariable[p.id] ?? 0);
+                    const hasValue = fija !== 0;
+                    const vline = mi < monthsArray.length - 1 ? T.vline : "";
+                    return /* @__PURE__ */ jsxs("td", { className: `${T.totalCell} text-right relative ${vline}`, children: [
+                      rliq && hasValue && /* @__PURE__ */ jsxs("span", { className: "group/reliq absolute cursor-help", style: { top: "9px", left: "30px" }, children: [
+                        /* @__PURE__ */ jsx(Info, { size: 12, className: "text-sky-400 hover:text-sky-500" }),
+                        /* @__PURE__ */ jsx(ReliqInfoTooltip, { data: rliq, type: "fija" })
+                      ] }),
+                      /* @__PURE__ */ jsx("span", { className: `${T.totalValue} tabular-nums ${hasValue ? "text-blue-700" : "text-gray-300"}`, children: hasValue ? fmtSigned(fija) : "\u2014" })
+                    ] }, p.id);
+                  }),
+                  /* @__PURE__ */ jsx("td", { className: T.actionCol })
+                ] })
+              ] });
+            })()
+          ]
+        }
+      )
     }
   );
 };
 var renta_default = RentaTable;
+function EditableField({
+  value,
+  onChange,
+  type = "percent",
+  min = 0,
+  max = 100,
+  className = ""
+}) {
+  return /* @__PURE__ */ jsx(
+    editablecell_default,
+    {
+      value,
+      onChange: (v) => {
+        const n = typeof v === "number" ? v : 0;
+        onChange(Math.max(min, Math.min(max, Math.round(n))));
+      },
+      type,
+      asDiv: true,
+      className: `bg-blue-50/50 rounded !py-0.5 !px-1.5 [&>div]:h-4 text-[11px] ${className}`
+    }
+  );
+}
 
 // src/common/autoconvert.ts
 function applyAutoConversions(row, editedField, editedValue, rules, params) {
@@ -2324,21 +2309,11 @@ var DeudasTable = ({
                     )
                   ] }),
                   /* @__PURE__ */ jsx("td", { className: `text-center ${T.vline}`, children: row.cuota_estimated ? /* @__PURE__ */ jsx(
-                    editablecell_default,
+                    EditableField,
                     {
                       value: row.castigo_pct != null ? Math.round(row.castigo_pct * 100) : Math.round(castigo * 100),
-                      onChange: (v) => updateField(row.id, "castigo_pct", v != null ? v / 100 : castigo),
-                      type: "number",
-                      hasData: true,
-                      align: "center",
-                      className: "italic text-gray-400",
-                      asDiv: true,
-                      focused: keyboard.isFocused(row.id, 3),
-                      onCellFocus: () => keyboard.focus(row.id, 3),
-                      onNavigate: keyboard.navigate,
-                      requestEdit: keyboard.isFocused(row.id, 3) ? keyboard.editTrigger : 0,
-                      requestClear: keyboard.isFocused(row.id, 3) ? keyboard.clearTrigger : 0,
-                      editInitialValue: keyboard.isFocused(row.id, 3) ? keyboard.editInitialValue : void 0
+                      onChange: (v) => updateField(row.id, "castigo_pct", v / 100),
+                      className: "italic text-gray-400"
                     }
                   ) : /* @__PURE__ */ jsx("span", { className: "text-[11px] text-gray-300", children: "\u2014" }) }),
                   /* @__PURE__ */ jsx("td", { className: "text-center text-xs text-gray-500", children: /* @__PURE__ */ jsxs("div", { className: "flex items-center justify-center gap-0.5", children: [
@@ -2454,9 +2429,6 @@ var BoletasTable = ({
   colorScheme: colorSchemeProp,
   headerBg: headerBgProp,
   headerText: headerTextProp,
-  defaultCollapsed = false,
-  forceExpanded = false,
-  flush = false,
   sourceFileIds,
   onViewSource,
   excludedMonths,
@@ -2468,12 +2440,8 @@ var BoletasTable = ({
     tableshell_default,
     {
       headerBg,
-      defaultCollapsed,
-      forceExpanded,
-      flush,
-      renderHeader: ({ isExpanded }) => /* @__PURE__ */ jsx("table", { className: T.table, children: /* @__PURE__ */ jsx("tbody", { children: /* @__PURE__ */ jsxs("tr", { children: [
+      renderHeader: () => /* @__PURE__ */ jsxs(Fragment, { children: [
         /* @__PURE__ */ jsx("td", { className: `${T.headerAccordion} text-left ${T.vline}`, children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
-          !forceExpanded && (isExpanded ? /* @__PURE__ */ jsx(ChevronUp, { size: 16, className: headerText }) : /* @__PURE__ */ jsx(ChevronDown, { size: 16, className: headerText })),
           /* @__PURE__ */ jsx("span", { className: `${headerText} ${T.headerTitle}`, children: title }),
           /* @__PURE__ */ jsx(SourceIcon, { fileIds: sourceFileIds, onViewSource, className: headerText })
         ] }) }),
@@ -2507,8 +2475,8 @@ var BoletasTable = ({
             m.periodo
           );
         })
-      ] }) }) }),
-      children: /* @__PURE__ */ jsx("table", { className: T.table, children: /* @__PURE__ */ jsx("tbody", { children: METRICS.map((metric) => /* @__PURE__ */ jsxs("tr", { className: T.rowBorder, children: [
+      ] }),
+      children: METRICS.map((metric) => /* @__PURE__ */ jsxs("tr", { className: T.rowBorder, children: [
         /* @__PURE__ */ jsx("td", { className: `${T.cell} font-medium ${T.cellLabel} text-gray-600 ${T.vline}`, children: metric.label }),
         months.map((m) => {
           const isExcluded = excluded.includes(m.periodo);
@@ -2521,130 +2489,11 @@ var BoletasTable = ({
             m.periodo
           );
         })
-      ] }, metric.key)) }) })
+      ] }, metric.key))
     }
   );
 };
 var boletas_default = BoletasTable;
-var ViewSourceButton = ({
-  sourceFileId,
-  onViewSource,
-  isVisible,
-  size = "sm"
-}) => {
-  if (!sourceFileId || !onViewSource) return null;
-  const padding = size === "sm" ? "p-0.5" : "p-1";
-  return /* @__PURE__ */ jsx(
-    "button",
-    {
-      onClick: () => onViewSource([sourceFileId]),
-      className: `${padding} rounded transition-all shrink-0 ${isVisible ? "opacity-100 text-gray-400 hover:text-gray-600 hover:bg-gray-100" : "opacity-0"}`,
-      title: "Ver documento fuente",
-      children: /* @__PURE__ */ jsx(Eye, { size: 14 })
-    }
-  );
-};
-var viewsourcebutton_default = ViewSourceButton;
-var TributarioTable = ({
-  title,
-  entries,
-  colorScheme: colorSchemeProp,
-  headerBg: headerBgProp,
-  headerText: headerTextProp,
-  defaultCollapsed = false,
-  forceExpanded = false,
-  flush = false,
-  sourceFileIds,
-  onViewSource
-}) => {
-  const { bg: headerBg, text: headerText } = resolveColors(colorSchemeProp, headerBgProp, headerTextProp);
-  const { getHoverProps, isHovered: isRowHovered } = useRowHover();
-  const balanceEntries = entries.filter((e) => e.source === "balance-anual");
-  const carpetaEntries = entries.filter((e) => e.source === "carpeta-tributaria");
-  const totalIngresos = balanceEntries.reduce((sum, e) => sum + (e.ingresos || 0), 0);
-  const totalEgresos = balanceEntries.reduce((sum, e) => sum + (e.egresos || 0), 0);
-  return /* @__PURE__ */ jsx(
-    tableshell_default,
-    {
-      headerBg,
-      defaultCollapsed,
-      forceExpanded,
-      flush,
-      renderHeader: ({ isExpanded }) => /* @__PURE__ */ jsx("table", { className: T.table, children: /* @__PURE__ */ jsx("tbody", { children: /* @__PURE__ */ jsxs("tr", { children: [
-        /* @__PURE__ */ jsx("td", { className: `${T.headerAccordion} text-left`, children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-2", children: [
-          /* @__PURE__ */ jsx("span", { className: `${headerText} ${T.headerTitle}`, children: title }),
-          /* @__PURE__ */ jsx(SourceIcon, { fileIds: sourceFileIds, onViewSource, className: headerText })
-        ] }) }),
-        /* @__PURE__ */ jsx("td", { className: `${T.headerAccordionStat}`, children: /* @__PURE__ */ jsxs("span", { className: `${headerText} ${T.headerCount}`, children: [
-          entries.length,
-          " ",
-          entries.length === 1 ? "documento" : "documentos"
-        ] }) }),
-        balanceEntries.length > 0 && /* @__PURE__ */ jsxs(Fragment, { children: [
-          /* @__PURE__ */ jsxs("td", { className: `${T.headerAccordionStat}`, children: [
-            /* @__PURE__ */ jsx("span", { className: `${headerText} ${T.headerStatLabel}`, children: "Ingresos: " }),
-            /* @__PURE__ */ jsx("span", { className: `${T.headerStat} ${totalIngresos > 0 ? "text-emerald-600" : "text-gray-400"}`, children: totalIngresos > 0 ? displayCurrencyCompact(totalIngresos) : "\u2014" })
-          ] }),
-          /* @__PURE__ */ jsxs("td", { className: `${T.headerAccordionStat}`, children: [
-            /* @__PURE__ */ jsx("span", { className: `${headerText} ${T.headerStatLabel}`, children: "Egresos: " }),
-            /* @__PURE__ */ jsx("span", { className: `${T.headerStat} ${totalEgresos > 0 ? headerText : "text-gray-400"}`, children: totalEgresos > 0 ? displayCurrencyCompact(totalEgresos) : "\u2014" })
-          ] })
-        ] }),
-        balanceEntries.length === 0 && /* @__PURE__ */ jsxs(Fragment, { children: [
-          /* @__PURE__ */ jsx("td", { className: `${T.headerAccordionStat}` }),
-          /* @__PURE__ */ jsx("td", { className: `${T.headerAccordionStat}` })
-        ] }),
-        /* @__PURE__ */ jsx("td", { className: `${T.headerAccordionStat}`, children: !forceExpanded && (isExpanded ? /* @__PURE__ */ jsx(ChevronUp, { size: 20, className: headerText }) : /* @__PURE__ */ jsx(ChevronDown, { size: 20, className: headerText })) })
-      ] }) }) }),
-      children: /* @__PURE__ */ jsxs("table", { className: T.table, children: [
-        /* @__PURE__ */ jsx("thead", { children: /* @__PURE__ */ jsxs("tr", { className: "border-b border-gray-200 bg-gray-50/50", children: [
-          /* @__PURE__ */ jsx("th", { className: `${T.headerCell} text-left ${T.th} ${T.vline}`, children: "Documento" }),
-          /* @__PURE__ */ jsx("th", { className: `${T.headerCell} text-left ${T.th} ${T.vline}`, children: "Detalle" }),
-          /* @__PURE__ */ jsx("th", { className: `${T.headerCell} text-right ${T.th} ${T.vline}`, children: "Ingresos" }),
-          /* @__PURE__ */ jsx("th", { className: `${T.headerCell} text-right ${T.th}`, children: "Egresos" }),
-          /* @__PURE__ */ jsx("th", {})
-        ] }) }),
-        /* @__PURE__ */ jsxs("tbody", { children: [
-          balanceEntries.map((entry) => /* @__PURE__ */ jsxs(
-            "tr",
-            {
-              className: "border-b border-gray-100 bg-amber-50/30 hover:bg-amber-100/50 group",
-              ...getHoverProps(entry.id),
-              children: [
-                /* @__PURE__ */ jsx("td", { className: `${T.cell} text-gray-700 ${T.cellLabel} ${T.vline}`, children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1 min-w-0", children: [
-                  /* @__PURE__ */ jsx("span", { className: "font-medium text-xs truncate", title: entry.empresa || entry.label, children: entry.empresa || entry.label }),
-                  /* @__PURE__ */ jsx(viewsourcebutton_default, { sourceFileId: entry.sourceFileId, onViewSource, isVisible: isRowHovered(entry.id), size: "default" })
-                ] }) }),
-                /* @__PURE__ */ jsx("td", { className: `${T.cell} ${T.muted} ${T.vline}`, children: entry.year ? `A\xF1o ${entry.year}` : "\u2014" }),
-                /* @__PURE__ */ jsx("td", { className: `${T.cell} text-right text-emerald-700 font-medium ${T.vline}`, children: displayCurrencyCompact(entry.ingresos) }),
-                /* @__PURE__ */ jsx("td", { className: `${T.cell} text-right text-amber-700 font-medium`, children: displayCurrencyCompact(entry.egresos) }),
-                /* @__PURE__ */ jsx("td", {})
-              ]
-            },
-            entry.id
-          )),
-          carpetaEntries.map((entry) => /* @__PURE__ */ jsxs(
-            "tr",
-            {
-              className: "border-b border-gray-100 bg-amber-50/30 hover:bg-amber-100/50 group",
-              ...getHoverProps(entry.id),
-              children: [
-                /* @__PURE__ */ jsx("td", { className: `${T.cell} text-gray-700 ${T.cellLabel} ${T.vline}`, children: /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-1 min-w-0", children: [
-                  /* @__PURE__ */ jsx("span", { className: "font-medium text-xs truncate", children: "Carpeta Tributaria" }),
-                  /* @__PURE__ */ jsx(viewsourcebutton_default, { sourceFileId: entry.sourceFileId, onViewSource, isVisible: isRowHovered(entry.id), size: "default" })
-                ] }) }),
-                /* @__PURE__ */ jsx("td", { className: `${T.cell} ${T.muted}`, colSpan: 3, children: entry.actividades && entry.actividades.length > 0 ? entry.actividades.join(", ") : "\u2014" }),
-                /* @__PURE__ */ jsx("td", {})
-              ]
-            },
-            entry.id
-          ))
-        ] })
-      ] })
-    }
-  );
-};
-var tributario_default = TributarioTable;
 var RiskBadge = ({ value, thresholds }) => {
   if (value === null || value === void 0) return null;
   let badgeClass = "bg-emerald-100 text-emerald-700";
@@ -3347,6 +3196,6 @@ var DeclaracionTable = ({
 };
 var declaracion_default = DeclaracionTable;
 
-export { activossummary_default as ActivosSummary, assettable_default as AssetTable, boletas_default as BoletasTable, currencytoggle_default as CurrencyToggle, DEFAULT_SCHEME, declaracion_default as DeclaracionTable, deletedialog_default as DeleteDialog, deudas_default as DeudasTable, editablecell_default as EditableCell, finalresults_default as FinalResultsCompact, inversiones_default as InversionesTable, MONTH_LABELS, propiedades_default as PropiedadesTable, recyclebin_default as RecycleBin, SourceIcon, summary_default as SummaryTable, tableshell_default as TableShell, tributario_default as TributarioTable, vehiculos_default as VehiculosTable, applyAutoCompute, applyAutoConversions, renta_default as default, defaultFormatCurrency, displayCurrency, displayCurrencyCompact, formatDeletedDate, generateId, generateLastNMonths, resolveColors, useSoftDelete };
+export { activossummary_default as ActivosSummary, assettable_default as AssetTable, boletas_default as BoletasTable, currencytoggle_default as CurrencyToggle, DEFAULT_SCHEME, declaracion_default as DeclaracionTable, deletedialog_default as DeleteDialog, deudas_default as DeudasTable, editablecell_default as EditableCell, EditableField, finalresults_default as FinalResultsCompact, inversiones_default as InversionesTable, MONTH_LABELS, propiedades_default as PropiedadesTable, recyclebin_default as RecycleBin, SourceIcon, summary_default as SummaryTable, tableshell_default as TableShell, vehiculos_default as VehiculosTable, applyAutoCompute, applyAutoConversions, renta_default as default, defaultFormatCurrency, displayCurrency, displayCurrencyCompact, formatDeletedDate, generateId, generateLastNMonths, resolveColors, useSoftDelete };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

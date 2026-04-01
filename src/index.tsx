@@ -11,10 +11,6 @@ export type { DeudaRow, DeudasTableProps } from './deudas/types'
 export { default as BoletasTable } from './boletas'
 export type { BoletaMonth, BoletasTableProps } from './boletas'
 
-// TributarioTable
-export { default as TributarioTable } from './tributario'
-export type { TributarioEntry, TributarioTableProps } from './tributario'
-
 // FinalResultsCompact
 export { default as FinalResultsCompact } from './finalresults'
 export type { FinalResultsCompactProps, FinalResultsValues, CodeudorIncomeInfo, PromptOptions } from './finalresults'
@@ -53,6 +49,7 @@ export type { ColorScheme } from './common/colors'
 
 // Common
 export { default as EditableCell } from './common/editablecell'
+export { default as EditableField } from './common/editablefield'
 export { default as DeleteDialog } from './common/deletedialog'
 export { default as RecycleBin } from './common/recyclebin'
 export { useSoftDelete } from './common/usesoftdelete'

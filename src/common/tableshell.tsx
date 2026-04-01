@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Eye } from 'lucide-react'
 import { resolveColors } from './colors'
+import { T } from './styles'
 
 // ============================================================================
 // SourceIcon — reusable eye icon for source file viewing in headers/rows
@@ -28,7 +29,7 @@ export const SourceIcon = ({
 }
 
 // ============================================================================
-// TableShell — shared accordion wrapper for collapsible table sections
+// TableShell — single-table wrapper with colored header row
 // ============================================================================
 
 export interface TableShellProps {
@@ -37,86 +38,39 @@ export interface TableShellProps {
     /** @deprecated Use colorScheme instead */
     headerBg?: string
 
-    // Collapse behavior
-    defaultCollapsed?: boolean
-    forceExpanded?: boolean
-    disableToggle?: boolean       // Prevents toggle (e.g., MonthlyTable during selection)
+    // Header content — render prop returns <td> cells for the header <tr>
+    renderHeader: () => React.ReactNode
 
-    // Flush mode — removes outer border + radius so the table can sit
-    // edge-to-edge inside a parent container (e.g., accordion section).
-    flush?: boolean
-
-    // Header content — render prop receives { isExpanded }
-    renderHeader: (ctx: { isExpanded: boolean }) => React.ReactNode
-
-    // Table body content (inside the collapsible white area)
+    // Table body content — <tr> elements placed inside <tbody>
     children: React.ReactNode
 
-    // Optional content after the collapsible area (e.g., recycle bin, dialogs)
-    renderAfterContent?: (ctx: { isExpanded: boolean }) => React.ReactNode
-
-    // Extra props for the content wrapper div
-    contentClassName?: string
-    contentProps?: React.HTMLAttributes<HTMLDivElement>
+    // Optional content after the table (e.g., recycle bin, dialogs)
+    renderAfterContent?: () => React.ReactNode
 }
 
 const TableShell = ({
     colorScheme: colorSchemeProp,
     headerBg: headerBgProp = 'bg-gray-100',
-    defaultCollapsed = false,
-    forceExpanded = false,
-    disableToggle = false,
-    flush = false,
     renderHeader,
     children,
     renderAfterContent,
-    contentClassName,
-    contentProps,
 }: TableShellProps) => {
     const { bg: headerBg } = resolveColors(colorSchemeProp, headerBgProp)
-    const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed)
-    const isExpanded = forceExpanded || !isCollapsed
-    const canToggle = !forceExpanded && !disableToggle
-
-    const outerBorder = flush ? '' : isExpanded ? 'border border-gray-200' : ''
-    const outerRadius = flush ? '' : `rounded-xl overflow-hidden`
-    const headerRadius = flush
-        ? ''
-        : isExpanded ? 'rounded-t-xl' : 'rounded-xl'
 
     return (
-        <div className={`${outerRadius} ${outerBorder}`}>
-            <div className="overflow-x-auto">
-                <div className="inline-block min-w-full">
-                    {/* Accordion Header */}
-                    <div
-                        role={canToggle ? 'button' : undefined}
-                        tabIndex={canToggle ? 0 : undefined}
-                        onClick={() => canToggle && setIsCollapsed(!isCollapsed)}
-                        onKeyDown={(e) => {
-                            if (canToggle && (e.key === 'Enter' || e.key === ' ')) {
-                                e.preventDefault()
-                                setIsCollapsed(!isCollapsed)
-                            }
-                        }}
-                        className={`${headerBg} hover:brightness-95 transition-all ${canToggle ? 'cursor-pointer' : 'cursor-default'} ${headerRadius}`}
-                    >
-                        {renderHeader({ isExpanded })}
-                    </div>
-
-                    {/* Collapsible Content */}
-                    <div
-                        {...contentProps}
-                        className={`bg-white ${!isExpanded ? 'hidden print:block' : ''} ${contentClassName || ''}`}
-                    >
-                        {children}
-                    </div>
-
-                    {/* Optional footer (recycle bin, dialogs, etc.) */}
-                    {renderAfterContent?.({ isExpanded })}
-                </div>
-            </div>
-        </div>
+        <>
+            <table className={T.table}>
+                <thead>
+                    <tr className={headerBg}>
+                        {renderHeader()}
+                    </tr>
+                </thead>
+                <tbody>
+                    {children}
+                </tbody>
+            </table>
+            {renderAfterContent?.()}
+        </>
     )
 }
 

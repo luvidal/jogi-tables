@@ -10,7 +10,7 @@ Shared components, hooks, and utilities used across all table components. Everyt
 | `utils.ts` | Currency formatting (`displayCurrency`, `displayCurrencyCompact`, `defaultFormatCurrency`), `generateId`, `formatDeletedDate`, `MONTH_LABELS` |
 | `editablecell.tsx` | Inline-editable table cell with currency, number, text, and percent modes |
 | `currencytoggle.tsx` | `CurrencyToggle` — UF/$ toggle button used by AssetTable when UF columns exist |
-| `tableshell.tsx` | `TableShell` accordion wrapper + `SourceIcon` for collapsible table sections |
+| `tableshell.tsx` | `TableShell` — single-table wrapper with colored header row + `SourceIcon` |
 | `deletebutton.tsx` | `DeleteRowButton` — red X button with opacity-on-hover transition |
 | `viewsourcebutton.tsx` | `ViewSourceButton` — row-level eye icon for source file viewing |
 | `userowhover.ts` | `useRowHover()` — hover state tracking for table rows (accepts string or number IDs) |
@@ -45,13 +45,13 @@ import CurrencyToggle from '../common/currencytoggle'
 
 ### TableShell
 
-Shared accordion wrapper that manages collapse state, header click behavior, keyboard accessibility, and content show/hide for all collapsible table sections. Accepts a `renderHeader` render prop for custom header content and optional `renderAfterContent` for footers (e.g., recycle bin, dialogs).
+Renders a single `<table>` with a colored `<thead>` header row and `<tbody>` for body content. Ensures header and body columns share the same grid — no alignment drift.
 
 Key props:
-- `headerBg` — header background color class
-- `defaultCollapsed`, `forceExpanded` — collapse behavior
-- `disableToggle` — prevents toggle (e.g., during row selection in MonthlyTable)
-- `contentClassName`, `contentProps` — extra attributes on the content wrapper
+- `headerBg` / `colorScheme` — header row background color
+- `renderHeader` — returns `<td>` cells for the header `<tr>`
+- `children` — `<tr>` elements placed inside `<tbody>`
+- `renderAfterContent` — optional content after the `<table>` (e.g., recycle bin, dialogs)
 
 ### SourceIcon
 
@@ -59,13 +59,12 @@ Small reusable eye icon button for source file viewing. Renders nothing if no `f
 
 ## Adding a New Table
 
-Every collapsible table follows the same pattern. Use `TableShell` for the accordion wrapper and provide your own header content + body.
+Every table uses `TableShell` for the single-table wrapper. Provide header cells and body rows.
 
 ### Minimal template
 
 ```tsx
 import React from 'react'
-import { ChevronUp, ChevronDown } from 'lucide-react'
 import { T } from '../common/styles'
 import TableShell, { SourceIcon } from '../common/tableshell'
 
@@ -74,8 +73,6 @@ interface MyTableProps {
     // ... your data props
     headerBg?: string
     headerText?: string
-    defaultCollapsed?: boolean
-    forceExpanded?: boolean
     sourceFileIds?: string[]
     onViewSource?: (fileIds: string[]) => void
 }
@@ -84,41 +81,25 @@ const MyTable = ({
     title,
     headerBg = 'bg-gray-100',
     headerText = 'text-gray-700',
-    defaultCollapsed = false,
-    forceExpanded = false,
     sourceFileIds,
     onViewSource,
 }: MyTableProps) => {
     return (
         <TableShell
             headerBg={headerBg}
-            headerText={headerText}
-            defaultCollapsed={defaultCollapsed}
-            forceExpanded={forceExpanded}
-            renderHeader={({ isExpanded }) => (
-                <div className="flex items-center justify-between px-4 py-3">
-                    <div className="flex items-center gap-2">
-                        <span className={`${headerText} ${T.headerTitle}`}>{title}</span>
-                        <SourceIcon fileIds={sourceFileIds} onViewSource={onViewSource} className={headerText} />
-                    </div>
-                    <div className="flex items-center gap-2">
-                        {/* Your header stats here */}
-                        {!forceExpanded && (
-                            isExpanded
-                                ? <ChevronUp size={20} className={headerText} />
-                                : <ChevronDown size={20} className={headerText} />
-                        )}
-                    </div>
-                </div>
+            renderHeader={() => (
+                <>
+                    <td className={`${T.headerAccordion} text-left`}>
+                        <div className="flex items-center gap-2">
+                            <span className={`${headerText} ${T.headerTitle}`}>{title}</span>
+                            <SourceIcon fileIds={sourceFileIds} onViewSource={onViewSource} className={headerText} />
+                        </div>
+                    </td>
+                    {/* Your header stat cells here */}
+                </>
             )}
         >
-            {/* Your table content here */}
-            <div className="overflow-x-auto">
-                <table className={T.table} style={{ tableLayout: 'fixed' }}>
-                    <thead>...</thead>
-                    <tbody>...</tbody>
-                </table>
-            </div>
+            {/* Your <tr> body rows here */}
         </TableShell>
     )
 }
@@ -126,37 +107,35 @@ const MyTable = ({
 
 ### Checklist
 
-1. **Use `TableShell`** — never hand-roll the accordion wrapper. It handles collapse state, keyboard accessibility (Enter/Space), cursor styling, and `print:block`.
-2. **Use `SourceIcon`** — for the header eye icon. It handles null checks internally.
-3. **Use `T` styles** — for typography classes (`T.headerTitle`, `T.th`, `T.cellLabel`, etc.).
-4. **Use `EditableCell`** — for any editable numeric cells. Supports `currency`, `number`, `text`, `percent` modes.
-5. **Use `DeleteRowButton`** — for row delete buttons. Handles opacity transition, icon sizing (`sm`/`default`).
-6. **Use `ViewSourceButton`** — for row-level source file viewing. Returns null when no source/handler.
-7. **Use `EmptyStateRow`** — for empty table states. Pass `show`, `colSpan`, and `message`.
-8. **Use `useRowHover()`** — for row hover state. Returns `getHoverProps(id)` (spread on `<tr>`) and `isHovered(id)`.
-9. **Use `useFieldUpdate()`** — for generic row update/remove. Returns `updateField(id, field, value)` and `removeRow(id)`.
-10. **Use `useGridKeyboard()`** — for keyboard navigation between EditableCell instances. Pass `visibleRowIds` and `colCount`. Wire `handleContainerKeyDown` + `tabIndex={0}` on the scroll container, and `focused`/`onCellFocus`/`onNavigate`/`requestEdit` on each EditableCell.
-11. **Chevron placement** — each table controls where the chevron goes in its header. Always guard with `!forceExpanded`.
-6. **Header layout** — use flexbox (`div.flex`) for simple headers, or `<table>` layout for column-aligned headers that match the body.
-7. **`renderAfterContent`** — use this for content that sits after the collapsible area but inside the outer wrapper (e.g., MonthlyTable's recycle bin and dialogs).
-8. **`disableToggle`** — set to `true` when the header has interactive elements that should prevent collapse (e.g., selection bar).
-9. **Export from `index.tsx`** — add your component + types to the root `src/index.tsx`.
-10. **Add a README** — create `src/mytable/README.md` documenting features, dependencies, and props.
+1. **Use `TableShell`** — never create your own `<table>` wrapper. It renders the single `<table>` with `<thead>` and `<tbody>`.
+2. **`renderHeader` returns `<td>` cells** — not wrapped in `<table>`, `<tbody>`, or `<tr>`. TableShell handles the wrapping.
+3. **`children` are `<tr>` elements** — not wrapped in `<table>` or `<tbody>`. TableShell handles the wrapping.
+4. **Use `SourceIcon`** — for the header eye icon. It handles null checks internally.
+5. **Use `T` styles** — for typography classes (`T.headerTitle`, `T.th`, `T.cellLabel`, etc.).
+6. **Use `EditableCell`** — for any editable numeric cells. Supports `currency`, `number`, `text`, `percent` modes.
+7. **Use `DeleteRowButton`** — for row delete buttons. Handles opacity transition, icon sizing (`sm`/`default`).
+8. **Use `ViewSourceButton`** — for row-level source file viewing. Returns null when no source/handler.
+9. **Use `EmptyStateRow`** — for empty table states. Pass `show`, `colSpan`, and `message`.
+10. **Use `useRowHover()`** — for row hover state. Returns `getHoverProps(id)` (spread on `<tr>`) and `isHovered(id)`.
+11. **Use `useFieldUpdate()`** — for generic row update/remove. Returns `updateField(id, field, value)` and `removeRow(id)`.
+12. **Use `useGridKeyboard()`** — for keyboard navigation between EditableCell instances.
+13. **`renderAfterContent`** — use this for content that sits after the `<table>` (e.g., RentaTable's recycle bin and dialogs).
+14. **Export from `index.tsx`** — add your component + types to the root `src/index.tsx`.
+15. **Add a README** — create `src/mytable/README.md` documenting features, dependencies, and props.
 
 ### Reference implementations
 
-- **Simple read-only**: `boletas/index.tsx` — flexbox header, no editing, no row state
-- **Editable with CRUD**: `deudas/index.tsx` — table-layout header, editable cells, add/remove rows
-- **Complex with extras**: `renta/index.tsx` — `disableToggle`, `contentProps`, `renderAfterContent`
-- **Column-driven CRUD**: `assets/assettable.tsx` — generic `AssetTable`, no accordion (always expanded). Used by `vehiculos/`, `inversiones/`, `propiedades/` as thin config wrappers
+- **Simple read-only**: `boletas/index.tsx` — header with stats, no editing, no row state
+- **Complex with extras**: `renta/index.tsx` — keyboard nav, drag-reorder, selection, `renderAfterContent`
+- **Column-driven CRUD**: `assets/assettable.tsx` — generic `AssetTable`, no TableShell. Used by `vehiculos/`, `inversiones/`, `propiedades/` as thin config wrappers
 
 ## Consumers
 
-- **styles.ts** — used by all tables (renta, deudas, boletas, tributario, assets)
+- **styles.ts** — used by all tables (renta, deudas, boletas, assets)
 - **editablecell.tsx** — used by renta (datarow, addrow), deudas, assets
-- **tableshell.tsx** — used by renta, boletas, tributario
-- **utils.ts** — used by renta (helpers), boletas, tributario, finalresults, assets, deudas, recyclebin
+- **tableshell.tsx** — used by renta, boletas
+- **utils.ts** — used by renta (helpers), boletas, finalresults, assets, deudas, recyclebin
 - **currencytoggle.tsx** — used by assets (when UF columns present)
 - **recyclebin.tsx** — used by renta (with `renderCells` for month values), deudas, assets
-- **userowhover.ts** — used by boletas, tributario, deudas, renta, assets
+- **userowhover.ts** — used by boletas, deudas, renta, assets
 - **usemobile.ts** — used by editablecell

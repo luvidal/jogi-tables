@@ -1,5 +1,4 @@
 import React from 'react'
-import { ChevronUp, ChevronDown } from 'lucide-react'
 import { displayCurrencyCompact } from '../common/utils'
 import { T } from '../common/styles'
 import { resolveColors } from '../common/colors'
@@ -34,9 +33,6 @@ export interface BoletasTableProps {
     headerBg?: string
     /** @deprecated Use colorScheme instead */
     headerText?: string
-    defaultCollapsed?: boolean
-    forceExpanded?: boolean
-    flush?: boolean
     sourceFileIds?: string[]
     onViewSource?: (fileIds: string[]) => void
     onRemoveMonth?: (periodo: string) => void
@@ -77,9 +73,6 @@ const BoletasTable = ({
     colorScheme: colorSchemeProp,
     headerBg: headerBgProp,
     headerText: headerTextProp,
-    defaultCollapsed = false,
-    forceExpanded = false,
-    flush = false,
     sourceFileIds,
     onViewSource,
     excludedMonths,
@@ -91,71 +84,57 @@ const BoletasTable = ({
     return (
         <TableShell
             headerBg={headerBg}
-            defaultCollapsed={defaultCollapsed}
-            forceExpanded={forceExpanded}
-            flush={flush}
-            renderHeader={({ isExpanded }) => (
-                <table className={T.table}>
-                    <tbody>
-                        <tr>
-                            <td className={`${T.headerAccordion} text-left ${T.vline}`}>
-                                <div className="flex items-center gap-2">
-                                    {!forceExpanded && (
-                                        isExpanded ? <ChevronUp size={16} className={headerText} /> : <ChevronDown size={16} className={headerText} />
-                                    )}
-                                    <span className={`${headerText} ${T.headerTitle}`}>{title}</span>
-                                    <SourceIcon fileIds={sourceFileIds} onViewSource={onViewSource} className={headerText} />
-                                </div>
+            renderHeader={() => (
+                <>
+                    <td className={`${T.headerAccordion} text-left ${T.vline}`}>
+                        <div className="flex items-center gap-2">
+                            <span className={`${headerText} ${T.headerTitle}`}>{title}</span>
+                            <SourceIcon fileIds={sourceFileIds} onViewSource={onViewSource} className={headerText} />
+                        </div>
+                    </td>
+                    {months.map(m => {
+                        const isExcluded = excluded.includes(m.periodo)
+                        const canToggle = !!onToggleMonth
+                        const hasValue = m.hasData && m.liquido != null
+                        const label = SHORT_MONTHS[m.mes] || m.mes.slice(0, 3).toUpperCase()
+                        return (
+                            <td
+                                key={m.periodo}
+                                className={`${T.headerAccordionStat} ${isExcluded ? 'opacity-35 line-through' : ''}`}
+                            >
+                                <span
+                                    className={`whitespace-nowrap ${canToggle ? `cursor-pointer select-none inline-flex items-center rounded-full border ${borderColor} px-2 py-0.5 -mx-2 -my-0.5` : ''}`}
+                                    onClick={canToggle ? (e) => { e.stopPropagation(); onToggleMonth!(m.periodo) } : undefined}
+                                >
+                                    <span className={`${headerText} ${T.headerStatLabel}`}>{label}: </span>
+                                    <span className={`${T.headerStat} ${hasValue ? headerText : 'text-gray-400'}`}>
+                                        {hasValue ? displayCurrencyCompact(m.liquido) : '—'}
+                                    </span>
+                                </span>
                             </td>
-                            {months.map(m => {
-                                const isExcluded = excluded.includes(m.periodo)
-                                const canToggle = !!onToggleMonth
-                                const hasValue = m.hasData && m.liquido != null
-                                const label = SHORT_MONTHS[m.mes] || m.mes.slice(0, 3).toUpperCase()
-                                return (
-                                    <td
-                                        key={m.periodo}
-                                        className={`${T.headerAccordionStat} ${isExcluded ? 'opacity-35 line-through' : ''}`}
-                                    >
-                                        <span
-                                            className={`whitespace-nowrap ${canToggle ? `cursor-pointer select-none inline-flex items-center rounded-full border ${borderColor} px-2 py-0.5 -mx-2 -my-0.5` : ''}`}
-                                            onClick={canToggle ? (e) => { e.stopPropagation(); onToggleMonth!(m.periodo) } : undefined}
-                                        >
-                                            <span className={`${headerText} ${T.headerStatLabel}`}>{label}: </span>
-                                            <span className={`${T.headerStat} ${hasValue ? headerText : 'text-gray-400'}`}>
-                                                {hasValue ? displayCurrencyCompact(m.liquido) : '—'}
-                                            </span>
-                                        </span>
-                                    </td>
-                                )
-                            })}
-                        </tr>
-                    </tbody>
-                </table>
+                        )
+                    })}
+                </>
             )}
         >
-            <table className={T.table}>
-                <tbody>
-                    {METRICS.map(metric => (
-                        <tr key={metric.key} className={T.rowBorder}>
-                            <td className={`${T.cell} font-medium ${T.cellLabel} text-gray-600 ${T.vline}`}>
-                                {metric.label}
+            {METRICS.map(metric => (
+                <tr key={metric.key} className={T.rowBorder}>
+                    <td className={`${T.cell} font-medium ${T.cellLabel} text-gray-600 ${T.vline}`}>
+                        {metric.label}
+                    </td>
+                    {months.map(m => {
+                        const isExcluded = excluded.includes(m.periodo)
+                        return (
+                            <td
+                                key={m.periodo}
+                                className={`${T.cell} text-right ${m.hasData ? metric.color : 'text-gray-300'} ${isExcluded ? 'opacity-35' : ''}`}
+                            >
+                                {m.hasData ? metric.format(m[metric.key]) : '—'}
                             </td>
-                            {months.map(m => {
-                                const isExcluded = excluded.includes(m.periodo)
-                                return (
-                                    <td
-                                        key={m.periodo}
-                                        className={`${T.cell} text-right ${m.hasData ? metric.color : 'text-gray-300'} ${isExcluded ? 'opacity-35' : ''}`}
-                                    >
-                                        {m.hasData ? metric.format(m[metric.key]) : '—'}
-                                    </td>
-                                )
-                            })}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+                        )
+                    })}
+                </tr>
+            ))}
         </TableShell>
     )
 }

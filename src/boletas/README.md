@@ -1,12 +1,12 @@
 # BoletasTable
 
-Boletas de honorarios table with monthly breakdown (read-only display with accordion layout).
+Boletas de honorarios table with monthly breakdown (read-only display).
 
 ## Features
 
-- **Accordion**: Collapsible header with totals summary
-- **Monthly breakdown**: Rows per month with boletas count, bruto, retencion, liquido
-- **Totals row**: Summary of all months at the bottom
+- **Header**: Colored bar with per-month liquido totals
+- **Monthly breakdown**: Rows per metric (Honor. Bruto, Retención, Boletas Vig.)
+- **Excludable months**: Columns can be dimmed/toggled via `excludedMonths` + `onToggleMonth`
 - **Read-only**: No inline editing (display only)
 - **Source file viewing**: Eye icon for traceability
 
@@ -18,11 +18,9 @@ Boletas de honorarios table with monthly breakdown (read-only display with accor
 
 ## Dependencies
 
-- `../common/tableshell` — `TableShell` accordion wrapper + `SourceIcon` (see [Adding a New Table](#adding-a-new-table))
-- `../common/utils` — `displayCurrencyCompact` for currency formatting, `MONTH_LABELS` for month name display
+- `../common/tableshell` — `TableShell` single-table wrapper + `SourceIcon`
+- `../common/utils` — `displayCurrencyCompact` for currency formatting
 - `../common/styles` — `T` object for Tailwind classes
-- `../common/userowhover` — `useRowHover()` for row hover state
-- `../common/deletebutton` — `DeleteRowButton` for month removal
 
 ## Props
 
@@ -30,18 +28,10 @@ Boletas de honorarios table with monthly breakdown (read-only display with accor
 interface BoletasTableProps {
     title: string
     months: BoletaMonth[]
-    totales?: {
-        boletas_vigentes?: number
-        honorario_bruto?: number
-        retencion_terceros?: number
-        retencion_contribuyente?: number
-        total_liquido?: number
-    }
-    headerBg?: string
-    headerText?: string
-    defaultCollapsed?: boolean
-    forceExpanded?: boolean
+    colorScheme?: ColorScheme
     sourceFileIds?: string[]
     onViewSource?: (fileIds: string[]) => void
+    excludedMonths?: string[]
+    onToggleMonth?: (periodo: string) => void
 }
 ```
