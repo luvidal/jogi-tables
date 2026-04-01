@@ -2812,9 +2812,9 @@ function AssetTable({
           /* @__PURE__ */ jsxRuntime.jsx("th", { className: T.actionCol })
         ] }),
         renderFooter: () => /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "font-semibold text-xs", children: [
-          /* @__PURE__ */ jsxRuntime.jsx("td", { colSpan: textCols.length, className: `${T.totalCell} ${T.totalLabel} border-t border-t-gray-200`, children: "TOTAL" }),
-          editableCols.map((col) => /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.totalCell} ${col.align === "center" ? "text-center" : "text-right"} ${T.totalValue} border-t border-t-gray-200`, children: totals[col.key] ? col.type === "number" ? totals[col.key].toLocaleString("es-CL", { maximumFractionDigits: 2 }) : formatCurrency(totals[col.key]) : "\u2014" }, col.key)),
-          /* @__PURE__ */ jsxRuntime.jsx("td", { className: "border-t border-t-gray-200" })
+          /* @__PURE__ */ jsxRuntime.jsx("td", { colSpan: textCols.length, className: `${T.totalCell} ${T.totalLabel} border-t border-gray-200`, children: "TOTAL" }),
+          editableCols.map((col) => /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.totalCell} ${col.align === "center" ? "text-center" : "text-right"} ${T.totalValue} border-t border-gray-200`, children: totals[col.key] ? col.type === "number" ? totals[col.key].toLocaleString("es-CL", { maximumFractionDigits: 2 }) : formatCurrency(totals[col.key]) : "\u2014" }, col.key)),
+          /* @__PURE__ */ jsxRuntime.jsx("td", { className: "border-t border-gray-200" })
         ] }),
         renderAfterContent: () => /* @__PURE__ */ jsxRuntime.jsx(
           recyclebin_default,
@@ -3195,13 +3195,13 @@ var DeclaracionTable = ({
         columns3.map((col, i) => /* @__PURE__ */ jsxRuntime.jsx("th", { className: `text-right ${T.cell} font-medium ${headerText} ${i < columns3.length - 1 ? T.vline : ""}`, children: col.label }, col.key))
       ] }),
       renderFooter: totalLabel ? () => /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: "font-semibold", children: [
-        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cell} text-gray-800 border-t border-t-gray-200`, children: totalLabel }),
-        showCodeColumn && /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cell} border-t border-t-gray-200` }),
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cell} text-gray-800 border-t border-gray-200`, children: totalLabel }),
+        showCodeColumn && /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cell} border-t border-gray-200` }),
         columns3.map((col) => {
           const summedRows = rows.filter((r) => r.summed);
           const hasAny = summedRows.some((r) => data[r.key]?.[col.key] != null);
           const sum = summedRows.reduce((acc, r) => acc + (data[r.key]?.[col.key] ?? 0), 0);
-          return /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellValue} text-gray-900 border-t border-t-gray-200`, children: hasAny ? formatCurrency(sum) : "\u2014" }, col.key);
+          return /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellValue} text-gray-900 border-t border-gray-200`, children: hasAny ? formatCurrency(sum) : "\u2014" }, col.key);
         })
       ] }) : void 0,
       children: rows.map((row) => /* @__PURE__ */ jsxRuntime.jsxs("tr", { className: T.row, children: [

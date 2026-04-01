@@ -44,14 +44,14 @@ const DeclaracionTable = ({
                 )}
                 renderFooter={totalLabel ? () => (
                     <tr className="font-semibold">
-                        <td className={`${T.cell} text-gray-800 border-t border-t-gray-200`}>{totalLabel}</td>
-                        {showCodeColumn && <td className={`${T.cell} border-t border-t-gray-200`} />}
+                        <td className={`${T.cell} text-gray-800 border-t border-gray-200`}>{totalLabel}</td>
+                        {showCodeColumn && <td className={`${T.cell} border-t border-gray-200`} />}
                         {columns.map(col => {
                             const summedRows = rows.filter(r => r.summed)
                             const hasAny = summedRows.some(r => data[r.key]?.[col.key] != null)
                             const sum = summedRows.reduce((acc, r) => acc + (data[r.key]?.[col.key] ?? 0), 0)
                             return (
-                                <td key={col.key} className={`${T.cellValue} text-gray-900 border-t border-t-gray-200`}>
+                                <td key={col.key} className={`${T.cellValue} text-gray-900 border-t border-gray-200`}>
                                     {hasAny ? formatCurrency(sum) : '—'}
                                 </td>
                             )
