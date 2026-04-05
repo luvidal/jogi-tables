@@ -3272,7 +3272,7 @@ var BalanceTable = ({
             className: `${T.rowBorder} ${!isText ? T.rowHover : ""} ${isSectionBreak ? "border-t border-gray-200" : ""} ${isPatrimonio || isResultado ? "bg-gray-50/60" : ""}`,
             ...!isText ? getHoverProps(field.key) : {},
             children: [
-              /* @__PURE__ */ jsx("td", { className: `${T.cell} text-right text-gray-500 font-medium whitespace-nowrap ${T.vline} ${isPatrimonio || isResultado ? "font-semibold text-gray-600" : ""}`, children: field.label }),
+              /* @__PURE__ */ jsx("td", { className: `${T.cell} text-left text-gray-500 font-medium whitespace-nowrap ${T.vline} ${isPatrimonio || isResultado ? "font-semibold text-gray-600" : ""}`, children: field.label }),
               rows.map((row, colIdx) => {
                 const val = row[field.key];
                 const vline = colIdx < rows.length - 1 ? T.vline : "";

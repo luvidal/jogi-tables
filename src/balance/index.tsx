@@ -90,7 +90,7 @@ const BalanceTable = ({
                             className={`${T.rowBorder} ${!isText ? T.rowHover : ''} ${isSectionBreak ? 'border-t border-gray-200' : ''} ${isPatrimonio || isResultado ? 'bg-gray-50/60' : ''}`}
                             {...(!isText ? getHoverProps(field.key) : {})}
                         >
-                            <td className={`${T.cell} text-right text-gray-500 font-medium whitespace-nowrap ${T.vline} ${isPatrimonio || isResultado ? 'font-semibold text-gray-600' : ''}`}>
+                            <td className={`${T.cell} text-left text-gray-500 font-medium whitespace-nowrap ${T.vline} ${isPatrimonio || isResultado ? 'font-semibold text-gray-600' : ''}`}>
                                 {field.label}
                             </td>
                             {rows.map((row, colIdx) => {
