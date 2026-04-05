@@ -3210,6 +3210,28 @@ var DeclaracionTable = ({
   ) });
 };
 var declaracion_default = DeclaracionTable;
+function EditableField({
+  value,
+  onChange,
+  type = "percent",
+  min = 0,
+  max = 100,
+  className = ""
+}) {
+  return /* @__PURE__ */ jsx(
+    editablecell_default,
+    {
+      value,
+      onChange: (v) => {
+        const n = typeof v === "number" ? v : 0;
+        onChange(Math.max(min, Math.min(max, Math.round(n))));
+      },
+      type,
+      asDiv: true,
+      className: `bg-blue-50/50 rounded !py-0.5 !px-1.5 [&>div]:h-4 text-[11px] ${className}`
+    }
+  );
+}
 var FIELD_ROWS = [
   { key: "rut", label: "RUT", type: "text" },
   { key: "periodo", label: "Per\xEDodo", type: "text" },
@@ -3280,6 +3302,16 @@ var BalanceTable = ({
                 if (isText) {
                   return /* @__PURE__ */ jsx("td", { className: `${T.cellValue} ${val ? "text-gray-700" : "text-gray-400"} ${vline}`, children: val || "\u2014" }, row.id);
                 }
+                if (field.type === "percent") {
+                  const pctVal = val;
+                  return /* @__PURE__ */ jsx("td", { className: `${T.cell} ${vline}`, children: /* @__PURE__ */ jsx(
+                    EditableField,
+                    {
+                      value: pctVal,
+                      onChange: (v) => handleCellChange(colIdx, field.key, v)
+                    }
+                  ) }, row.id);
+                }
                 const numVal = val;
                 const isNegative = typeof numVal === "number" && numVal < 0;
                 const colorClass = isNegative ? "text-red-600" : "";
@@ -3289,7 +3321,7 @@ var BalanceTable = ({
                   {
                     value: numVal,
                     onChange: (v) => handleCellChange(colIdx, field.key, v),
-                    type: field.type,
+                    type: "currency",
                     hasData: numVal != null,
                     className: `${vline} ${colorClass} ${weightClass}`,
                     focused: keyboard.isFocused(field.key, colIdx),
@@ -3311,28 +3343,6 @@ var BalanceTable = ({
   ) });
 };
 var balance_default = BalanceTable;
-function EditableField({
-  value,
-  onChange,
-  type = "percent",
-  min = 0,
-  max = 100,
-  className = ""
-}) {
-  return /* @__PURE__ */ jsx(
-    editablecell_default,
-    {
-      value,
-      onChange: (v) => {
-        const n = typeof v === "number" ? v : 0;
-        onChange(Math.max(min, Math.min(max, Math.round(n))));
-      },
-      type,
-      asDiv: true,
-      className: `bg-blue-50/50 rounded !py-0.5 !px-1.5 [&>div]:h-4 text-[11px] ${className}`
-    }
-  );
-}
 
 export { activossummary_default as ActivosSummary, assettable_default as AssetTable, balance_default as BalanceTable, boletas_default as BoletasTable, clickableheader_default as ClickableHeader, DEFAULT_SCHEME, declaracion_default as DeclaracionTable, deletedialog_default as DeleteDialog, deudas_default as DeudasTable, editablecell_default as EditableCell, EditableField, finalresults_default as FinalResultsCompact, inversiones_default as InversionesTable, MONTH_LABELS, propiedades_default as PropiedadesTable, recyclebin_default as RecycleBin, SourceIcon, summary_default as SummaryTable, tableshell_default as TableShell, vehiculos_default as VehiculosTable, applyAutoCompute, applyAutoConversions, renta_default as default, defaultFormatCurrency, displayCurrency, displayCurrencyCompact, formatDeletedDate, generateId, generateLastNMonths, resolveColors, useSoftDelete };
 //# sourceMappingURL=index.mjs.map

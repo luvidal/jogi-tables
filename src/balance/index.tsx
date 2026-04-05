@@ -12,6 +12,7 @@ import { T } from '../common/styles'
 import { resolveColors } from '../common/colors'
 import TableShell from '../common/tableshell'
 import EditableCell from '../common/editablecell'
+import EditableField from '../common/editablefield'
 import { useGridKeyboard } from '../common/usegridkeyboard'
 import { useRowHover } from '../common/userowhover'
 import type { BalanceRow, BalanceFieldDef, BalanceTableProps } from './types'
@@ -106,6 +107,18 @@ const BalanceTable = ({
                                     )
                                 }
 
+                                if (field.type === 'percent') {
+                                    const pctVal = val as number | null
+                                    return (
+                                        <td key={row.id} className={`${T.cell} ${vline}`}>
+                                            <EditableField
+                                                value={pctVal}
+                                                onChange={(v) => handleCellChange(colIdx, field.key, v)}
+                                            />
+                                        </td>
+                                    )
+                                }
+
                                 const numVal = val as number | null
                                 const isNegative = typeof numVal === 'number' && numVal < 0
                                 const colorClass = isNegative ? 'text-red-600' : ''
@@ -116,7 +129,7 @@ const BalanceTable = ({
                                         key={row.id}
                                         value={numVal}
                                         onChange={(v) => handleCellChange(colIdx, field.key, v)}
-                                        type={field.type as 'currency' | 'percent'}
+                                        type="currency"
                                         hasData={numVal != null}
                                         className={`${vline} ${colorClass} ${weightClass}`}
                                         focused={keyboard.isFocused(field.key, colIdx)}
