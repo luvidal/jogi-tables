@@ -2193,6 +2193,30 @@ var FinalResultsCompact = ({
   ] });
 };
 var finalresults_default = FinalResultsCompact;
+function EditableField({
+  value,
+  onChange,
+  type = "percent",
+  min = 0,
+  max = 100,
+  className = "",
+  originClass
+}) {
+  return /* @__PURE__ */ jsxRuntime.jsx(
+    editablecell_default,
+    {
+      value,
+      onChange: (v) => {
+        const n = typeof v === "number" ? v : 0;
+        onChange(Math.max(min, Math.min(max, Math.round(n))));
+      },
+      type,
+      asDiv: true,
+      className: `bg-blue-50/50 rounded !py-0 !px-1 [&>div]:h-5 text-xs min-w-[48px] ${className}`,
+      originClass
+    }
+  );
+}
 
 // src/common/autoconvert.ts
 function buildUfPair(ufKey, pesosKey, ufValue, ufPrecision = 2, pesosPrecision = 0) {
@@ -2656,6 +2680,20 @@ function AssetTable({
                       const alignCls = effectiveAlign === "left" ? "justify-start" : effectiveAlign === "center" ? "justify-center" : "justify-end";
                       return /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellEdit} ${vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: `h-5 flex items-center ${alignCls} text-xs tabular-nums text-gray-800`, children: v != null ? col.type === "number" ? String(v) : formatCurrency(v) : "\u2014" }) }, col.key);
                     }
+                    if (col.asField) {
+                      const fieldValue = row[col.key];
+                      return /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellEdit} ${vline}`, children: /* @__PURE__ */ jsxRuntime.jsx("div", { className: "flex items-center justify-center", children: /* @__PURE__ */ jsxRuntime.jsx(
+                        EditableField,
+                        {
+                          value: fieldValue,
+                          onChange: (v) => updateField(row.id, col.key, v),
+                          type: "number",
+                          min: 0,
+                          max: 99,
+                          originClass: cellOrigin(row, col.key, col)
+                        }
+                      ) }) }, col.key);
+                    }
                     if (col.compound) {
                       const sep = col.compound.separator ?? "/";
                       return /* @__PURE__ */ jsxRuntime.jsx("td", { className: `text-center text-xs text-gray-500 ${vline}`, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center justify-center gap-0.5", children: [
@@ -2940,30 +2978,6 @@ var DeclaracionTable = ({
   ) });
 };
 var declaracion_default = DeclaracionTable;
-function EditableField({
-  value,
-  onChange,
-  type = "percent",
-  min = 0,
-  max = 100,
-  className = "",
-  originClass
-}) {
-  return /* @__PURE__ */ jsxRuntime.jsx(
-    editablecell_default,
-    {
-      value,
-      onChange: (v) => {
-        const n = typeof v === "number" ? v : 0;
-        onChange(Math.max(min, Math.min(max, Math.round(n))));
-      },
-      type,
-      asDiv: true,
-      className: `bg-blue-50/50 rounded !py-0 !px-1 [&>div]:h-5 text-xs min-w-[48px] ${className}`,
-      originClass
-    }
-  );
-}
 var CURRENCY_KEYS = [
   "total_activos",
   "total_pasivos",

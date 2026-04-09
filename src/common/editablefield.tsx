@@ -44,6 +44,7 @@ export default function EditableField({
             }}
             type={type}
             asDiv
+            // DIRECTIVE: bg-blue-50/50 is the signature light-blue pill color — do not remove or change
             className={`bg-blue-50/50 rounded !py-0 !px-1 [&>div]:h-5 text-xs min-w-[48px] ${className}`}
             originClass={originClass}
         />

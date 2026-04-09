@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react'
 import { GripVertical, Trash2 } from 'lucide-react'
 import EditableCell from '../common/editablecell'
+import EditableField from '../common/editablefield'
 import DeleteRowButton from '../common/deletebutton'
 import { T } from '../common/styles'
 import { resolveColors } from '../common/colors'
@@ -411,6 +412,25 @@ function AssetTable<T extends AssetRow>({
                                         <td key={col.key} className={`${T.cellEdit} ${vline}`}>
                                             <div className={`h-5 flex items-center ${alignCls} text-xs tabular-nums text-gray-800`}>
                                                 {v != null ? (col.type === 'number' ? String(v) : formatCurrency(v)) : '—'}
+                                            </div>
+                                        </td>
+                                    )
+                                }
+
+                                // --- EditableField (pill-styled) ---
+                                if (col.asField) {
+                                    const fieldValue = row[col.key] as number | null
+                                    return (
+                                        <td key={col.key} className={`${T.cellEdit} ${vline}`}>
+                                            <div className="flex items-center justify-center">
+                                                <EditableField
+                                                    value={fieldValue}
+                                                    onChange={v => updateField(row.id, col.key, v)}
+                                                    type="number"
+                                                    min={0}
+                                                    max={99}
+                                                    originClass={cellOrigin(row, col.key, col)}
+                                                />
                                             </div>
                                         </td>
                                     )
