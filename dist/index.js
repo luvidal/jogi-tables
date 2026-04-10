@@ -3203,12 +3203,65 @@ var BalanceTable = ({
   }) });
 };
 var balance_default = BalanceTable;
+var CollapsibleSection = ({
+  label,
+  collapsed,
+  onToggle,
+  summary,
+  headerClassName,
+  children
+}) => {
+  const Chevron = collapsed ? lucideReact.ChevronRight : lucideReact.ChevronDown;
+  return /* @__PURE__ */ jsxRuntime.jsxs("div", { children: [
+    /* @__PURE__ */ jsxRuntime.jsxs(
+      "button",
+      {
+        type: "button",
+        onClick: onToggle,
+        className: `w-full flex items-center gap-1.5 px-1 py-1.5 text-xs font-medium text-gray-400 uppercase tracking-wide hover:text-gray-600 transition-colors cursor-pointer ${headerClassName || ""}`,
+        children: [
+          /* @__PURE__ */ jsxRuntime.jsx(Chevron, { size: 14, className: "shrink-0" }),
+          /* @__PURE__ */ jsxRuntime.jsx("span", { children: label }),
+          summary && /* @__PURE__ */ jsxRuntime.jsx("span", { className: "ml-auto font-normal normal-case tracking-normal text-gray-400", children: summary })
+        ]
+      }
+    ),
+    !collapsed && children
+  ] });
+};
+var collapsiblesection_default = CollapsibleSection;
+function useCollapsedState(keys, initialCollapsed = {}) {
+  const [collapsed, setCollapsed] = React3.useState(() => {
+    const state = {};
+    for (const k of keys) state[k] = initialCollapsed[k] ?? false;
+    return state;
+  });
+  const toggle = React3.useCallback((key) => {
+    setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }));
+  }, []);
+  const expandAll = React3.useCallback(() => {
+    setCollapsed((prev) => {
+      const next = {};
+      for (const k of Object.keys(prev)) next[k] = false;
+      return next;
+    });
+  }, []);
+  const collapseAll = React3.useCallback(() => {
+    setCollapsed((prev) => {
+      const next = {};
+      for (const k of Object.keys(prev)) next[k] = true;
+      return next;
+    });
+  }, []);
+  return { collapsed, toggle, expandAll, collapseAll };
+}
 
 exports.ActivosSummary = activossummary_default;
 exports.AssetTable = assettable_default;
 exports.BalanceTable = balance_default;
 exports.BoletasTable = boletas_default;
 exports.ClickableHeader = clickableheader_default;
+exports.CollapsibleSection = collapsiblesection_default;
 exports.CrudTable = assettable_default;
 exports.DEFAULT_SCHEME = DEFAULT_SCHEME;
 exports.DeclaracionTable = declaracion_default;
@@ -3233,6 +3286,7 @@ exports.formatDeletedDate = formatDeletedDate;
 exports.generateId = generateId;
 exports.generateLastNMonths = generateLastNMonths;
 exports.resolveColors = resolveColors;
+exports.useCollapsedState = useCollapsedState;
 exports.useSoftDelete = useSoftDelete;
 //# sourceMappingURL=index.js.map
 //# sourceMappingURL=index.js.map

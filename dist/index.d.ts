@@ -532,4 +532,27 @@ declare const ClickableHeader: ({ onClick, borderColor, className, children }: {
     children: React$1.ReactNode;
 }) => react_jsx_runtime.JSX.Element;
 
-export { ActivosSummary, type ActivosSummaryItem, type ActivosSummaryProps, type AssetRow, AssetTable, type AssetTableProps, type AutoComputeRule, type AutoConvertRule, type BalanceRow, BalanceTable, type BalanceTableProps, type BoletaMonth, BoletasTable, type BoletasTableProps, type CellOrigin, ClickableHeader, type CodeudorIncomeInfo, type ColorScheme, type ColumnDef, AssetTable as CrudTable, DEFAULT_SCHEME, type DeclaracionColumn, type DeclaracionRow, DeclaracionTable, type DeclaracionTableProps, DeleteDialog, EditableCell, EditableField, FinalResultsCompact, type FinalResultsCompactProps, type FinalResultsValues, MONTH_LABELS, type Month, ORIGIN_CLASSES, type PromptOptions, RecycleBin, type ReliquidacionBreakdown, type RentaTableProps, type RowData, type RowType, type SideEffect, type SoftDeletable, SourceIcon, type SummaryRow, type SummaryRowFormat, type SummaryRowType, SummaryTable, type SummaryTableProps, type TablePreset, TableShell, type TableShellProps, applyAutoCompute, applyAutoConversions, buildUfPair, RentaTable as default, defaultFormatCurrency, displayCurrency, displayCurrencyCompact, formatDeletedDate, generateId, generateLastNMonths, resolveColors, useSoftDelete };
+interface CollapsibleSectionProps {
+    label: string;
+    collapsed: boolean;
+    onToggle: () => void;
+    /** Inline summary shown next to label (e.g. total, count badge) */
+    summary?: React$1.ReactNode;
+    /** Extra classes on the header bar */
+    headerClassName?: string;
+    children: React$1.ReactNode;
+}
+declare const CollapsibleSection: ({ label, collapsed, onToggle, summary, headerClassName, children, }: CollapsibleSectionProps) => react_jsx_runtime.JSX.Element;
+
+/**
+ * Local collapse state for a set of named sections.
+ * All sections start expanded (collapsed = false) unless initialCollapsed is provided.
+ */
+declare function useCollapsedState(keys: string[], initialCollapsed?: Record<string, boolean>): {
+    collapsed: Record<string, boolean>;
+    toggle: (key: string) => void;
+    expandAll: () => void;
+    collapseAll: () => void;
+};
+
+export { ActivosSummary, type ActivosSummaryItem, type ActivosSummaryProps, type AssetRow, AssetTable, type AssetTableProps, type AutoComputeRule, type AutoConvertRule, type BalanceRow, BalanceTable, type BalanceTableProps, type BoletaMonth, BoletasTable, type BoletasTableProps, type CellOrigin, ClickableHeader, type CodeudorIncomeInfo, CollapsibleSection, type CollapsibleSectionProps, type ColorScheme, type ColumnDef, AssetTable as CrudTable, DEFAULT_SCHEME, type DeclaracionColumn, type DeclaracionRow, DeclaracionTable, type DeclaracionTableProps, DeleteDialog, EditableCell, EditableField, FinalResultsCompact, type FinalResultsCompactProps, type FinalResultsValues, MONTH_LABELS, type Month, ORIGIN_CLASSES, type PromptOptions, RecycleBin, type ReliquidacionBreakdown, type RentaTableProps, type RowData, type RowType, type SideEffect, type SoftDeletable, SourceIcon, type SummaryRow, type SummaryRowFormat, type SummaryRowType, SummaryTable, type SummaryTableProps, type TablePreset, TableShell, type TableShellProps, applyAutoCompute, applyAutoConversions, buildUfPair, RentaTable as default, defaultFormatCurrency, displayCurrency, displayCurrencyCompact, formatDeletedDate, generateId, generateLastNMonths, resolveColors, useCollapsedState, useSoftDelete };

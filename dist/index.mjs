@@ -3195,7 +3195,59 @@ var BalanceTable = ({
   }) });
 };
 var balance_default = BalanceTable;
+var CollapsibleSection = ({
+  label,
+  collapsed,
+  onToggle,
+  summary,
+  headerClassName,
+  children
+}) => {
+  const Chevron = collapsed ? ChevronRight : ChevronDown;
+  return /* @__PURE__ */ jsxs("div", { children: [
+    /* @__PURE__ */ jsxs(
+      "button",
+      {
+        type: "button",
+        onClick: onToggle,
+        className: `w-full flex items-center gap-1.5 px-1 py-1.5 text-xs font-medium text-gray-400 uppercase tracking-wide hover:text-gray-600 transition-colors cursor-pointer ${headerClassName || ""}`,
+        children: [
+          /* @__PURE__ */ jsx(Chevron, { size: 14, className: "shrink-0" }),
+          /* @__PURE__ */ jsx("span", { children: label }),
+          summary && /* @__PURE__ */ jsx("span", { className: "ml-auto font-normal normal-case tracking-normal text-gray-400", children: summary })
+        ]
+      }
+    ),
+    !collapsed && children
+  ] });
+};
+var collapsiblesection_default = CollapsibleSection;
+function useCollapsedState(keys, initialCollapsed = {}) {
+  const [collapsed, setCollapsed] = useState(() => {
+    const state = {};
+    for (const k of keys) state[k] = initialCollapsed[k] ?? false;
+    return state;
+  });
+  const toggle = useCallback((key) => {
+    setCollapsed((prev) => ({ ...prev, [key]: !prev[key] }));
+  }, []);
+  const expandAll = useCallback(() => {
+    setCollapsed((prev) => {
+      const next = {};
+      for (const k of Object.keys(prev)) next[k] = false;
+      return next;
+    });
+  }, []);
+  const collapseAll = useCallback(() => {
+    setCollapsed((prev) => {
+      const next = {};
+      for (const k of Object.keys(prev)) next[k] = true;
+      return next;
+    });
+  }, []);
+  return { collapsed, toggle, expandAll, collapseAll };
+}
 
-export { activossummary_default as ActivosSummary, assettable_default as AssetTable, balance_default as BalanceTable, boletas_default as BoletasTable, clickableheader_default as ClickableHeader, assettable_default as CrudTable, DEFAULT_SCHEME, declaracion_default as DeclaracionTable, deletedialog_default as DeleteDialog, editablecell_default as EditableCell, EditableField, finalresults_default as FinalResultsCompact, MONTH_LABELS, ORIGIN_CLASSES, recyclebin_default as RecycleBin, SourceIcon, summary_default as SummaryTable, tableshell_default as TableShell, applyAutoCompute, applyAutoConversions, buildUfPair, renta_default as default, defaultFormatCurrency, displayCurrency, displayCurrencyCompact, formatDeletedDate, generateId, generateLastNMonths, resolveColors, useSoftDelete };
+export { activossummary_default as ActivosSummary, assettable_default as AssetTable, balance_default as BalanceTable, boletas_default as BoletasTable, clickableheader_default as ClickableHeader, collapsiblesection_default as CollapsibleSection, assettable_default as CrudTable, DEFAULT_SCHEME, declaracion_default as DeclaracionTable, deletedialog_default as DeleteDialog, editablecell_default as EditableCell, EditableField, finalresults_default as FinalResultsCompact, MONTH_LABELS, ORIGIN_CLASSES, recyclebin_default as RecycleBin, SourceIcon, summary_default as SummaryTable, tableshell_default as TableShell, applyAutoCompute, applyAutoConversions, buildUfPair, renta_default as default, defaultFormatCurrency, displayCurrency, displayCurrencyCompact, formatDeletedDate, generateId, generateLastNMonths, resolveColors, useCollapsedState, useSoftDelete };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map

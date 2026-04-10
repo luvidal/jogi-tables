@@ -54,3 +54,6 @@ export { applyAutoConversions, applyAutoCompute, buildUfPair } from './common/au
 export type { AutoConvertRule, AutoComputeRule, SideEffect } from './common/autoconvert'
 export { defaultFormatCurrency, displayCurrency, displayCurrencyCompact, generateId, formatDeletedDate, MONTH_LABELS } from './common/utils'
 export { default as ClickableHeader } from './common/clickableheader'
+export { default as CollapsibleSection } from './common/collapsiblesection'
+export type { CollapsibleSectionProps } from './common/collapsiblesection'
+export { useCollapsedState } from './common/usecollapsedstate'
