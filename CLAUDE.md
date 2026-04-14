@@ -19,6 +19,7 @@ npm run test:watch   # Run tests in watch mode
 - **Vite** for visual dev/test page
 - **Vitest** + **happy-dom** for unit tests
 - **Tailwind CSS** classes (consumer must include `dist/` in their tailwind content config)
+- **Unified token palette (Phase 2b)** — chrome uses `surface-*`, `ink-*`, `edge-*`; semantics use `status-ok|warn|late|pending|info`. Consumer owns the `--surface-*`, `--ink-*`, `--edge-*`, `--status-*` CSS vars. Satellite `tailwind.config.ts` maps the namespaces via `rgb(var(--x) / <alpha-value>)`; `dev/tailwind.css` mirrors the values so the Vite sandbox renders on the same dark palette the host ships.
 - **lucide-react** for icons (peer dep)
 
 ## Project Structure

@@ -24,7 +24,7 @@ const SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, col
   const colors = colorScheme ?? DEFAULT_SCHEME
 
   return (
-    <div className="overflow-x-auto border-y border-gray-200 mb-3 sm:mb-4">
+    <div className="overflow-x-auto border-y border-edge-subtle/20 mb-3 sm:mb-4">
       <table className={`${T.table} border-collapse`}>
         <tbody>
           {rows.map((row, idx) => {
@@ -52,7 +52,7 @@ const SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, col
 
             return (
               <tr key={idx} className={rowClass}>
-                <td className={`${T.cell} ${bold ? T.footerLabel + ' text-gray-800' : T.muted + ' ' + T.cellIndent} ${T.vline}`}>
+                <td className={`${T.cell} ${bold ? T.footerLabel + ' text-ink-primary' : T.muted + ' ' + T.cellIndent} ${T.vline}`}>
                   {row.label}
                   {renderLabelSuffix?.(row, idx)}
                 </td>
@@ -66,8 +66,8 @@ const SummaryTable = ({ columnHeaders, rows, extraColumn, renderLabelSuffix, col
                   const custom = renderCell?.(row, i, display)
                   const originClass = getCellOriginClass?.(idx, i)
                   const textClass = bold
-                    ? `${T.footerValue} ${originClass || 'text-gray-800'}`
-                    : (originClass || 'text-gray-700')
+                    ? `${T.footerValue} ${originClass || 'text-ink-primary'}`
+                    : (originClass || 'text-ink-secondary')
                   return (
                     <td
                       key={i}

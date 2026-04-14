@@ -50,27 +50,27 @@ export const ContextMenu = ({ x, y, canGroup, selectedCount, onGroup, onDeleteSe
     const menu = (
         <div
             ref={ref}
-            className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[180px] print:hidden"
+            className="fixed z-50 bg-surface-1 border border-edge-subtle/20 rounded-lg shadow-lg py-1 min-w-[180px] text-ink-primary print:hidden"
             style={{ left: x, top: y }}
         >
             <button
                 onClick={() => { onGroup(); onClose() }}
                 disabled={!canGroup}
-                className="w-full px-3 py-1.5 text-left text-xs flex items-center gap-2 hover:bg-gray-50 disabled:text-gray-300 disabled:hover:bg-transparent"
+                className="w-full px-3 py-1.5 text-left text-xs flex items-center gap-2 hover:bg-surface-2 disabled:text-ink-tertiary/50 disabled:hover:bg-transparent"
             >
                 <FoldVertical size={14} />
                 Agrupar {selectedCount} filas
             </button>
             <button
                 onClick={() => { onDeleteSelected(); onClose() }}
-                className="w-full px-3 py-1.5 text-left text-xs flex items-center gap-2 hover:bg-gray-50 text-red-600"
+                className="w-full px-3 py-1.5 text-left text-xs flex items-center gap-2 hover:bg-surface-2 text-status-pending"
             >
                 <Trash2 size={14} />
                 Eliminar {selectedCount} fila{selectedCount !== 1 ? 's' : ''}
             </button>
             <button
                 onClick={() => { onCancel(); onClose() }}
-                className="w-full px-3 py-1.5 text-left text-xs flex items-center gap-2 hover:bg-gray-50 text-gray-600"
+                className="w-full px-3 py-1.5 text-left text-xs flex items-center gap-2 hover:bg-surface-2 text-ink-secondary"
             >
                 <X size={14} />
                 Cancelar selección
@@ -142,7 +142,7 @@ export const HeaderSelectionBar = ({ selectedCount, canGroup, monthCount, naming
                             value={groupName}
                             onChange={(e) => setGroupName(e.target.value)}
                             placeholder="Nombre del grupo..."
-                            className="text-xs border border-gray-300 bg-white text-gray-800 placeholder-gray-400 rounded px-2 py-1 outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 w-44"
+                            className="text-xs border border-edge-subtle/30 bg-surface-0 text-ink-primary placeholder-ink-tertiary/60 rounded px-2 py-1 outline-none focus:border-status-ok focus:ring-1 focus:ring-status-ok w-44"
                             onKeyDown={(e) => {
                                 e.stopPropagation()
                                 if (e.key === 'Enter') handleSubmit()
@@ -152,14 +152,14 @@ export const HeaderSelectionBar = ({ selectedCount, canGroup, monthCount, naming
                         <button
                             onClick={handleSubmit}
                             disabled={!groupName.trim()}
-                            className="p-1 rounded text-emerald-700 hover:bg-emerald-100 disabled:text-gray-300 disabled:hover:bg-transparent"
+                            className="p-1 rounded text-status-ok hover:bg-status-ok/15 disabled:text-ink-tertiary/50 disabled:hover:bg-transparent"
                             title="Confirmar"
                         >
                             <Check size={14} />
                         </button>
                         <button
                             onClick={() => { onNamingChange(false); setGroupName('') }}
-                            className="p-1 rounded text-gray-400 hover:bg-gray-200"
+                            className="p-1 rounded text-ink-tertiary hover:bg-surface-2"
                             title="Cancelar"
                         >
                             <X size={14} />
@@ -167,20 +167,20 @@ export const HeaderSelectionBar = ({ selectedCount, canGroup, monthCount, naming
                     </div>
                 ) : (
                     <>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-ink-tertiary">
                             {selectedCount} fila{selectedCount !== 1 ? 's' : ''}
                         </span>
                         <button
                             onClick={() => onNamingChange(true)}
                             disabled={!canGroup}
-                            className="text-xs px-3 py-1 rounded-full bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                            className="text-xs px-3 py-1 rounded-full bg-status-ok text-status-ok-contrast hover:bg-status-ok/80 disabled:bg-surface-2 disabled:text-ink-tertiary/60 disabled:cursor-not-allowed transition-colors"
                             title={!canGroup && selectedCount < 2 ? 'Selecciona al menos 2 filas' : !canGroup ? 'Solo puedes agrupar filas del mismo tipo' : 'Agrupar filas seleccionadas'}
                         >
                             Agrupar
                         </button>
                         <button
                             onClick={onDeleteSelected}
-                            className="text-xs px-3 py-1 rounded-full text-red-600 hover:bg-red-100 transition-colors flex items-center gap-1"
+                            className="text-xs px-3 py-1 rounded-full text-status-pending hover:bg-status-pending/15 transition-colors flex items-center gap-1"
                             title="Eliminar filas seleccionadas"
                         >
                             <Trash2 size={12} />
@@ -188,7 +188,7 @@ export const HeaderSelectionBar = ({ selectedCount, canGroup, monthCount, naming
                         </button>
                         <button
                             onClick={onCancel}
-                            className="text-xs px-2 py-1 rounded-full text-gray-500 hover:bg-gray-200 transition-colors"
+                            className="text-xs px-2 py-1 rounded-full text-ink-tertiary hover:bg-surface-2 transition-colors"
                         >
                             Cancelar
                         </button>

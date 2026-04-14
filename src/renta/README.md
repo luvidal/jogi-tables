@@ -45,8 +45,8 @@ interface MonthlyTableProps {
     rows: RowData[]
     onRowsChange: (rows: RowData[]) => void
     sections?: SectionDef[]           // Explicit sections (auto-detected if omitted)
-    headerBg?: string                 // Tailwind bg class (default: 'bg-gray-100')
-    headerText?: string               // Tailwind text class (default: 'text-gray-700')
+    headerBg?: string                 // Tailwind bg class (default: 'bg-surface-2')
+    headerText?: string               // Tailwind text class (default: 'text-ink-secondary')
     forceExpanded?: boolean           // Force group headers expanded (e.g., print mode)
     formatValue?: (value: number) => string
     calculateTotal?: (monthId: string, rows: RowData[]) => number

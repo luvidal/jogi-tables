@@ -27,8 +27,8 @@ const AddRow = ({
 }: AddRowProps) => {
     const subtract = isSubtractType(section.type)
     const bgClass = subtract
-        ? 'bg-red-50/30 border-red-100'
-        : 'bg-gray-50/30 border-gray-100'
+        ? 'bg-status-pending/5 border-status-pending/20'
+        : 'bg-surface-1/40 border-edge-subtle/10'
 
     return (
         <tr className={`border-b border-dashed ${bgClass}`}>
@@ -38,7 +38,7 @@ const AddRow = ({
                     placeholder={section.placeholder}
                     value={labelValue}
                     onChange={(e) => onLabelChange(e.target.value)}
-                    className={`w-full ${T.input} text-gray-500 placeholder-gray-300`}
+                    className={`w-full ${T.input} text-ink-tertiary placeholder-ink-tertiary/50`}
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' && labelValue.trim()) {
                             onAddRow(labelValue)

@@ -42,18 +42,18 @@ const DeleteDialog = ({ count, onConfirm, onCancel }: DeleteDialogProps) => {
         >
             <div
                 ref={cardRef}
-                className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm mx-4 text-center"
+                className="bg-surface-1 border border-edge-subtle/20 rounded-2xl shadow-xl p-8 w-full max-w-sm mx-4 text-center"
             >
                 <div className="flex justify-center mb-4">
-                    <div className="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center">
-                        <Trash2 size={24} className="text-red-500" />
+                    <div className="w-14 h-14 rounded-full bg-status-pending/10 flex items-center justify-center">
+                        <Trash2 size={24} className="text-status-pending" />
                     </div>
                 </div>
 
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                <h3 className="text-lg font-semibold text-ink-primary mb-2">
                     ¿Cuál es la razón para borrar?
                 </h3>
-                <p className="text-sm text-gray-500 mb-5">
+                <p className="text-sm text-ink-tertiary mb-5">
                     {count === 1 ? 'Esta fila se moverá a la papelera.' : `${count} filas se moverán a la papelera.`}
                 </p>
 
@@ -63,7 +63,7 @@ const DeleteDialog = ({ count, onConfirm, onCancel }: DeleteDialogProps) => {
                     onChange={(e) => setReason(e.target.value)}
                     placeholder="Escribe una razón..."
                     rows={2}
-                    className="w-full text-sm border border-gray-200 rounded-lg px-3 py-2 mb-5 outline-none focus:border-red-300 focus:ring-1 focus:ring-red-300 resize-none placeholder-gray-400"
+                    className="w-full text-sm bg-surface-0 text-ink-primary border border-edge-subtle/20 rounded-lg px-3 py-2 mb-5 outline-none focus:border-status-pending/60 focus:ring-1 focus:ring-status-pending/40 resize-none placeholder-ink-tertiary/60"
                     onKeyDown={(e) => {
                         if (e.key === 'Enter' && !e.shiftKey) {
                             e.preventDefault()
@@ -75,13 +75,13 @@ const DeleteDialog = ({ count, onConfirm, onCancel }: DeleteDialogProps) => {
                 <div className="flex gap-3">
                     <button
                         onClick={handleSubmit}
-                        className="flex-1 py-2.5 rounded-lg bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors"
+                        className="flex-1 py-2.5 rounded-lg bg-status-pending text-status-pending-contrast text-sm font-medium hover:bg-status-pending/80 transition-colors"
                     >
                         Confirmar
                     </button>
                     <button
                         onClick={onCancel}
-                        className="flex-1 py-2.5 rounded-lg border border-gray-200 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
+                        className="flex-1 py-2.5 rounded-lg border border-edge-subtle/20 text-ink-secondary text-sm font-medium hover:bg-surface-2 transition-colors"
                     >
                         Cancelar
                     </button>

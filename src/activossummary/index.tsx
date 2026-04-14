@@ -21,10 +21,10 @@ export interface ActivosSummaryProps {
 }
 
 const defaultColorScheme = {
-    totalBg: 'bg-cyan-50',
-    totalBorder: 'border-cyan-200',
-    totalText: 'text-cyan-700',
-    totalValueText: 'text-cyan-800',
+    totalBg: 'bg-status-info/10',
+    totalBorder: 'border-status-info/30',
+    totalText: 'text-status-info',
+    totalValueText: 'text-status-info',
 }
 
 const ActivosSummary = ({
@@ -39,12 +39,12 @@ const ActivosSummary = ({
         <div className="space-y-2">
             <div className="grid grid-cols-3 gap-2">
                 {items.map((item, i) => (
-                    <div key={i} className="border border-gray-200 rounded-lg p-2.5">
-                        <div className={`${T.cardLabel} text-gray-500`}>{item.label}</div>
-                        <div className={`${T.cardValue} text-gray-800 mt-0.5`}>
+                    <div key={i} className="border border-edge-subtle/20 rounded-lg p-2.5">
+                        <div className={`${T.cardLabel} text-ink-tertiary`}>{item.label}</div>
+                        <div className={`${T.cardValue} text-ink-primary mt-0.5`}>
                             {item.value ? formatCurrency(item.value) : '—'}
                         </div>
-                        <div className="text-[10px] text-gray-400 mt-0.5">
+                        <div className="text-[10px] text-ink-tertiary/70 mt-0.5">
                             {item.count} {item.count === 1 ? 'registro' : 'registros'}
                         </div>
                     </div>

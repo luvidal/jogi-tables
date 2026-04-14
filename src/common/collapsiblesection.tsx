@@ -27,11 +27,11 @@ const CollapsibleSection = ({
             <button
                 type="button"
                 onClick={onToggle}
-                className={`w-full flex items-center gap-1.5 px-1 py-1.5 text-xs font-medium text-gray-400 uppercase tracking-wide hover:text-gray-600 transition-colors cursor-pointer ${headerClassName || ''}`}
+                className={`w-full flex items-center gap-1.5 px-1 py-1.5 text-xs font-medium text-ink-tertiary uppercase tracking-wide hover:text-ink-secondary transition-colors cursor-pointer ${headerClassName || ''}`}
             >
                 <Chevron size={14} className="shrink-0" />
                 <span>{label}</span>
-                {summary && <span className="ml-auto font-normal normal-case tracking-normal text-gray-400">{summary}</span>}
+                {summary && <span className="ml-auto font-normal normal-case tracking-normal text-ink-tertiary">{summary}</span>}
             </button>
             {!collapsed && children}
         </div>

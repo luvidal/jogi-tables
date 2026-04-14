@@ -18,7 +18,7 @@ const ViewSourceButton = ({
     return (
         <button
             onClick={() => onViewSource([sourceFileId])}
-            className={`${padding} rounded transition-all shrink-0 ${isVisible ? 'opacity-100 text-gray-400 hover:text-gray-600 hover:bg-gray-100' : 'opacity-0'}`}
+            className={`${padding} rounded transition-all shrink-0 ${isVisible ? 'opacity-100 text-ink-tertiary hover:text-ink-primary hover:bg-surface-2' : 'opacity-0'}`}
             title="Ver documento fuente"
         >
             <Eye size={14} />

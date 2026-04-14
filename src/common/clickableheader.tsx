@@ -9,7 +9,7 @@ const ClickableHeader = ({ onClick, borderColor, className, children }: {
     children: React.ReactNode
 }) => (
     <span
-        className={`whitespace-nowrap ${onClick ? `cursor-pointer select-none inline-flex items-center gap-1 rounded-full border ${borderColor || 'border-gray-300'} px-2 py-0.5 -mx-2 -my-0.5 transition-colors` : ''} ${className || ''}`}
+        className={`whitespace-nowrap ${onClick ? `cursor-pointer select-none inline-flex items-center gap-1 rounded-full border ${borderColor || 'border-edge-subtle/30'} px-2 py-0.5 -mx-2 -my-0.5 transition-colors` : ''} ${className || ''}`}
         onClick={onClick ? (e) => { e.stopPropagation(); onClick() } : undefined}
     >
         {children}

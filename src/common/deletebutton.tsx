@@ -18,7 +18,7 @@ const DeleteRowButton = ({
     return (
         <button
             onClick={onClick}
-            className={`${padding} rounded transition-all shrink-0 ${isVisible ? 'opacity-100 text-red-400 hover:text-red-600 hover:bg-red-100' : 'opacity-0'}`}
+            className={`${padding} rounded transition-all shrink-0 ${isVisible ? 'opacity-100 text-status-pending/70 hover:text-status-pending hover:bg-status-pending/10' : 'opacity-0'}`}
             title={title}
         >
             <X size={iconSize} />

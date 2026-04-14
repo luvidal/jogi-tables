@@ -38,7 +38,7 @@ interface EditableCellProps {
     requestClear?: number
     /** Initial value for type-to-edit (the character pressed to start editing) */
     editInitialValue?: string | null
-    /** Text color class based on cell origin (ai/user/calculated). Overrides default text-gray-800. */
+    /** Text color class based on cell origin (ai/user/calculated). Overrides default text-ink-primary. */
     originClass?: string
 }
 
@@ -153,10 +153,10 @@ const EditableCell = ({
 
     // Color classes based on state — priority: empty → deduction → origin → default
     const colorClass = !hasData
-        ? 'text-gray-300'
+        ? 'text-ink-tertiary/60'
         : isDeduction && type === 'currency'
-            ? 'text-rose-600'
-            : (originClass || 'text-gray-800')
+            ? 'text-status-pending'
+            : (originClass || 'text-ink-primary')
 
     // Alignment classes
     const alignClass = align === 'left' ? 'text-left justify-start' : align === 'center' ? 'text-center justify-center' : 'text-right justify-end'
@@ -192,7 +192,7 @@ const EditableCell = ({
         }
     }
 
-    const focusRing = focused && !isEditing ? 'ring-2 ring-blue-400 ring-inset' : ''
+    const focusRing = focused && !isEditing ? 'ring-2 ring-brand ring-inset' : ''
 
     return (
         <Wrapper
@@ -217,7 +217,7 @@ const EditableCell = ({
                     />
                 )}
                 <span
-                    className={`text-xs tabular-nums ${colorClass} ${!hasData ? 'text-gray-300' : ''} ${isEditing ? 'invisible' : ''}`}
+                    className={`text-xs tabular-nums ${colorClass} ${!hasData ? 'text-ink-tertiary/60' : ''} ${isEditing ? 'invisible' : ''}`}
                     title={type === 'currency' && hasData ? displayCurrency(value as number) : undefined}
                 >
                     {displayValue}
@@ -228,10 +228,10 @@ const EditableCell = ({
                             e.stopPropagation()
                             onViewSource()
                         }}
-                        className={`p-0.5 rounded hover:bg-gray-200 transition-all shrink-0 ${isMobile ? 'opacity-100' : ''}`}
+                        className={`p-0.5 rounded hover:bg-surface-2 transition-all shrink-0 ${isMobile ? 'opacity-100' : ''}`}
                         title="Ver documento fuente"
                     >
-                        <Eye size={14} className="text-gray-400" />
+                        <Eye size={14} className="text-ink-tertiary" />
                     </button>
                 )}
             </div>

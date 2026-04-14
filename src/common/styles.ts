@@ -7,6 +7,10 @@
 //   headerCell           — column headers (th)
 //   headerAccordion      — accordion header (TableShell title bar)
 //   totalCell            — footer/total rows
+//
+// Color classes resolve against the unified token palette owned by the
+// host (styles/tokens.css). surface-*, ink-*, edge-*, status-* are mapped
+// in @jogi/tables/tailwind.config.ts and the host tailwind.config.ts.
 
 export const T = {
     // ── Base ──
@@ -21,10 +25,10 @@ export const T = {
     headerCount: 'font-medium text-xs',
 
     // ── Header: column headers (th) ──
-    th: 'text-gray-500 font-medium text-xs uppercase',
+    th: 'text-ink-tertiary font-medium text-xs uppercase',
     headerCell: 'px-2 py-1.5 whitespace-nowrap',
     /** Vertical divider between columns */
-    vline: 'border-r border-gray-100',
+    vline: 'border-r border-edge-subtle/10',
     /** Action column (delete button) — fixed narrow width */
     actionCol: 'w-10',
     /** Compact cell padding for small icon/badge columns (80px min) */
@@ -49,22 +53,22 @@ export const T = {
     // ── Inputs (transparent inline) ──
     input: 'bg-transparent border-none outline-none text-xs truncate',
     inputLabel: 'bg-transparent border-none outline-none text-xs font-medium truncate',
-    inputPlaceholder: 'bg-transparent border-none outline-none text-xs text-gray-400 placeholder-gray-300 truncate',
-    rowLabel: 'bg-transparent border-none outline-none text-xs font-medium text-gray-600 truncate',
+    inputPlaceholder: 'bg-transparent border-none outline-none text-xs text-ink-tertiary placeholder-ink-tertiary/60 truncate',
+    rowLabel: 'bg-transparent border-none outline-none text-xs font-medium text-ink-secondary truncate',
 
     // ── Typography helpers ──
     sectionTitle: 'font-normal text-xs',
     /** Data row indent (child rows below subheaders) */
     cellIndent: 'pl-6',
-    muted: 'text-xs text-gray-600',
-    empty: 'text-xs text-gray-400 italic',
+    muted: 'text-xs text-ink-secondary',
+    empty: 'text-xs text-ink-tertiary italic',
     cardLabel: 'text-xs font-medium',
     cardValue: 'text-xs font-semibold',
 
     // ── Row classes ──
-    row: 'border-b border-gray-100',
-    rowBorder: 'border-b border-gray-100',
-    rowHover: 'hover:bg-gray-50',
-    rowTotal: 'border-b bg-gray-50/80 border-gray-200',
-    rowGrandtotal: 'border-b-2 bg-gray-100 border-gray-300',
+    row: 'border-b border-edge-subtle/10',
+    rowBorder: 'border-b border-edge-subtle/10',
+    rowHover: 'hover:bg-surface-1/60',
+    rowTotal: 'border-b bg-surface-1/80 border-edge-subtle/20',
+    rowGrandtotal: 'border-b-2 bg-surface-2 border-edge-subtle/30',
 } as const

@@ -81,8 +81,8 @@ interface MyTableProps {
 
 const MyTable = ({
     title,
-    headerBg = 'bg-gray-100',
-    headerText = 'text-gray-700',
+    headerBg = 'bg-surface-2',
+    headerText = 'text-ink-secondary',
     sourceFileIds,
     onViewSource,
 }: MyTableProps) => {

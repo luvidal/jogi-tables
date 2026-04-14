@@ -1,3 +1,70 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Mirror of host styles/tokens.css so the Vite sandbox at localhost:5173
+   renders the same dark palette the host consumer ships. Keep in sync with
+   ~/GitHub/jogi/styles/tokens.css whenever host palette changes. */
+:root {
+    /* Role ramp — sky */
+    --theme-50:  240 249 255;
+    --theme-100: 224 242 254;
+    --theme-200: 186 230 253;
+    --theme-300: 125 211 252;
+    --theme-400: 56  189 248;
+    --theme-500: 14  165 233;
+    --theme-600: 2   132 199;
+    --theme-700: 3   105 161;
+    --theme-800: 7   89  133;
+    --theme-900: 12  74  110;
+    --theme-950: 8   47  73;
+
+    /* Surface ladder (slate-900 → slate-500) */
+    --surface-0: 15  23  42;
+    --surface-1: 30  41  59;
+    --surface-2: 51  65  85;
+    --surface-3: 71  85  105;
+    --surface-4: 100 116 139;
+
+    /* Borders */
+    --border-subtle: 148 163 184;
+    --border-strong: 148 163 184;
+    --border-focus:  56  189 248;
+
+    /* Text/ink */
+    --text-primary:   241 245 249;
+    --text-secondary: 203 213 225;
+    --text-tertiary:  148 163 184;
+    --text-inverse:   15  23  42;
+    --text-disabled:  100 116 139;
+
+    /* Brand */
+    --brand:          56  189 248;
+    --brand-hover:    14  165 233;
+    --brand-muted:    56  189 248;
+    --brand-contrast: 15  23  42;
+    --brand-glow:     56  189 248;
+
+    /* Semantic status tokens */
+    --status-ok:               52  211 153;
+    --status-ok-muted:         52  211 153;
+    --status-ok-contrast:      4   47  46;
+    --status-warn:             251 191 36;
+    --status-warn-muted:       251 191 36;
+    --status-warn-contrast:    69  26  3;
+    --status-late:             251 146 60;
+    --status-late-muted:       251 146 60;
+    --status-late-contrast:    67  20  7;
+    --status-pending:          251 113 133;
+    --status-pending-muted:    251 113 133;
+    --status-pending-contrast: 76  5   25;
+    --status-info:             96  165 250;
+    --status-info-muted:       96  165 250;
+    --status-info-contrast:    23  37  84;
+}
+
+/* Optional dark body for the Vite sandbox so tables don't render on a white background */
+body {
+    background: rgb(var(--surface-0));
+    color: rgb(var(--text-primary));
+}

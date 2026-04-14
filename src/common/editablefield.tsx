@@ -97,7 +97,7 @@ export default function EditableField({
     return (
         <div
             className={`group/field flex items-center gap-1.5 rounded-md cursor-pointer
-                hover:bg-gray-50 transition-colors ${className}`}
+                hover:bg-surface-1/60 transition-colors ${className}`}
             style={width ? { width } : undefined}
             onClick={handleClick}
         >
@@ -121,10 +121,10 @@ export default function EditableField({
                         autoComplete="off"
                     />
                 )}
-                <span className={`tabular-nums ${isEditing ? 'invisible' : ''} ${originClass || 'text-gray-800'}`}>
+                <span className={`tabular-nums ${isEditing ? 'invisible' : ''} ${originClass || 'text-ink-primary'}`}>
                     {value?.toString() ?? '—'}
                 </span>
-                {symbol && <span className={`${originClass || 'text-gray-800'} ${isEditing ? 'invisible' : ''}`}>{symbol}</span>}
+                {symbol && <span className={`${originClass || 'text-ink-primary'} ${isEditing ? 'invisible' : ''}`}>{symbol}</span>}
             </div>
             {displayValue != null && (
                 <span className="text-xs tabular-nums whitespace-nowrap ml-auto">{displayValue}</span>

@@ -3,22 +3,27 @@
  *
  * Consumers pass one `colorScheme` prop instead of separate headerBg/headerText.
  * The library applies it consistently to headers, footers, borders, and accents.
+ *
+ * Values are Tailwind class strings. Phase 2b migrated defaults to the unified
+ * token palette (surface-*, ink-*, edge-*) owned by the host consumer. Legacy
+ * callers passing raw Tailwind color literals (`bg-rose-50`) still work via the
+ * headerBg/headerText path; the border derivation preserves the old regex.
  */
 
 export interface ColorScheme {
-  /** Header/footer background — e.g. 'bg-rose-50' */
+  /** Header/footer background — e.g. 'bg-surface-2' or legacy 'bg-rose-50' */
   bg: string
-  /** Header/footer text + icon color — e.g. 'text-rose-700' */
+  /** Header/footer text + icon color — e.g. 'text-ink-secondary' or legacy 'text-rose-700' */
   text: string
-  /** Section border — e.g. 'border-rose-200' */
+  /** Section border — e.g. 'border-edge-subtle/20' or legacy 'border-rose-200' */
   border: string
 }
 
-/** Neutral fallback when no scheme is provided */
+/** Neutral fallback when no scheme is provided — dark token palette. */
 export const DEFAULT_SCHEME: ColorScheme = {
-  bg: 'bg-gray-100',
-  text: 'text-gray-700',
-  border: 'border-gray-200',
+  bg: 'bg-surface-2',
+  text: 'text-ink-secondary',
+  border: 'border-edge-subtle/20',
 }
 
 /**
@@ -35,8 +40,13 @@ export function resolveColors(
   if (headerBg || headerText) {
     const bg = headerBg || defaultScheme.bg
     const text = headerText || defaultScheme.text
-    // Derive border from bg: 'bg-rose-50' → 'border-rose-200'
-    const border = bg.replace('bg-', 'border-').replace(/-(50|100)$/, '-200')
+    // Legacy: derive border from bg for hex-literal callers like 'bg-rose-50'.
+    // If the bg doesn't match the legacy /50|/100 suffix pattern, fall back to
+    // the default border so token-based callers ('bg-surface-2') still work.
+    const legacy = /-(50|100)$/.test(bg)
+    const border = legacy
+      ? bg.replace('bg-', 'border-').replace(/-(50|100)$/, '-200')
+      : defaultScheme.border
     return { bg, text, border }
   }
   return defaultScheme

@@ -194,12 +194,12 @@ function AssetTable<T extends AssetRow>({
                     anySelected ? (
                         <th colSpan={resolvedColumns.length + 1} className={`${T.headerCell} text-left`} onClick={e => e.stopPropagation()}>
                             <div className="flex items-center gap-2">
-                                <span className="text-xs text-rose-600">
+                                <span className="text-xs text-status-pending">
                                     {selectedRows.size} fila{selectedRows.size !== 1 ? 's' : ''}
                                 </span>
                                 <button
                                     onClick={requestDeleteSelected}
-                                    className="text-xs px-3 py-1 rounded-full text-red-600 hover:bg-red-100 transition-colors flex items-center gap-1"
+                                    className="text-xs px-3 py-1 rounded-full text-status-pending hover:bg-status-pending/15 transition-colors flex items-center gap-1"
                                     title="Eliminar filas seleccionadas"
                                 >
                                     <Trash2 size={12} />
@@ -207,7 +207,7 @@ function AssetTable<T extends AssetRow>({
                                 </button>
                                 <button
                                     onClick={clearSelection}
-                                    className="text-xs px-2 py-1 rounded-full text-gray-500 hover:bg-gray-200 transition-colors"
+                                    className="text-xs px-2 py-1 rounded-full text-ink-tertiary hover:bg-surface-2 transition-colors"
                                 >
                                     Cancelar
                                 </button>
@@ -244,26 +244,26 @@ function AssetTable<T extends AssetRow>({
                     <tr className="font-semibold text-xs">
                         {resolvedColumns.map((col) => {
                             if (col.isLabel) {
-                                return <td key={col.key} className={`${T.totalCell} ${T.totalLabel} border-t border-gray-100`}>TOTAL</td>
+                                return <td key={col.key} className={`${T.totalCell} ${T.totalLabel} border-t border-edge-subtle/10`}>TOTAL</td>
                             }
                             if (col.type === 'text') {
-                                return <td key={col.key} className={`${T.totalCell} border-t border-gray-100`} />
+                                return <td key={col.key} className={`${T.totalCell} border-t border-edge-subtle/10`} />
                             }
                             if (col.type === 'percent') {
-                                return <td key={col.key} className="border-t border-gray-100" />
+                                return <td key={col.key} className="border-t border-edge-subtle/10" />
                             }
                             if (col.compound) {
                                 const sep = col.compound.separator ?? '/'
                                 const v1 = totals[col.key]
                                 const v2 = totals[col.compound.key]
                                 return (
-                                    <td key={col.key} className={`${T.totalCell} text-center ${T.totalValue} border-t border-gray-100`}>
+                                    <td key={col.key} className={`${T.totalCell} text-center ${T.totalValue} border-t border-edge-subtle/10`}>
                                         {(v1 || v2) ? `${v1 || 0} ${sep} ${v2 || 0}` : ''}
                                     </td>
                                 )
                             }
                             return (
-                                <td key={col.key} className={`${T.totalCell} ${col.align === 'center' ? 'text-center' : 'text-right'} ${T.totalValue} border-t border-gray-100`}>
+                                <td key={col.key} className={`${T.totalCell} ${col.align === 'center' ? 'text-center' : 'text-right'} ${T.totalValue} border-t border-edge-subtle/10`}>
                                     {totals[col.key] ? (
                                         col.type === 'number'
                                             ? totals[col.key].toLocaleString('es-CL', { maximumFractionDigits: 2 })
@@ -272,7 +272,7 @@ function AssetTable<T extends AssetRow>({
                                 </td>
                             )
                         })}
-                        <td className="border-t border-gray-100"></td>
+                        <td className="border-t border-edge-subtle/10"></td>
                     </tr>
                 )}
                 renderAfterContent={() => (
@@ -291,7 +291,7 @@ function AssetTable<T extends AssetRow>({
                                             const v2 = row[col.compound.key] as number | null
                                             return (
                                                 <td key={col.key} className={`${T.totalCell} text-center tabular-nums ${i < editableCols.length - 1 ? T.vline : ''}`}>
-                                                    <span className={`${T.totalValue} ${v1 != null || v2 != null ? 'text-gray-400' : 'text-gray-200'}`}>
+                                                    <span className={`${T.totalValue} ${v1 != null || v2 != null ? 'text-ink-tertiary' : 'text-ink-tertiary/40'}`}>
                                                         {v1 != null || v2 != null ? `${v1 ?? '—'} ${sep} ${v2 ?? '—'}` : '—'}
                                                     </span>
                                                 </td>
@@ -300,7 +300,7 @@ function AssetTable<T extends AssetRow>({
                                         const v = row[col.key] as number | null
                                         return (
                                             <td key={col.key} className={`${T.totalCell} text-right tabular-nums ${i < editableCols.length - 1 ? T.vline : ''}`}>
-                                                <span className={`${T.totalValue} ${v != null ? 'text-gray-400' : 'text-gray-200'}`}>
+                                                <span className={`${T.totalValue} ${v != null ? 'text-ink-tertiary' : 'text-ink-tertiary/40'}`}>
                                                     {v != null ? (col.type === 'number' ? String(v) : col.type === 'percent' ? `${Math.round(v * 100)}%` : formatCurrency(v)) : '—'}
                                                 </span>
                                             </td>
@@ -319,12 +319,12 @@ function AssetTable<T extends AssetRow>({
                     const showCheckbox = selectable && (anySelected || hovered)
                     const isDragging = reorderable && drag.dragRowId === row.id
                     const dropBorder = reorderable && drag.dropTargetId === row.id
-                        ? drag.dropPosition === 'above' ? 'border-t-2 border-t-blue-400' : 'border-b-2 border-b-blue-400'
+                        ? drag.dropPosition === 'above' ? 'border-t-2 border-t-brand' : 'border-b-2 border-b-brand'
                         : ''
                     return (
                         <tr
                             key={row.id}
-                            className={`${T.rowBorder} ${selected ? 'bg-rose-50/60' : T.rowHover} ${isDragging ? 'opacity-40' : ''} ${dropBorder}`}
+                            className={`${T.rowBorder} ${selected ? 'bg-status-pending/10' : T.rowHover} ${isDragging ? 'opacity-40' : ''} ${dropBorder}`}
                             {...getHoverProps(row.id)}
                             onClick={selectable ? (e) => handleRowClick(e, row.id) : undefined}
                             onDragOver={reorderable ? drag.handleDragOver(row.id) : undefined}
@@ -344,7 +344,7 @@ function AssetTable<T extends AssetRow>({
                                                         draggable={hovered}
                                                         onDragStart={drag.handleDragStart(row.id)}
                                                         onDragEnd={drag.handleDragEnd}
-                                                        className={`shrink-0 cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 transition-opacity ${hovered && !anySelected ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                                                        className={`shrink-0 cursor-grab active:cursor-grabbing text-ink-tertiary/60 hover:text-ink-tertiary transition-opacity ${hovered && !anySelected ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                                                         title="Arrastrar para reordenar"
                                                     >
                                                         <GripVertical size={14} />
@@ -355,7 +355,7 @@ function AssetTable<T extends AssetRow>({
                                                         type="checkbox"
                                                         checked={selected}
                                                         onChange={() => toggleSelect(row.id)}
-                                                        className={`shrink-0 w-3.5 h-3.5 rounded border-gray-300 text-rose-600 focus:ring-rose-500 cursor-pointer transition-opacity ${showCheckbox ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                                                        className={`shrink-0 w-3.5 h-3.5 rounded border-edge-subtle/30 text-status-pending focus:ring-status-pending cursor-pointer transition-opacity ${showCheckbox ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                                                     />
                                                 )}
                                                 {!actionColDelete && (
@@ -397,7 +397,7 @@ function AssetTable<T extends AssetRow>({
                                 if (col.visible && !col.visible(row)) {
                                     return (
                                         <td key={col.key} className={`${T.cellEdit} text-center ${vline}`}>
-                                            <span className="text-[11px] text-gray-300">—</span>
+                                            <span className="text-[11px] text-ink-tertiary/60">—</span>
                                         </td>
                                     )
                                 }
@@ -431,7 +431,7 @@ function AssetTable<T extends AssetRow>({
 
                                     return (
                                         <td key={col.key} className={`${T.cellEdit} ${vline}`}>
-                                            <div className={`h-5 flex items-center ${alignCls} text-xs tabular-nums text-gray-800`}>
+                                            <div className={`h-5 flex items-center ${alignCls} text-xs tabular-nums text-ink-primary`}>
                                                 {displayStr}
                                             </div>
                                         </td>
@@ -442,7 +442,7 @@ function AssetTable<T extends AssetRow>({
                                 if (col.compound) {
                                     const sep = col.compound.separator ?? '/'
                                     return (
-                                        <td key={col.key} className={`text-center text-xs text-gray-500 ${vline}`}>
+                                        <td key={col.key} className={`text-center text-xs text-ink-tertiary ${vline}`}>
                                             <div className="flex items-center justify-center gap-0.5">
                                                 <EditableCell
                                                     value={row[col.key] as number | null}
@@ -454,7 +454,7 @@ function AssetTable<T extends AssetRow>({
                                                     asDiv
                                                     {...kbProps(row.id, col.key)}
                                                 />
-                                                <span className="text-gray-400">{sep}</span>
+                                                <span className="text-ink-tertiary">{sep}</span>
                                                 <EditableCell
                                                     value={row[col.compound.key] as number | null}
                                                     onChange={v => updateField(row.id, col.compound!.key, v as number | null)}

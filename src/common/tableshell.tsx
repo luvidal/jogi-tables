@@ -20,7 +20,7 @@ export const SourceIcon = ({
     return (
         <button
             onClick={(e) => { e.stopPropagation(); onViewSource(fileIds || []) }}
-            className="p-1 rounded hover:bg-white/50 transition-all opacity-0 group-hover/header:opacity-100 cursor-pointer"
+            className="p-1 rounded hover:bg-surface-2/60 transition-all opacity-0 group-hover/header:opacity-100 cursor-pointer"
             title="Ver documento fuente"
         >
             <Eye size={14} className={className} />
@@ -60,7 +60,7 @@ export interface TableShellProps {
 
 const TableShell = ({
     colorScheme: colorSchemeProp,
-    headerBg: headerBgProp = 'bg-gray-100',
+    headerBg: headerBgProp = 'bg-surface-2',
     headerClassName,
     className,
     rowCount,
@@ -72,7 +72,7 @@ const TableShell = ({
     const { bg: headerBg } = resolveColors(colorSchemeProp, headerBgProp)
 
     return (
-        <div className={`border-t border-gray-200 mb-4 sm:mb-6 ${className || ''}`}>
+        <div className={`border-t border-edge-subtle/20 mb-4 sm:mb-6 ${className || ''}`}>
             <table className={T.table}>
                 <thead>
                     <tr className={`${headerBg} ${headerClassName || ''} group/header`}>

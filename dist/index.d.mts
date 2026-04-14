@@ -6,16 +6,21 @@ import React$1, { ReactNode } from 'react';
  *
  * Consumers pass one `colorScheme` prop instead of separate headerBg/headerText.
  * The library applies it consistently to headers, footers, borders, and accents.
+ *
+ * Values are Tailwind class strings. Phase 2b migrated defaults to the unified
+ * token palette (surface-*, ink-*, edge-*) owned by the host consumer. Legacy
+ * callers passing raw Tailwind color literals (`bg-rose-50`) still work via the
+ * headerBg/headerText path; the border derivation preserves the old regex.
  */
 interface ColorScheme {
-    /** Header/footer background — e.g. 'bg-rose-50' */
+    /** Header/footer background — e.g. 'bg-surface-2' or legacy 'bg-rose-50' */
     bg: string;
-    /** Header/footer text + icon color — e.g. 'text-rose-700' */
+    /** Header/footer text + icon color — e.g. 'text-ink-secondary' or legacy 'text-rose-700' */
     text: string;
-    /** Section border — e.g. 'border-rose-200' */
+    /** Section border — e.g. 'border-edge-subtle/20' or legacy 'border-rose-200' */
     border: string;
 }
-/** Neutral fallback when no scheme is provided */
+/** Neutral fallback when no scheme is provided — dark token palette. */
 declare const DEFAULT_SCHEME: ColorScheme;
 /**
  * Resolve color scheme from new `colorScheme` prop or legacy `headerBg`/`headerText`.
@@ -418,7 +423,7 @@ interface EditableCellProps {
     requestClear?: number;
     /** Initial value for type-to-edit (the character pressed to start editing) */
     editInitialValue?: string | null;
-    /** Text color class based on cell origin (ai/user/calculated). Overrides default text-gray-800. */
+    /** Text color class based on cell origin (ai/user/calculated). Overrides default text-ink-primary. */
     originClass?: string;
 }
 /**

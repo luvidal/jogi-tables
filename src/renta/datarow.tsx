@@ -10,19 +10,19 @@ type NaturalezaType = 'Imponible' | 'No imponible' | 'Legal' | 'Otro' | undefine
 
 const naturalezaPill = (n: NaturalezaType): { label: string; style: string } => {
     switch (n) {
-        case 'Imponible': return { label: 'IMP', style: 'bg-blue-50 text-blue-600 border border-blue-200' }
-        case 'No imponible': return { label: 'NO IMP', style: 'bg-gray-50 text-gray-500 border border-gray-200' }
-        case 'Legal': return { label: 'LEGAL', style: 'bg-green-50 text-green-600 border border-green-200' }
-        case 'Otro': return { label: 'OTRO', style: 'bg-slate-50 text-slate-500 border border-slate-200' }
-        default: return { label: '—', style: 'bg-gray-50 text-gray-300 border border-gray-100' }
+        case 'Imponible': return { label: 'IMP', style: 'bg-status-info/10 text-status-info border border-status-info/30' }
+        case 'No imponible': return { label: 'NO IMP', style: 'bg-surface-1 text-ink-tertiary border border-edge-subtle/20' }
+        case 'Legal': return { label: 'LEGAL', style: 'bg-status-ok/10 text-status-ok border border-status-ok/30' }
+        case 'Otro': return { label: 'OTRO', style: 'bg-surface-1 text-ink-tertiary border border-edge-subtle/20' }
+        default: return { label: '—', style: 'bg-surface-1 text-ink-tertiary/60 border border-edge-subtle/10' }
     }
 }
 
 const rentaPill = (isVariable: boolean | undefined, naturaleza: NaturalezaType): { label: string; style: string } => {
-    if (naturaleza === 'Legal') return { label: '—', style: 'bg-gray-50 text-gray-300 border border-gray-100' }
+    if (naturaleza === 'Legal') return { label: '—', style: 'bg-surface-1 text-ink-tertiary/60 border border-edge-subtle/10' }
     return isVariable
-        ? { label: 'RV', style: 'bg-amber-50 text-amber-600 border border-amber-200' }
-        : { label: 'RF', style: 'bg-sky-50 text-sky-600 border border-sky-200' }
+        ? { label: 'RV', style: 'bg-status-warn/10 text-status-warn border border-status-warn/30' }
+        : { label: 'RF', style: 'bg-status-info/10 text-status-info border border-status-info/30' }
 }
 
 const PILL = 'rounded-sm py-0.5 text-[9px] font-semibold cursor-pointer select-none transition-opacity hover:opacity-70 block leading-tight whitespace-nowrap text-center mx-auto px-1.5'
@@ -113,13 +113,13 @@ const DataRow = ({
     const indented = !!row.groupId
     const subtract = isSubtractType(row.type)
     const rowBg = selected
-        ? 'bg-emerald-50/60'
+        ? 'bg-status-ok/10'
         : row.isVariable
-            ? (subtract ? 'bg-amber-50/60 hover:bg-amber-100/50' : 'bg-amber-50/40 hover:bg-amber-100/40')
-            : (subtract ? 'bg-red-50/50 hover:bg-red-100/50' : 'hover:bg-gray-50')
+            ? (subtract ? 'bg-status-warn/10 hover:bg-status-warn/20' : 'bg-status-warn/5 hover:bg-status-warn/15')
+            : (subtract ? 'bg-status-pending/10 hover:bg-status-pending/15' : 'hover:bg-surface-1/60')
     const showCheckbox = selectable && (anySelected || isHovered)
-    const dropBorder = dropIndicator === 'above' ? 'border-t-2 border-t-blue-400'
-        : dropIndicator === 'below' ? 'border-b-2 border-b-blue-400' : ''
+    const dropBorder = dropIndicator === 'above' ? 'border-t-2 border-t-brand'
+        : dropIndicator === 'below' ? 'border-b-2 border-b-brand' : ''
 
     const handleRowClick = (e: React.MouseEvent) => {
         if (!selectable || !onToggleSelect) return
@@ -132,7 +132,7 @@ const DataRow = ({
 
     return (
         <tr
-            className={`border-b border-gray-100 ${rowBg} ${isDragging ? 'opacity-40' : ''} ${dropBorder} group`}
+            className={`border-b border-edge-subtle/10 ${rowBg} ${isDragging ? 'opacity-40' : ''} ${dropBorder} group`}
             onClick={handleRowClick}
             {...hoverProps}
             onContextMenu={onContextMenu}
@@ -140,14 +140,14 @@ const DataRow = ({
             onDragLeave={onDragLeave}
             onDrop={onDrop}
         >
-            <td className={`${T.cellEditLabel} text-gray-700 ${T.cellLabel} ${showClassificationColumns ? '' : T.vline}`}>
+            <td className={`${T.cellEditLabel} text-ink-secondary ${T.cellLabel} ${showClassificationColumns ? '' : T.vline}`}>
                 <div className={`flex items-center gap-0.5 min-w-0 ${indented ? 'pl-4' : ''}`}>
                     {onDragStart && !anySelected && (
                         <span
                             draggable={isHovered}
                             onDragStart={onDragStart}
                             onDragEnd={onDragEnd}
-                            className={`shrink-0 cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 transition-opacity ${isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                            className={`shrink-0 cursor-grab active:cursor-grabbing text-ink-tertiary/60 hover:text-ink-tertiary transition-opacity ${isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                             title="Arrastrar para reordenar"
                         >
                             <GripVertical size={14} />
@@ -158,7 +158,7 @@ const DataRow = ({
                             type="checkbox"
                             checked={selected}
                             onChange={onToggleSelect}
-                            className={`shrink-0 w-3.5 h-3.5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer transition-opacity ${showCheckbox ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                            className={`shrink-0 w-3.5 h-3.5 rounded border-edge-subtle/30 text-status-ok focus:ring-status-ok cursor-pointer transition-opacity ${showCheckbox ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                         />
                     ) : null}
                     <input
@@ -174,7 +174,7 @@ const DataRow = ({
                     {row.sourceFileId && onViewSource && (
                         <button
                             onClick={() => onViewSource([row.sourceFileId!])}
-                            className={`p-1 rounded transition-all shrink-0 ${isHovered ? 'opacity-100 text-gray-400 hover:text-gray-600 hover:bg-gray-100' : 'opacity-0'}`}
+                            className={`p-1 rounded transition-all shrink-0 ${isHovered ? 'opacity-100 text-ink-tertiary hover:text-ink-secondary hover:bg-surface-2' : 'opacity-0'}`}
                             title="Ver documento fuente"
                         >
                             <Eye size={14} />

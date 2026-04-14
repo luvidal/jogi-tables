@@ -64,27 +64,27 @@ const ReliqInfoTooltip = ({ data, type }: { data: ReliquidacionBreakdown; type: 
 
     return (
         <div className="hidden group-hover/reliq:block absolute bottom-full left-0 mb-2 z-50">
-            <div className="bg-white text-gray-700 text-[11px] rounded-lg shadow-lg border border-gray-200 px-3 py-2.5 whitespace-nowrap">
+            <div className="bg-surface-1 text-ink-secondary text-[11px] rounded-lg shadow-lg border border-edge-subtle/20 px-3 py-2.5 whitespace-nowrap">
                 <table className="border-spacing-0 w-full">
                     <tbody>
                         <tr>
-                            <td colSpan={2} className={`pb-1.5 font-semibold text-[11px] text-left ${isFija ? 'text-sky-600' : 'text-amber-600'}`}>
+                            <td colSpan={2} className={`pb-1.5 font-semibold text-[11px] text-left ${isFija ? 'text-status-info' : 'text-status-warn'}`}>
                                 {isFija ? 'Cálculo Renta Fija' : 'Cálculo Renta Variable'}
                             </td>
                         </tr>
                         {lines.filter(l => l.value !== 0).map((l, i) => (
                             <tr key={i}>
-                                <td className="pr-4 py-0.5 text-gray-500 text-left">{l.label}</td>
-                                <td className="text-right py-0.5 tabular-nums text-gray-600">
+                                <td className="pr-4 py-0.5 text-ink-tertiary text-left">{l.label}</td>
+                                <td className="text-right py-0.5 tabular-nums text-ink-secondary">
                                     {l.sign === '-' ? '−' : '+'}{fmtK(l.value)}
                                 </td>
                             </tr>
                         ))}
-                        <tr className={`border-t ${isFija ? 'border-sky-200' : 'border-amber-200'}`}>
-                            <td className={`pr-4 pt-1.5 font-semibold text-left ${isFija ? 'text-sky-700' : 'text-amber-700'}`}>
+                        <tr className={`border-t ${isFija ? 'border-status-info/30' : 'border-status-warn/30'}`}>
+                            <td className={`pr-4 pt-1.5 font-semibold text-left ${isFija ? 'text-status-info' : 'text-status-warn'}`}>
                                 {isFija ? 'Renta Fija' : 'Renta Variable'}
                             </td>
-                            <td className={`text-right pt-1.5 font-semibold tabular-nums ${isFija ? 'text-sky-700' : 'text-amber-700'}`}>
+                            <td className={`text-right pt-1.5 font-semibold tabular-nums ${isFija ? 'text-status-info' : 'text-status-warn'}`}>
                                 {fmtK(result)}
                             </td>
                         </tr>
@@ -417,7 +417,7 @@ const RentaTable = ({
                                 return (
                                     <td key={p.id} className={`${T.headerAccordionStat}`}>
                                         <span className={`${headerText} ${T.headerStatLabel} mr-1`}>{p.label}</span>
-                                        <span className={`${T.headerStat} ${hasValue ? headerText : 'text-gray-400'}`}>
+                                        <span className={`${T.headerStat} ${hasValue ? headerText : 'text-ink-tertiary'}`}>
                                             {hasValue ? formatValue(total) : '—'}
                                         </span>
                                     </td>
@@ -444,7 +444,7 @@ const RentaTable = ({
                                             const vline = mi < monthsArray.length - 1 ? T.vline : ''
                                             return (
                                                 <td key={m.id} className={`${T.cellEdit} text-right tabular-nums ${vline}`}>
-                                                    <span className={`${T.totalValue} ${hasValue ? (subtract ? 'text-rose-300' : 'text-gray-400') : 'text-gray-200'}`}>
+                                                    <span className={`${T.totalValue} ${hasValue ? (subtract ? 'text-status-pending/70' : 'text-ink-tertiary') : 'text-ink-tertiary/50'}`}>
                                                         {hasValue ? formatValue(v) : '—'}
                                                     </span>
                                                 </td>
@@ -532,26 +532,26 @@ const RentaTable = ({
                                 const isSubtract = isSubtractType(section.type)
                                 const label = isSubtract ? 'Total descuentos' : 'Total haberes'
                                 return (
-                                    <tr className={`${isSubtract ? 'bg-red-50/30' : 'bg-emerald-50/30'}`}>
-                                        <td className={`${T.totalCell} border-b border-gray-100 ${showClassificationColumns ? '' : T.vline}`}>
-                                            <span className="font-semibold text-xs text-gray-500">{label}</span>
+                                    <tr className={`${isSubtract ? 'bg-status-pending/5' : 'bg-status-ok/5'}`}>
+                                        <td className={`${T.totalCell} border-b border-edge-subtle/10 ${showClassificationColumns ? '' : T.vline}`}>
+                                            <span className="font-semibold text-xs text-ink-tertiary">{label}</span>
                                         </td>
-                                        {showClassificationColumns && <><td className={`${T.cellCompact} border-b border-gray-100`} /><td className={`${T.cellCompact} border-b border-gray-100 ${T.vline}`} /></>}
-                                        {showVariableColumn && !showClassificationColumns && <td className={`${T.cellCompact} border-b border-gray-100 ${T.vline}`} />}
+                                        {showClassificationColumns && <><td className={`${T.cellCompact} border-b border-edge-subtle/10`} /><td className={`${T.cellCompact} border-b border-edge-subtle/10 ${T.vline}`} /></>}
+                                        {showVariableColumn && !showClassificationColumns && <td className={`${T.cellCompact} border-b border-edge-subtle/10 ${T.vline}`} />}
                                         {monthsArray.map((p, mi) => {
                                             const value = subtotals[p.id] ?? 0
                                             const hasValue = value !== 0
                                             const display = isSubtract ? `-${formatValue(value)}` : formatValue(value)
                                             const vline = mi < monthsArray.length - 1 ? T.vline : ''
                                             return (
-                                                <td key={p.id} className={`${T.totalCell} text-right border-b border-gray-100 ${vline}`}>
-                                                    <span className={`font-semibold text-xs tabular-nums ${hasValue ? 'text-gray-500' : 'text-gray-300'}`}>
+                                                <td key={p.id} className={`${T.totalCell} text-right border-b border-edge-subtle/10 ${vline}`}>
+                                                    <span className={`font-semibold text-xs tabular-nums ${hasValue ? 'text-ink-tertiary' : 'text-ink-tertiary/50'}`}>
                                                         {hasValue ? display : '—'}
                                                     </span>
                                                 </td>
                                             )
                                         })}
-                                        <td className={`${T.actionCol} border-b border-gray-100`} />
+                                        <td className={`${T.actionCol} border-b border-edge-subtle/10`} />
                                     </tr>
                                 )
                             })()}
@@ -569,9 +569,9 @@ const RentaTable = ({
                     return (
                         <>
                             {/* Renta Variable */}
-                            <tr className="border-b border-gray-100 bg-amber-50/30 group/rv">
+                            <tr className="border-b border-edge-subtle/10 bg-status-warn/5 group/rv">
                                 <td className={`${T.totalCell} ${showClassificationColumns ? '' : T.vline}`}>
-                                    <span className={`${T.totalLabel} text-amber-700`}>Renta Variable</span>
+                                    <span className={`${T.totalLabel} text-status-warn`}>Renta Variable</span>
                                 </td>
                                 {showClassificationColumns && <><td className={T.cellCompact} /><td className={`${T.cellCompact} ${T.vline}`} /></>}
                                 {showVariableColumn && !showClassificationColumns && <td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td>}
@@ -584,11 +584,11 @@ const RentaTable = ({
                                         <td key={p.id} className={`${T.totalCell} text-right relative ${vline}`}>
                                             {rliq && hasValue && (
                                                 <span className="group/reliq absolute cursor-help opacity-0 group-hover/rv:opacity-100 transition-opacity" style={{ top: '9px', left: '12px' }}>
-                                                    <Info size={14} className="text-gray-400 hover:text-gray-600 p-0.5 rounded hover:bg-gray-200" />
+                                                    <Info size={14} className="text-ink-tertiary hover:text-ink-secondary p-0.5 rounded hover:bg-surface-2" />
                                                     <ReliqInfoTooltip data={rliq} type="variable" />
                                                 </span>
                                             )}
-                                            <span className={`${T.totalValue} tabular-nums ${hasValue ? 'text-amber-700' : 'text-gray-300'}`}>
+                                            <span className={`${T.totalValue} tabular-nums ${hasValue ? 'text-status-warn' : 'text-ink-tertiary/60'}`}>
                                                 {hasValue ? fmtSigned(value) : '—'}
                                             </span>
                                         </td>
@@ -597,9 +597,9 @@ const RentaTable = ({
                                 <td className={T.actionCol} />
                             </tr>
                             {/* Renta Fija */}
-                            <tr className="border-b border-gray-100 bg-sky-50/30 group/rf">
+                            <tr className="border-b border-edge-subtle/10 bg-status-info/5 group/rf">
                                 <td className={`${T.totalCell} ${showClassificationColumns ? '' : T.vline}`}>
-                                    <span className={`${T.totalLabel} text-sky-700`}>Renta Fija</span>
+                                    <span className={`${T.totalLabel} text-status-info`}>Renta Fija</span>
                                 </td>
                                 {showClassificationColumns && <><td className={T.cellCompact} /><td className={`${T.cellCompact} ${T.vline}`} /></>}
                                 {showVariableColumn && !showClassificationColumns && <td className={`${T.cellCompact} text-center ${T.vline}`}><span className={T.empty}>—</span></td>}
@@ -612,11 +612,11 @@ const RentaTable = ({
                                         <td key={p.id} className={`${T.totalCell} text-right relative ${vline}`}>
                                             {rliq && hasValue && (
                                                 <span className="group/reliq absolute cursor-help opacity-0 group-hover/rf:opacity-100 transition-opacity" style={{ top: '9px', left: '12px' }}>
-                                                    <Info size={14} className="text-gray-400 hover:text-gray-600 p-0.5 rounded hover:bg-gray-200" />
+                                                    <Info size={14} className="text-ink-tertiary hover:text-ink-secondary p-0.5 rounded hover:bg-surface-2" />
                                                     <ReliqInfoTooltip data={rliq} type="fija" />
                                                 </span>
                                             )}
-                                            <span className={`${T.totalValue} tabular-nums ${hasValue ? 'text-blue-700' : 'text-gray-300'}`}>
+                                            <span className={`${T.totalValue} tabular-nums ${hasValue ? 'text-status-info' : 'text-ink-tertiary/60'}`}>
                                                 {hasValue ? fmtSigned(fija) : '—'}
                                             </span>
                                         </td>

@@ -62,9 +62,9 @@ const SHORT_MONTHS: Record<string, string> = {
 type MetricKey = 'boletas' | 'bruto' | 'retencion'
 
 const METRICS: { key: MetricKey; label: string; color: string; format: (v: number | null) => string }[] = [
-    { key: 'bruto',     label: 'Honor. Bruto', color: 'text-gray-800',  format: v => displayCurrencyCompact(v) },
-    { key: 'retencion', label: 'Retención',    color: 'text-red-700',   format: v => displayCurrencyCompact(v) },
-    { key: 'boletas',   label: 'Boletas Vig.', color: 'text-gray-800',  format: v => v != null ? String(v) : '—' },
+    { key: 'bruto',     label: 'Honor. Bruto', color: 'text-ink-primary',   format: v => displayCurrencyCompact(v) },
+    { key: 'retencion', label: 'Retención',    color: 'text-status-pending', format: v => displayCurrencyCompact(v) },
+    { key: 'boletas',   label: 'Boletas Vig.', color: 'text-ink-primary',   format: v => v != null ? String(v) : '—' },
 ]
 
 // ============================================================================
@@ -113,7 +113,7 @@ const BoletasTable = ({
                             >
                                 <ClickableHeader onClick={canToggle ? () => onToggleMonth!(m.periodo) : undefined} borderColor={borderColor}>
                                     <span className={`${headerText} ${T.headerStatLabel}`}>{label}</span>
-                                    <span className={`${T.headerStat} ${hasValue ? headerText : 'text-gray-400'}`}>
+                                    <span className={`${T.headerStat} ${hasValue ? headerText : 'text-ink-tertiary'}`}>
                                         {hasValue ? displayCurrencyCompact(m.liquido) : '—'}
                                     </span>
                                 </ClickableHeader>
@@ -125,7 +125,7 @@ const BoletasTable = ({
         >
             {METRICS.map(metric => (
                 <tr key={metric.key} className={T.rowBorder}>
-                    <td className={`${T.cell} font-medium ${T.cellLabel} text-gray-600 ${T.vline}`}>
+                    <td className={`${T.cell} font-medium ${T.cellLabel} text-ink-secondary ${T.vline}`}>
                         {metric.label}
                     </td>
                     {months.map(m => {
@@ -133,7 +133,7 @@ const BoletasTable = ({
                         return (
                             <td
                                 key={m.periodo}
-                                className={`${T.cell} text-right ${m.hasData ? (getCellOriginClass?.(metric.key, m.periodo) || metric.color) : 'text-gray-300'} ${isExcluded ? 'opacity-35' : ''}`}
+                                className={`${T.cell} text-right ${m.hasData ? (getCellOriginClass?.(metric.key, m.periodo) || metric.color) : 'text-ink-tertiary/60'} ${isExcluded ? 'opacity-35' : ''}`}
                             >
                                 {m.hasData ? metric.format(m[metric.key]) : '—'}
                             </td>

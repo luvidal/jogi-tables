@@ -53,25 +53,25 @@ const GroupRow = ({
     const groupValues = useMemo(() => computeGroupValues(childRows, months), [childRows, months])
     const subtract = isSubtractType(group.type)
     const isExpanded = forceExpanded || !group.collapsed
-    const dropBorder = dropIndicator === 'above' ? 'border-t-2 border-t-blue-400'
-        : dropIndicator === 'below' ? 'border-b-2 border-b-blue-400' : ''
+    const dropBorder = dropIndicator === 'above' ? 'border-t-2 border-t-brand'
+        : dropIndicator === 'below' ? 'border-b-2 border-b-brand' : ''
 
     return (
         <tr
-            className={`border-b border-gray-100 ${subtract ? 'bg-red-50/30' : 'bg-gray-50/50'} ${isDragging ? 'opacity-40' : ''} ${dropBorder} group`}
+            className={`border-b border-edge-subtle/10 ${subtract ? 'bg-status-pending/10' : 'bg-surface-1/60'} ${isDragging ? 'opacity-40' : ''} ${dropBorder} group`}
             {...hoverProps}
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
             onDrop={onDrop}
         >
-            <td className={`${T.cellEditLabel} text-gray-700 overflow-hidden ${showClassificationColumns ? '' : T.vline}`}>
+            <td className={`${T.cellEditLabel} text-ink-secondary overflow-hidden ${showClassificationColumns ? '' : T.vline}`}>
                 <div className="flex items-center gap-0.5 min-w-0">
                     {onDragStart && (
                         <span
                             draggable={isHovered}
                             onDragStart={onDragStart}
                             onDragEnd={onDragEnd}
-                            className={`shrink-0 cursor-grab active:cursor-grabbing text-gray-300 hover:text-gray-500 transition-opacity ${isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                            className={`shrink-0 cursor-grab active:cursor-grabbing text-ink-tertiary/60 hover:text-ink-tertiary transition-opacity ${isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                             title="Arrastrar para reordenar"
                         >
                             <GripVertical size={14} />
@@ -79,7 +79,7 @@ const GroupRow = ({
                     )}
                     <button
                         onClick={onToggleCollapse}
-                        className="p-0.5 rounded shrink-0 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                        className="p-0.5 rounded shrink-0 text-ink-tertiary hover:text-ink-secondary hover:bg-surface-2"
                         title={isExpanded ? 'Colapsar grupo' : 'Expandir grupo'}
                     >
                         {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
@@ -91,7 +91,7 @@ const GroupRow = ({
                         onKeyDown={(e) => {
                             if (e.key === 'Enter') (e.target as HTMLInputElement).blur()
                         }}
-                        className="flex-1 min-w-0 bg-transparent border-none outline-none text-xs font-semibold text-gray-700 truncate"
+                        className="flex-1 min-w-0 bg-transparent border-none outline-none text-xs font-semibold text-ink-secondary truncate"
                         title={group.label}
                     />
                 </div>
@@ -108,7 +108,7 @@ const GroupRow = ({
                         className={`${T.cellEdit} text-right ${vline}`}
                     >
                         <div className="h-5 flex items-center justify-end">
-                            <span className={`text-xs tabular-nums font-medium ${subtract ? (hasValue ? 'text-rose-600' : 'text-gray-300') : (hasValue ? 'text-gray-800' : 'text-gray-300')}`}>
+                            <span className={`text-xs tabular-nums font-medium ${subtract ? (hasValue ? 'text-status-pending' : 'text-ink-tertiary/60') : (hasValue ? 'text-ink-primary' : 'text-ink-tertiary/60')}`}>
                                 {hasValue ? formatValue(value) : '—'}
                             </span>
                         </div>
@@ -119,7 +119,7 @@ const GroupRow = ({
                 {isHovered && (
                     <button
                         onClick={onUngroup}
-                        className="p-0.5 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                        className="p-0.5 rounded text-ink-tertiary hover:text-ink-secondary hover:bg-surface-2"
                         title="Desagrupar"
                     >
                         <Ungroup size={14} />

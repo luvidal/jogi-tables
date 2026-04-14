@@ -44,14 +44,14 @@ export interface FinalResultsCompactProps {
 const RiskBadge = ({ value, thresholds }: { value: number | null | undefined, thresholds: { warning: number, danger: number } }) => {
     if (value === null || value === undefined) return null
 
-    let badgeClass = 'bg-emerald-100 text-emerald-700'
+    let badgeClass = 'bg-status-ok/15 text-status-ok'
     let badgeText = 'OK'
 
     if (value >= thresholds.danger) {
-        badgeClass = 'bg-red-100 text-red-700'
+        badgeClass = 'bg-status-pending/15 text-status-pending'
         badgeText = 'Alto'
     } else if (value >= thresholds.warning) {
-        badgeClass = 'bg-amber-100 text-amber-700'
+        badgeClass = 'bg-status-warn/15 text-status-warn'
         badgeText = 'Medio'
     }
 
@@ -113,8 +113,8 @@ const FinalResultsCompact = ({
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Column 1: Rentas */}
-            <div className="bg-emerald-50 rounded-xl p-4 border border-emerald-200">
-                <div className="text-xs font-semibold text-emerald-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <div className="bg-status-ok/10 rounded-xl p-4 border border-status-ok/30">
+                <div className="text-xs font-semibold text-status-ok uppercase tracking-wider mb-3 flex items-center gap-1.5">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -133,7 +133,7 @@ const FinalResultsCompact = ({
                             }}
                             type="currency"
 
-                            className={`text-emerald-700 ${T.cardValue}`}
+                            className={`text-status-ok ${T.cardValue}`}
                             asDiv
                         />
                     </div>
@@ -156,7 +156,7 @@ const FinalResultsCompact = ({
                                     }}
                                     type="currency"
         
-                                    className={`text-emerald-700 ${T.cardValue}`}
+                                    className={`text-status-ok ${T.cardValue}`}
                                     asDiv
                                 />
                             </div>
@@ -173,15 +173,15 @@ const FinalResultsCompact = ({
                                 }}
                                 type="currency"
     
-                                className={`text-emerald-700 ${T.cardValue}`}
+                                className={`text-status-ok ${T.cardValue}`}
                                 asDiv
                             />
                         </div>
                     )}
 
-                    <div className="border-t border-emerald-300 pt-2 mt-2 flex items-center justify-between">
-                        <span className={`${T.footerLabel} text-emerald-800 text-xs`}>TOTAL</span>
-                        <span className={`text-emerald-800 ${T.footerValue}`}>
+                    <div className="border-t border-status-ok/40 pt-2 mt-2 flex items-center justify-between">
+                        <span className={`${T.footerLabel} text-status-ok text-xs`}>TOTAL</span>
+                        <span className={`text-status-ok ${T.footerValue}`}>
                             {displayCurrencyCompact(displayTotal > 0 ? displayTotal : null)}
                         </span>
                     </div>
@@ -189,8 +189,8 @@ const FinalResultsCompact = ({
             </div>
 
             {/* Column 2: Obligaciones */}
-            <div className="bg-sky-50 rounded-xl p-4 border border-sky-200">
-                <div className="text-xs font-semibold text-sky-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <div className="bg-brand/10 rounded-xl p-4 border border-brand/30">
+                <div className="text-xs font-semibold text-brand uppercase tracking-wider mb-3 flex items-center gap-1.5">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
                     </svg>
@@ -205,21 +205,21 @@ const FinalResultsCompact = ({
                             onChange={(v) => onChange('dividendo_hipotecario', v as number | null)}
                             type="currency"
 
-                            className={`text-sky-700 ${T.cardValue}`}
+                            className={`text-brand ${T.cardValue}`}
                             asDiv
                         />
                     </div>
 
                     <div className="flex items-center justify-between">
                         <span className={T.muted}>Deudas</span>
-                        <span className={`text-orange-600 ${T.cardValue}`}>
+                        <span className={`text-status-late ${T.cardValue}`}>
                             {displayCurrencyCompact(totalDebts > 0 ? totalDebts : null)}
                         </span>
                     </div>
 
-                    <div className="border-t border-sky-300 pt-2 mt-2 flex items-center justify-between">
-                        <span className={`${T.footerLabel} text-sky-800 text-xs`}>TOTAL</span>
-                        <span className={`text-sky-800 ${T.footerValue}`}>
+                    <div className="border-t border-brand/40 pt-2 mt-2 flex items-center justify-between">
+                        <span className={`${T.footerLabel} text-brand text-xs`}>TOTAL</span>
+                        <span className={`text-brand ${T.footerValue}`}>
                             {displayCurrencyCompact((dividendo + totalDebts) > 0 ? dividendo + totalDebts : null)}
                         </span>
                     </div>
@@ -227,8 +227,8 @@ const FinalResultsCompact = ({
             </div>
 
             {/* Column 3: Índices */}
-            <div className="bg-violet-50 rounded-xl p-4 border border-violet-200">
-                <div className="text-xs font-semibold text-violet-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <div className="bg-status-info/10 rounded-xl p-4 border border-status-info/30">
+                <div className="text-xs font-semibold text-status-info uppercase tracking-wider mb-3 flex items-center gap-1.5">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
@@ -240,7 +240,7 @@ const FinalResultsCompact = ({
                         <span className={T.muted}>Hipotecaria</span>
                         <div className="flex items-center gap-2">
                             <span
-                                className={`text-violet-700 ${T.cardValue} ${clickableClass}`}
+                                className={`text-status-info ${T.cardValue} ${clickableClass}`}
                                 onClick={handleEditCH}
                             >
                                 {displayCH !== null && displayCH !== undefined ? `${displayCH}%` : '—'}
@@ -253,7 +253,7 @@ const FinalResultsCompact = ({
                         <span className={T.muted}>Financiera</span>
                         <div className="flex items-center gap-2">
                             <span
-                                className={`text-violet-700 ${T.cardValue} ${clickableClass}`}
+                                className={`text-status-info ${T.cardValue} ${clickableClass}`}
                                 onClick={handleEditCF}
                             >
                                 {displayCF !== null && displayCF !== undefined ? `${displayCF}%` : '—'}

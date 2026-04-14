@@ -47,14 +47,14 @@ const DeclaracionTable = ({
                 )}
                 renderFooter={totalLabel ? () => (
                     <tr className="font-semibold">
-                        <td className={`${T.cell} text-gray-800 border-t border-gray-100`}>{totalLabel}</td>
-                        {showCodeColumn && <td className={`${T.cell} border-t border-gray-100`} />}
+                        <td className={`${T.cell} text-ink-primary border-t border-edge-subtle/10`}>{totalLabel}</td>
+                        {showCodeColumn && <td className={`${T.cell} border-t border-edge-subtle/10`} />}
                         {columns.map(col => {
                             const summedRows = rows.filter(r => r.summed)
                             const hasAny = summedRows.some(r => data[r.key]?.[col.key] != null)
                             const sum = summedRows.reduce((acc, r) => acc + (data[r.key]?.[col.key] ?? 0), 0)
                             return (
-                                <td key={col.key} className={`${T.cellValue} ${hasAny ? ORIGIN_CLASSES.calculated : 'text-gray-400'} border-t border-gray-100`}>
+                                <td key={col.key} className={`${T.cellValue} ${hasAny ? ORIGIN_CLASSES.calculated : 'text-ink-tertiary'} border-t border-edge-subtle/10`}>
                                     {hasAny ? formatCurrency(sum) : '—'}
                                 </td>
                             )
@@ -64,14 +64,14 @@ const DeclaracionTable = ({
             >
                 {rows.map(row => (
                     <tr key={row.key} className={T.row}>
-                        <td className={`${T.cell} text-gray-700 ${T.vline}`}>{row.label}</td>
+                        <td className={`${T.cell} text-ink-secondary ${T.vline}`}>{row.label}</td>
                         {showCodeColumn && (
-                            <td className={`${T.cell} text-gray-400 tabular-nums ${T.vline}`}>{row.code ?? ''}</td>
+                            <td className={`${T.cell} text-ink-tertiary tabular-nums ${T.vline}`}>{row.code ?? ''}</td>
                         )}
                         {columns.map((col, ci) => {
                             const value = data[row.key]?.[col.key]
                             return (
-                                <td key={col.key} className={`${T.cellValue} ${value != null ? (getCellOriginClass?.(row.key, col.key) || 'text-gray-900') : 'text-gray-400'} ${ci < columns.length - 1 ? T.vline : ''}`}>
+                                <td key={col.key} className={`${T.cellValue} ${value != null ? (getCellOriginClass?.(row.key, col.key) || 'text-ink-primary') : 'text-ink-tertiary'} ${ci < columns.length - 1 ? T.vline : ''}`}>
                                     {value != null ? formatCurrency(value) : '—'}
                                 </td>
                             )

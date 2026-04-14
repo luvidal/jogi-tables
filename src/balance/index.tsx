@@ -95,7 +95,7 @@ const BalanceTable = ({
                                     {row.sourceFileId && onViewSource && (
                                         <button
                                             onClick={(e) => { e.stopPropagation(); onViewSource([row.sourceFileId!]) }}
-                                            className="p-0.5 rounded hover:bg-white/50 transition-all opacity-0 group-hover/row:opacity-100 cursor-pointer flex-shrink-0"
+                                            className="p-0.5 rounded hover:bg-surface-2/60 transition-all opacity-0 group-hover/row:opacity-100 cursor-pointer flex-shrink-0"
                                             title="Ver documento fuente"
                                         >
                                             <Eye size={12} className={headerText} />
@@ -103,20 +103,20 @@ const BalanceTable = ({
                                     )}
                                 </div>
                                 {row.rut && (
-                                    <div className="text-[11px] text-gray-500 mt-0.5">
-                                        <span className="text-gray-400">RUT</span> {row.rut}
+                                    <div className="text-[11px] text-ink-tertiary mt-0.5">
+                                        <span className="text-ink-tertiary/70">RUT</span> {row.rut}
                                     </div>
                                 )}
                             </div>
                             {period && (
-                                <div className="flex-shrink-0 text-[11px] text-gray-500">
+                                <div className="flex-shrink-0 text-[11px] text-ink-tertiary">
                                     {period.desde ? `${period.desde} – ${period.hasta}` : period.hasta}
                                 </div>
                             )}
                         </div>
 
                         {/* Data table */}
-                        <table className={`${T.table} border-b border-gray-200`}>
+                        <table className={`${T.table} border-b border-edge-subtle/20`}>
                             <thead>
                                 <tr>
                                     {COL_HEADERS.map((col, i) => (
@@ -133,7 +133,7 @@ const BalanceTable = ({
                                 {/* Row 1: Company totals (100%) — editable */}
                                 <tr className={T.rowHover}>
                                     <td className={`${T.cellEdit} ${T.vline} text-center`}>
-                                        <span className="text-xs tabular-nums text-gray-800">100%</span>
+                                        <span className="text-xs tabular-nums text-ink-primary">100%</span>
                                     </td>
                                     {CURRENCY_KEYS.map(key => {
                                         const val = row[key] as number | null
@@ -148,7 +148,7 @@ const BalanceTable = ({
                                                 onChange={(v) => handleChange(rowIdx, key, v)}
                                                 type="currency"
                                                 hasData={val != null}
-                                                className={`${!isLast ? T.vline : ''} ${isNeg ? 'text-red-600' : ''} ${isBold ? 'font-semibold' : ''}`}
+                                                className={`${!isLast ? T.vline : ''} ${isNeg ? 'text-status-pending' : ''} ${isBold ? 'font-semibold' : ''}`}
                                                 originClass={getCellOriginClass?.(row.id, key as string)}
                                                 focused={keyboard.isFocused(row.id, colIdx)}
                                                 onCellFocus={() => keyboard.focus(row.id, colIdx)}
@@ -183,7 +183,7 @@ const BalanceTable = ({
                                         return (
                                             <td
                                                 key={key}
-                                                className={`${T.cellValue} ${!isLast ? T.vline : ''} ${isNeg ? 'text-red-600' : ORIGIN_CLASSES.calculated} ${isBold ? 'font-semibold' : ''}`}
+                                                className={`${T.cellValue} ${!isLast ? T.vline : ''} ${isNeg ? 'text-status-pending' : ORIGIN_CLASSES.calculated} ${isBold ? 'font-semibold' : ''}`}
                                             >
                                                 {propVal != null ? displayCurrencyCompact(propVal) : '—'}
                                             </td>
