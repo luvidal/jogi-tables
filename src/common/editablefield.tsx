@@ -117,17 +117,17 @@ export default function EditableField({
                         onChange={e => setEditValue(e.target.value)}
                         onBlur={commitEdit}
                         onKeyDown={handleKeyDown}
-                        className="absolute inset-0 text-center text-xs tabular-nums bg-transparent border-none outline-none ring-0 shadow-none px-1.5 z-10"
+                        className="absolute inset-0 rounded-md text-center text-xs tabular-nums bg-transparent border-none outline-none ring-0 shadow-none px-1.5 z-10"
                         autoComplete="off"
                     />
                 )}
-                <span className={`tabular-nums ${isEditing ? 'invisible' : ''} ${originClass || 'text-ink-primary'}`}>
+                <span className={`tabular-nums ${isEditing ? 'invisible' : ''} text-ink-primary`}>
                     {value?.toString() ?? '—'}
                 </span>
-                {symbol && <span className={`${originClass || 'text-ink-primary'} ${isEditing ? 'invisible' : ''}`}>{symbol}</span>}
+                {symbol && <span className={`text-ink-primary ${isEditing ? 'invisible' : ''}`}>{symbol}</span>}
             </div>
             {displayValue != null && (
-                <span className="text-xs tabular-nums whitespace-nowrap ml-auto">{displayValue}</span>
+                <span className={`text-xs tabular-nums whitespace-nowrap ml-auto text-ink-secondary ${originClass ?? ''}`}>{displayValue}</span>
             )}
         </div>
     )

@@ -2256,14 +2256,14 @@ function EditableField({
               onChange: (e) => setEditValue(e.target.value),
               onBlur: commitEdit,
               onKeyDown: handleKeyDown,
-              className: "absolute inset-0 text-center text-xs tabular-nums bg-transparent border-none outline-none ring-0 shadow-none px-1.5 z-10",
+              className: "absolute inset-0 rounded-md text-center text-xs tabular-nums bg-transparent border-none outline-none ring-0 shadow-none px-1.5 z-10",
               autoComplete: "off"
             }
           ),
-          /* @__PURE__ */ jsx("span", { className: `tabular-nums ${isEditing ? "invisible" : ""} ${originClass || "text-ink-primary"}`, children: value?.toString() ?? "\u2014" }),
-          symbol && /* @__PURE__ */ jsx("span", { className: `${originClass || "text-ink-primary"} ${isEditing ? "invisible" : ""}`, children: symbol })
+          /* @__PURE__ */ jsx("span", { className: `tabular-nums ${isEditing ? "invisible" : ""} text-ink-primary`, children: value?.toString() ?? "\u2014" }),
+          symbol && /* @__PURE__ */ jsx("span", { className: `text-ink-primary ${isEditing ? "invisible" : ""}`, children: symbol })
         ] }),
-        displayValue != null && /* @__PURE__ */ jsx("span", { className: "text-xs tabular-nums whitespace-nowrap ml-auto", children: displayValue })
+        displayValue != null && /* @__PURE__ */ jsx("span", { className: `text-xs tabular-nums whitespace-nowrap ml-auto text-ink-secondary ${originClass ?? ""}`, children: displayValue })
       ]
     }
   );
