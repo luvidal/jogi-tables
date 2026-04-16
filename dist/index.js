@@ -109,11 +109,11 @@ var TableShell = ({
   renderFooter,
   renderAfterContent
 }) => {
-  const { bg: headerBg } = resolveColors(colorSchemeProp, headerBgProp);
+  const { bg: headerBg, text: headerText } = resolveColors(colorSchemeProp, headerBgProp);
   return /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `border-t border-edge-subtle/20 mb-4 sm:mb-6 ${className || ""}`, children: [
     /* @__PURE__ */ jsxRuntime.jsxs("table", { className: T.table, children: [
-      /* @__PURE__ */ jsxRuntime.jsx("thead", { children: /* @__PURE__ */ jsxRuntime.jsx("tr", { className: `${headerBg} ${headerClassName || ""} group/header`, children: renderHeader() }) }),
-      /* @__PURE__ */ jsxRuntime.jsx("tbody", { children }),
+      /* @__PURE__ */ jsxRuntime.jsx("thead", { children: /* @__PURE__ */ jsxRuntime.jsx("tr", { className: `${headerBg} ${headerText} ${headerClassName || ""} group/header`, children: renderHeader() }) }),
+      /* @__PURE__ */ jsxRuntime.jsx("tbody", { className: "text-ink-primary", children }),
       renderFooter && rowCount !== 0 && /* @__PURE__ */ jsxRuntime.jsx("tfoot", { children: renderFooter() })
     ] }),
     renderAfterContent?.()

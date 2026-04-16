@@ -69,17 +69,17 @@ const TableShell = ({
     renderFooter,
     renderAfterContent,
 }: TableShellProps) => {
-    const { bg: headerBg } = resolveColors(colorSchemeProp, headerBgProp)
+    const { bg: headerBg, text: headerText } = resolveColors(colorSchemeProp, headerBgProp)
 
     return (
         <div className={`border-t border-edge-subtle/20 mb-4 sm:mb-6 ${className || ''}`}>
             <table className={T.table}>
                 <thead>
-                    <tr className={`${headerBg} ${headerClassName || ''} group/header`}>
+                    <tr className={`${headerBg} ${headerText} ${headerClassName || ''} group/header`}>
                         {renderHeader()}
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className="text-ink-primary">
                     {children}
                 </tbody>
                 {renderFooter && rowCount !== 0 && (
