@@ -212,7 +212,7 @@ const EditableCell = ({
                         onChange={e => setEditValue(e.target.value)}
                         onBlur={commitEdit}
                         onKeyDown={handleKeyDown}
-                        className={`absolute inset-0 ${inputAlignClass} text-xs tabular-nums bg-transparent border-none outline-none ring-0 shadow-none p-0 z-10`}
+                        className={`absolute inset-0 ${inputAlignClass} ${colorClass} text-xs tabular-nums bg-transparent border-none outline-none ring-0 shadow-none p-0 z-10`}
                         autoComplete="off"
                     />
                 )}
