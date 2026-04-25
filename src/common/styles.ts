@@ -29,8 +29,12 @@ export const T = {
     headerCell: 'px-2 py-1.5 whitespace-nowrap',
     /** Vertical divider between columns */
     vline: 'border-r border-edge-subtle/10',
-    /** Action column (delete button) — fixed narrow width */
-    actionCol: 'w-10',
+    /** Legacy action-column placeholder. The hover toolbar overlays the row's
+     * left edge instead of occupying a dedicated column, so this width is now
+     * 0 — the placeholder `<td>` cells stay only to preserve column counts
+     * across header/body/footer in tables that still emit them (renta).
+     */
+    actionCol: 'w-0 p-0',
     /** Compact cell padding for small icon/badge columns (80px min) */
     cellCompact: 'px-0.5 py-1 whitespace-nowrap',
 

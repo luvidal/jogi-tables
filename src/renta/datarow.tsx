@@ -1,8 +1,8 @@
 import React from 'react'
-import { GripVertical, Eye } from 'lucide-react'
+import { Eye } from 'lucide-react'
 import EditableCell from '../common/editablecell'
 import { T } from '../common/styles'
-import DeleteRowButton from '../common/deletebutton'
+import RowToolbar from '../common/rowtoolbar'
 import { isSubtractType } from './helpers'
 import type { RowData, Month } from './types'
 
@@ -117,7 +117,6 @@ const DataRow = ({
         : row.isVariable
             ? (subtract ? 'bg-status-warn/10 hover:bg-status-warn/20' : 'bg-status-warn/5 hover:bg-status-warn/15')
             : (subtract ? 'bg-status-pending/10 hover:bg-status-pending/15' : 'hover:bg-surface-1/60')
-    const showCheckbox = selectable && (anySelected || isHovered)
     const dropBorder = dropIndicator === 'above' ? 'border-t-2 border-t-brand'
         : dropIndicator === 'below' ? 'border-b-2 border-b-brand' : ''
 
@@ -140,27 +139,19 @@ const DataRow = ({
             onDragLeave={onDragLeave}
             onDrop={onDrop}
         >
-            <td className={`${T.cellEditLabel} text-ink-secondary ${T.cellLabel} ${showClassificationColumns ? '' : T.vline}`}>
+            <td className={`${T.cellEditLabel} text-ink-secondary ${T.cellLabel} relative ${showClassificationColumns ? '' : T.vline}`}>
+                <RowToolbar
+                    hovered={isHovered}
+                    anySelected={anySelected}
+                    selected={selected}
+                    reorderable={!!onDragStart}
+                    onDragStart={onDragStart}
+                    onDragEnd={onDragEnd}
+                    selectable={selectable}
+                    onToggleSelect={onToggleSelect}
+                    onDelete={onRemove}
+                />
                 <div className={`flex items-center gap-0.5 min-w-0 ${indented ? 'pl-4' : ''}`}>
-                    {onDragStart && !anySelected && (
-                        <span
-                            draggable={isHovered}
-                            onDragStart={onDragStart}
-                            onDragEnd={onDragEnd}
-                            className={`shrink-0 cursor-grab active:cursor-grabbing text-ink-tertiary/60 hover:text-ink-tertiary transition-opacity ${isHovered ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                            title="Arrastrar para reordenar"
-                        >
-                            <GripVertical size={14} />
-                        </span>
-                    )}
-                    {selectable ? (
-                        <input
-                            type="checkbox"
-                            checked={selected}
-                            onChange={onToggleSelect}
-                            className={`shrink-0 w-3.5 h-3.5 rounded border-edge-subtle/30 text-status-ok focus:ring-status-ok cursor-pointer transition-opacity ${showCheckbox ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                        />
-                    ) : null}
                     <input
                         type="text"
                         value={row.label}
@@ -236,9 +227,7 @@ const DataRow = ({
                     />
                 )
             })}
-            <td className={`${T.actionCol} text-center`}>
-                <DeleteRowButton onClick={onRemove} isVisible={isHovered && !anySelected} title="Eliminar fila" />
-            </td>
+            <td className={T.actionCol} aria-hidden />
         </tr>
     )
 }

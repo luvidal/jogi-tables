@@ -28,8 +28,12 @@ var T = {
   headerCell: "px-2 py-1.5 whitespace-nowrap",
   /** Vertical divider between columns */
   vline: "border-r border-edge-subtle/10",
-  /** Action column (delete button) — fixed narrow width */
-  actionCol: "w-10",
+  /** Legacy action-column placeholder. The hover toolbar overlays the row's
+   * left edge instead of occupying a dedicated column, so this width is now
+   * 0 — the placeholder `<td>` cells stay only to preserve column counts
+   * across header/body/footer in tables that still emit them (renta).
+   */
+  actionCol: "w-0 p-0",
   /** Compact cell padding for small icon/badge columns (80px min) */
   cellCompact: "px-0.5 py-1 whitespace-nowrap",
   // ── Body: read-only cells (compact) ──
@@ -494,25 +498,63 @@ var EditableCell = ({
   );
 };
 var editablecell_default = EditableCell;
-var DeleteRowButton = ({
-  onClick,
-  isVisible,
-  size = "sm",
-  title = "Eliminar"
+var RowToolbar = ({
+  hovered,
+  anySelected = false,
+  selected = false,
+  reorderable = false,
+  onDragStart,
+  onDragEnd,
+  selectable = false,
+  onToggleSelect,
+  onDelete
 }) => {
-  const padding = size === "sm" ? "p-0.5" : "p-1";
-  const iconSize = size === "sm" ? 14 : 16;
-  return /* @__PURE__ */ jsxRuntime.jsx(
-    "button",
+  const reveal = hovered || anySelected;
+  const transform = reveal ? "translate-x-0 opacity-100 pointer-events-auto" : "-translate-x-full opacity-0 pointer-events-none";
+  return /* @__PURE__ */ jsxRuntime.jsxs(
+    "div",
     {
-      onClick,
-      className: `${padding} rounded transition-all shrink-0 ${isVisible ? "opacity-100 text-status-pending/70 hover:text-status-pending hover:bg-status-pending/10" : "opacity-0"}`,
-      title,
-      children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.X, { size: iconSize })
+      className: `absolute left-0 top-1/2 -translate-y-1/2 z-10 flex items-center gap-0.5 px-1 py-0.5 rounded-r bg-surface-1/85 backdrop-blur-sm shadow-sm transition-[transform,opacity] duration-150 ease-out ${transform} group-focus-within:translate-x-0 group-focus-within:opacity-100 group-focus-within:pointer-events-auto`,
+      onClick: (e) => e.stopPropagation(),
+      onMouseDown: (e) => e.stopPropagation(),
+      children: [
+        reorderable && onDragStart && /* @__PURE__ */ jsxRuntime.jsx(
+          "span",
+          {
+            draggable: hovered,
+            onDragStart,
+            onDragEnd,
+            className: "cursor-grab active:cursor-grabbing text-ink-tertiary/70 hover:text-ink-secondary p-0.5 rounded",
+            title: "Arrastrar para reordenar",
+            children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.GripVertical, { size: 14 })
+          }
+        ),
+        selectable && onToggleSelect && /* @__PURE__ */ jsxRuntime.jsx(
+          "input",
+          {
+            type: "checkbox",
+            checked: selected,
+            onChange: onToggleSelect,
+            className: "w-3.5 h-3.5 rounded border-edge-subtle/30 text-status-ok focus:ring-status-ok cursor-pointer",
+            title: "Seleccionar fila"
+          }
+        ),
+        onDelete && /* @__PURE__ */ jsxRuntime.jsx(
+          "button",
+          {
+            type: "button",
+            onClick: onDelete,
+            className: "p-0.5 rounded text-status-pending/70 hover:text-status-pending hover:bg-status-pending/10",
+            title: "Eliminar fila",
+            disabled: anySelected,
+            children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.X, { size: 14 })
+          }
+        )
+      ]
     }
   );
 };
-var deletebutton_default = DeleteRowButton;
+var rowtoolbar_default = RowToolbar;
 var naturalezaPill = (n) => {
   switch (n) {
     case "Imponible":
@@ -568,7 +610,6 @@ var DataRow = ({
   const indented = !!row.groupId;
   const subtract = isSubtractType(row.type);
   const rowBg = selected ? "bg-status-ok/10" : row.isVariable ? subtract ? "bg-status-warn/10 hover:bg-status-warn/20" : "bg-status-warn/5 hover:bg-status-warn/15" : subtract ? "bg-status-pending/10 hover:bg-status-pending/15" : "hover:bg-surface-1/60";
-  const showCheckbox = selectable && (anySelected || isHovered);
   const dropBorder = dropIndicator === "above" ? "border-t-2 border-t-brand" : dropIndicator === "below" ? "border-b-2 border-b-brand" : "";
   const handleRowClick = (e) => {
     if (!selectable || !onToggleSelect) return;
@@ -589,50 +630,46 @@ var DataRow = ({
       onDragLeave,
       onDrop,
       children: [
-        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.cellEditLabel} text-ink-secondary ${T.cellLabel} ${showClassificationColumns ? "" : T.vline}`, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `flex items-center gap-0.5 min-w-0 ${indented ? "pl-4" : ""}`, children: [
-          onDragStart && !anySelected && /* @__PURE__ */ jsxRuntime.jsx(
-            "span",
+        /* @__PURE__ */ jsxRuntime.jsxs("td", { className: `${T.cellEditLabel} text-ink-secondary ${T.cellLabel} relative ${showClassificationColumns ? "" : T.vline}`, children: [
+          /* @__PURE__ */ jsxRuntime.jsx(
+            rowtoolbar_default,
             {
-              draggable: isHovered,
+              hovered: isHovered,
+              anySelected,
+              selected,
+              reorderable: !!onDragStart,
               onDragStart,
               onDragEnd,
-              className: `shrink-0 cursor-grab active:cursor-grabbing text-ink-tertiary/60 hover:text-ink-tertiary transition-opacity ${isHovered ? "opacity-100" : "opacity-0 pointer-events-none"}`,
-              title: "Arrastrar para reordenar",
-              children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.GripVertical, { size: 14 })
+              selectable,
+              onToggleSelect,
+              onDelete: onRemove
             }
           ),
-          selectable ? /* @__PURE__ */ jsxRuntime.jsx(
-            "input",
-            {
-              type: "checkbox",
-              checked: selected,
-              onChange: onToggleSelect,
-              className: `shrink-0 w-3.5 h-3.5 rounded border-edge-subtle/30 text-status-ok focus:ring-status-ok cursor-pointer transition-opacity ${showCheckbox ? "opacity-100" : "opacity-0 pointer-events-none"}`
-            }
-          ) : null,
-          /* @__PURE__ */ jsxRuntime.jsx(
-            "input",
-            {
-              type: "text",
-              value: row.label,
-              onChange: (e) => onLabelChange(e.target.value),
-              onKeyDown: (e) => {
-                if (e.key === "Enter") e.target.blur();
-              },
-              className: `flex-1 min-w-0 ${T.rowLabel}`,
-              title: row.label
-            }
-          ),
-          row.sourceFileId && onViewSource && /* @__PURE__ */ jsxRuntime.jsx(
-            "button",
-            {
-              onClick: () => onViewSource([row.sourceFileId]),
-              className: `p-1 rounded transition-all shrink-0 ${isHovered ? "opacity-100 text-ink-tertiary hover:text-ink-secondary hover:bg-surface-2" : "opacity-0"}`,
-              title: "Ver documento fuente",
-              children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Eye, { size: 14 })
-            }
-          )
-        ] }) }),
+          /* @__PURE__ */ jsxRuntime.jsxs("div", { className: `flex items-center gap-0.5 min-w-0 ${indented ? "pl-4" : ""}`, children: [
+            /* @__PURE__ */ jsxRuntime.jsx(
+              "input",
+              {
+                type: "text",
+                value: row.label,
+                onChange: (e) => onLabelChange(e.target.value),
+                onKeyDown: (e) => {
+                  if (e.key === "Enter") e.target.blur();
+                },
+                className: `flex-1 min-w-0 ${T.rowLabel}`,
+                title: row.label
+              }
+            ),
+            row.sourceFileId && onViewSource && /* @__PURE__ */ jsxRuntime.jsx(
+              "button",
+              {
+                onClick: () => onViewSource([row.sourceFileId]),
+                className: `p-1 rounded transition-all shrink-0 ${isHovered ? "opacity-100 text-ink-tertiary hover:text-ink-secondary hover:bg-surface-2" : "opacity-0"}`,
+                title: "Ver documento fuente",
+                children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.Eye, { size: 14 })
+              }
+            )
+          ] })
+        ] }),
         showClassificationColumns && (() => {
           const tipo = naturalezaPill(row.naturaleza);
           const renta = rentaPill(row.isVariable, row.naturaleza);
@@ -702,7 +739,7 @@ var DataRow = ({
             p.id
           );
         }),
-        /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${T.actionCol} text-center`, children: /* @__PURE__ */ jsxRuntime.jsx(deletebutton_default, { onClick: onRemove, isVisible: isHovered && !anySelected, title: "Eliminar fila" }) })
+        /* @__PURE__ */ jsxRuntime.jsx("td", { className: T.actionCol, "aria-hidden": true })
       ]
     }
   );
@@ -2448,7 +2485,6 @@ function AssetTable({
   const anySelected = selectable && selectedRows.size > 0;
   const canToggleCurrency = ufValue != null;
   const hasAutoConvert = conversionRules.length > 0 || computeRules.length > 0 || sideEffects.length > 0;
-  const actionColDelete = selectable || reorderable;
   const toggleColumn = (key) => {
     setToggledCols((prev) => {
       const next = new Set(prev);
@@ -2662,7 +2698,6 @@ function AssetTable({
           activeRows.map((row) => {
             const hovered = isHovered(row.id);
             const selected = selectable && selectedRows.has(row.id);
-            const showCheckbox = selectable && (anySelected || hovered);
             const isDragging = reorderable && drag.dragRowId === row.id;
             const dropBorder = reorderable && drag.dropTargetId === row.id ? drag.dropPosition === "above" ? "border-t-2 border-t-brand" : "border-b-2 border-b-brand" : "";
             return /* @__PURE__ */ jsxRuntime.jsxs(
@@ -2678,40 +2713,35 @@ function AssetTable({
                   resolvedColumns.map((col, i) => {
                     const vline = i < resolvedColumns.length - 1 ? T.vline : "";
                     if (col.isLabel) {
-                      return /* @__PURE__ */ jsxRuntime.jsx("td", { className: `${actionColDelete ? T.cellEditLabel : T.cellEdit} ${T.cellLabel} ${vline} ${onViewSource ? "relative" : ""}`, children: /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-0.5 min-w-0", children: [
-                        reorderable && /* @__PURE__ */ jsxRuntime.jsx(
-                          "span",
-                          {
-                            draggable: hovered,
-                            onDragStart: drag.handleDragStart(row.id),
-                            onDragEnd: drag.handleDragEnd,
-                            className: `shrink-0 cursor-grab active:cursor-grabbing text-ink-tertiary/60 hover:text-ink-tertiary transition-opacity ${hovered && !anySelected ? "opacity-100" : "opacity-0 pointer-events-none"}`,
-                            title: "Arrastrar para reordenar",
-                            children: /* @__PURE__ */ jsxRuntime.jsx(lucideReact.GripVertical, { size: 14 })
-                          }
-                        ),
-                        selectable && /* @__PURE__ */ jsxRuntime.jsx(
-                          "input",
-                          {
-                            type: "checkbox",
-                            checked: selected,
-                            onChange: () => toggleSelect(row.id),
-                            className: `shrink-0 w-3.5 h-3.5 rounded border-edge-subtle/30 text-status-pending focus:ring-status-pending cursor-pointer transition-opacity ${showCheckbox ? "opacity-100" : "opacity-0 pointer-events-none"}`
-                          }
-                        ),
-                        !actionColDelete && /* @__PURE__ */ jsxRuntime.jsx(deletebutton_default, { onClick: () => requestDelete(row.id), isVisible: hovered }),
-                        /* @__PURE__ */ jsxRuntime.jsx(viewsourcebutton_default, { sourceFileId: row.sourceFileId, onViewSource, isVisible: hovered }),
+                      return /* @__PURE__ */ jsxRuntime.jsxs("td", { className: `${T.cellEditLabel} ${T.cellLabel} ${vline} relative`, children: [
                         /* @__PURE__ */ jsxRuntime.jsx(
-                          "input",
+                          rowtoolbar_default,
                           {
-                            type: "text",
-                            value: row[col.key] || "",
-                            onChange: (e) => updateField(row.id, col.key, e.target.value),
-                            className: `flex-1 min-w-0 ${T.inputLabel} ${hovered || showCheckbox ? "" : "pl-1"} ${getCellOriginClass?.(row.id, col.key) || ""}`,
-                            placeholder: col.placeholder || col.label
+                            hovered,
+                            anySelected,
+                            selected,
+                            reorderable,
+                            onDragStart: reorderable ? drag.handleDragStart(row.id) : void 0,
+                            onDragEnd: reorderable ? drag.handleDragEnd : void 0,
+                            selectable,
+                            onToggleSelect: selectable ? () => toggleSelect(row.id) : void 0,
+                            onDelete: () => requestDelete(row.id)
                           }
-                        )
-                      ] }) }, col.key);
+                        ),
+                        /* @__PURE__ */ jsxRuntime.jsxs("div", { className: "flex items-center gap-0.5 min-w-0", children: [
+                          /* @__PURE__ */ jsxRuntime.jsx(viewsourcebutton_default, { sourceFileId: row.sourceFileId, onViewSource, isVisible: hovered }),
+                          /* @__PURE__ */ jsxRuntime.jsx(
+                            "input",
+                            {
+                              type: "text",
+                              value: row[col.key] || "",
+                              onChange: (e) => updateField(row.id, col.key, e.target.value),
+                              className: `flex-1 min-w-0 ${T.inputLabel} pl-1 ${getCellOriginClass?.(row.id, col.key) || ""}`,
+                              placeholder: col.placeholder || col.label
+                            }
+                          )
+                        ] })
+                      ] }, col.key);
                     }
                     if (col.type === "text") {
                       const isRight = col.align === "right";
@@ -2843,7 +2873,7 @@ function AssetTable({
                       col.key
                     );
                   }),
-                  /* @__PURE__ */ jsxRuntime.jsx("td", { className: `text-center ${T.actionCol}`, children: actionColDelete ? /* @__PURE__ */ jsxRuntime.jsx(deletebutton_default, { onClick: () => requestDelete(row.id), isVisible: hovered && !anySelected }) : null })
+                  /* @__PURE__ */ jsxRuntime.jsx("td", { className: T.actionCol, "aria-hidden": true })
                 ]
               },
               row.id

@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useCallback } from 'react'
-import { GripVertical, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import EditableCell from '../common/editablecell'
 import EditableField from '../common/editablefield'
-import DeleteRowButton from '../common/deletebutton'
+import RowToolbar from '../common/rowtoolbar'
 import { T } from '../common/styles'
 import { resolveColors } from '../common/colors'
 import TableShell from '../common/tableshell'
@@ -50,8 +50,6 @@ function AssetTable<T extends AssetRow>({
     const anySelected = selectable && selectedRows.size > 0
     const canToggleCurrency = ufValue != null
     const hasAutoConvert = conversionRules.length > 0 || computeRules.length > 0 || sideEffects.length > 0
-    // When selectable or reorderable, delete button moves to action column
-    const actionColDelete = selectable || reorderable
 
     const toggleColumn = (key: string) => {
         setToggledCols(prev => {
@@ -316,7 +314,6 @@ function AssetTable<T extends AssetRow>({
                 {activeRows.map(row => {
                     const hovered = isHovered(row.id)
                     const selected = selectable && selectedRows.has(row.id)
-                    const showCheckbox = selectable && (anySelected || hovered)
                     const isDragging = reorderable && drag.dragRowId === row.id
                     const dropBorder = reorderable && drag.dropTargetId === row.id
                         ? drag.dropPosition === 'above' ? 'border-t-2 border-t-brand' : 'border-b-2 border-b-brand'
@@ -337,36 +334,25 @@ function AssetTable<T extends AssetRow>({
                                 // --- Label column ---
                                 if (col.isLabel) {
                                     return (
-                                        <td key={col.key} className={`${actionColDelete ? T.cellEditLabel : T.cellEdit} ${T.cellLabel} ${vline} ${onViewSource ? 'relative' : ''}`}>
+                                        <td key={col.key} className={`${T.cellEditLabel} ${T.cellLabel} ${vline} relative`}>
+                                            <RowToolbar
+                                                hovered={hovered}
+                                                anySelected={anySelected}
+                                                selected={selected}
+                                                reorderable={reorderable}
+                                                onDragStart={reorderable ? drag.handleDragStart(row.id) : undefined}
+                                                onDragEnd={reorderable ? drag.handleDragEnd : undefined}
+                                                selectable={selectable}
+                                                onToggleSelect={selectable ? () => toggleSelect(row.id) : undefined}
+                                                onDelete={() => requestDelete(row.id)}
+                                            />
                                             <div className="flex items-center gap-0.5 min-w-0">
-                                                {reorderable && (
-                                                    <span
-                                                        draggable={hovered}
-                                                        onDragStart={drag.handleDragStart(row.id)}
-                                                        onDragEnd={drag.handleDragEnd}
-                                                        className={`shrink-0 cursor-grab active:cursor-grabbing text-ink-tertiary/60 hover:text-ink-tertiary transition-opacity ${hovered && !anySelected ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                                                        title="Arrastrar para reordenar"
-                                                    >
-                                                        <GripVertical size={14} />
-                                                    </span>
-                                                )}
-                                                {selectable && (
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={selected}
-                                                        onChange={() => toggleSelect(row.id)}
-                                                        className={`shrink-0 w-3.5 h-3.5 rounded border-edge-subtle/30 text-status-pending focus:ring-status-pending cursor-pointer transition-opacity ${showCheckbox ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                                                    />
-                                                )}
-                                                {!actionColDelete && (
-                                                    <DeleteRowButton onClick={() => requestDelete(row.id)} isVisible={hovered} />
-                                                )}
                                                 <ViewSourceButton sourceFileId={(row as Record<string, unknown>).sourceFileId as string | undefined} onViewSource={onViewSource} isVisible={hovered} />
                                                 <input
                                                     type="text"
                                                     value={(row[col.key] as string) || ''}
                                                     onChange={e => updateField(row.id, col.key, e.target.value)}
-                                                    className={`flex-1 min-w-0 ${T.inputLabel} ${hovered || showCheckbox ? '' : 'pl-1'} ${getCellOriginClass?.(row.id, col.key) || ''}`}
+                                                    className={`flex-1 min-w-0 ${T.inputLabel} pl-1 ${getCellOriginClass?.(row.id, col.key) || ''}`}
                                                     placeholder={col.placeholder || col.label}
                                                 />
                                             </div>
@@ -526,11 +512,7 @@ function AssetTable<T extends AssetRow>({
                                     />
                                 )
                             })}
-                            <td className={`text-center ${T.actionCol}`}>
-                                {actionColDelete ? (
-                                    <DeleteRowButton onClick={() => requestDelete(row.id)} isVisible={hovered && !anySelected} />
-                                ) : null}
-                            </td>
+                            <td className={T.actionCol} aria-hidden />
                         </tr>
                     )
                 })}
