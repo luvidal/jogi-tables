@@ -352,7 +352,7 @@ function AssetTable<T extends AssetRow>({
                                                     type="text"
                                                     value={(row[col.key] as string) || ''}
                                                     onChange={e => updateField(row.id, col.key, e.target.value)}
-                                                    className={`flex-1 min-w-0 ${T.inputLabel} pl-1 ${getCellOriginClass?.(row.id, col.key) || ''}`}
+                                                    className={`flex-1 min-w-0 ${T.inputLabel} p-0 ${getCellOriginClass?.(row.id, col.key) || ''}`}
                                                     placeholder={col.placeholder || col.label}
                                                 />
                                             </div>
