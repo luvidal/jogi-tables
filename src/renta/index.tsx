@@ -281,7 +281,14 @@ const RentaTable = ({
     }, [rows, onRowsChange])
 
     const toggleVariable = useCallback((rowId: string) => {
-        onRowsChange(rows.map(r => r.id === rowId ? { ...r, isVariable: !r.isVariable } : r))
+        onRowsChange(rows.map(r => {
+            if (r.id !== rowId) return r
+            // First click on undefined commits the visible state (RF) before the
+            // user can toggle to RV; otherwise the pill appears "frozen" because
+            // !undefined → true skips RF entirely on the very first click.
+            const next = r.isVariable === undefined ? false : !r.isVariable
+            return { ...r, isVariable: next }
+        }))
     }, [rows, onRowsChange])
 
     const toggleNaturaleza = useCallback((rowId: string) => {
@@ -291,9 +298,11 @@ const RentaTable = ({
             const cycle: string[] = isIncome
                 ? ['Imponible', 'No imponible']
                 : ['Legal', 'Otro']
-            const current = r.naturaleza || cycle[0]
-            const idx = cycle.indexOf(current)
-            const next = cycle[(idx + 1) % cycle.length]
+            // First click on undefined lands on cycle[0] so the user sees
+            // — → IMP → NO IMP, not — → NO IMP (skipping IMP).
+            const next = r.naturaleza
+                ? cycle[(cycle.indexOf(r.naturaleza) + 1) % cycle.length]
+                : cycle[0]
             return { ...r, naturaleza: next as RowData['naturaleza'] }
         }))
     }, [rows, onRowsChange])

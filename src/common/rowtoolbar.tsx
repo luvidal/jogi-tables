@@ -89,7 +89,6 @@ const RowToolbar = ({
                     onClick={onDelete}
                     className="p-0.5 rounded text-status-pending/70 hover:text-status-pending hover:bg-status-pending/10"
                     title="Eliminar fila"
-                    disabled={anySelected}
                 >
                     <X size={14} />
                 </button>

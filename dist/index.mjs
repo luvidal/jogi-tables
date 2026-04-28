@@ -540,7 +540,6 @@ var RowToolbar = ({
             onClick: onDelete,
             className: "p-0.5 rounded text-status-pending/70 hover:text-status-pending hover:bg-status-pending/10",
             title: "Eliminar fila",
-            disabled: anySelected,
             children: /* @__PURE__ */ jsx(X, { size: 14 })
           }
         ),
@@ -1653,16 +1652,18 @@ var RentaTable = ({
     onRowsChange(ungroupRows(rows, groupId));
   }, [rows, onRowsChange]);
   const toggleVariable = useCallback((rowId) => {
-    onRowsChange(rows.map((r) => r.id === rowId ? { ...r, isVariable: !r.isVariable } : r));
+    onRowsChange(rows.map((r) => {
+      if (r.id !== rowId) return r;
+      const next = r.isVariable === void 0 ? false : !r.isVariable;
+      return { ...r, isVariable: next };
+    }));
   }, [rows, onRowsChange]);
   const toggleNaturaleza = useCallback((rowId) => {
     onRowsChange(rows.map((r) => {
       if (r.id !== rowId) return r;
       const isIncome = isAddType(r.type);
       const cycle = isIncome ? ["Imponible", "No imponible"] : ["Legal", "Otro"];
-      const current = r.naturaleza || cycle[0];
-      const idx = cycle.indexOf(current);
-      const next = cycle[(idx + 1) % cycle.length];
+      const next = r.naturaleza ? cycle[(cycle.indexOf(r.naturaleza) + 1) % cycle.length] : cycle[0];
       return { ...r, naturaleza: next };
     }));
   }, [rows, onRowsChange]);
