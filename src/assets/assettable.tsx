@@ -347,7 +347,6 @@ function AssetTable<T extends AssetRow>({
                                                 onDelete={() => requestDelete(row.id)}
                                             />
                                             <div className="flex items-center gap-0.5 min-w-0">
-                                                <ViewSourceButton sourceFileId={(row as Record<string, unknown>).sourceFileId as string | undefined} onViewSource={onViewSource} isVisible={hovered} />
                                                 <input
                                                     type="text"
                                                     value={(row[col.key] as string) || ''}
@@ -355,6 +354,7 @@ function AssetTable<T extends AssetRow>({
                                                     className={`flex-1 min-w-0 ${T.inputLabel} !p-0 ${getCellOriginClass?.(row.id, col.key) || ''}`}
                                                     placeholder={col.placeholder || col.label}
                                                 />
+                                                <ViewSourceButton sourceFileId={(row as Record<string, unknown>).sourceFileId as string | undefined} onViewSource={onViewSource} isVisible={hovered} />
                                             </div>
                                         </td>
                                     )

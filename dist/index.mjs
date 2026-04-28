@@ -2721,7 +2721,6 @@ function AssetTable({
                           }
                         ),
                         /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-0.5 min-w-0", children: [
-                          /* @__PURE__ */ jsx(viewsourcebutton_default, { sourceFileId: row.sourceFileId, onViewSource, isVisible: hovered }),
                           /* @__PURE__ */ jsx(
                             "input",
                             {
@@ -2731,7 +2730,8 @@ function AssetTable({
                               className: `flex-1 min-w-0 ${T.inputLabel} !p-0 ${getCellOriginClass?.(row.id, col.key) || ""}`,
                               placeholder: col.placeholder || col.label
                             }
-                          )
+                          ),
+                          /* @__PURE__ */ jsx(viewsourcebutton_default, { sourceFileId: row.sourceFileId, onViewSource, isVisible: hovered })
                         ] })
                       ] }, col.key);
                     }
