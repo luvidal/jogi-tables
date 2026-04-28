@@ -499,7 +499,9 @@ var RowToolbar = ({
   onDragEnd,
   selectable = false,
   onToggleSelect,
-  onDelete
+  onDelete,
+  sourceFileId,
+  onViewSource
 }) => {
   const reveal = hovered || anySelected;
   const transform = reveal ? "translate-x-0 opacity-100 pointer-events-auto" : "-translate-x-full opacity-0 pointer-events-none";
@@ -540,6 +542,16 @@ var RowToolbar = ({
             title: "Eliminar fila",
             disabled: anySelected,
             children: /* @__PURE__ */ jsx(X, { size: 14 })
+          }
+        ),
+        sourceFileId && onViewSource && /* @__PURE__ */ jsx(
+          "button",
+          {
+            type: "button",
+            onClick: () => onViewSource([sourceFileId]),
+            className: "p-0.5 rounded text-ink-tertiary hover:text-ink-primary hover:bg-surface-2",
+            title: "Ver documento fuente",
+            children: /* @__PURE__ */ jsx(Eye, { size: 14 })
           }
         )
       ]
@@ -2421,25 +2433,6 @@ var useDragReorder2 = () => {
     handleDragEnd
   };
 };
-var ViewSourceButton = ({
-  sourceFileId,
-  onViewSource,
-  isVisible,
-  size = "sm"
-}) => {
-  if (!sourceFileId || !onViewSource) return null;
-  const padding = size === "sm" ? "p-0.5" : "p-1";
-  return /* @__PURE__ */ jsx(
-    "button",
-    {
-      onClick: () => onViewSource([sourceFileId]),
-      className: `${padding} rounded transition-all shrink-0 ${isVisible ? "opacity-100 text-ink-tertiary hover:text-ink-primary hover:bg-surface-2" : "opacity-0"}`,
-      title: "Ver documento fuente",
-      children: /* @__PURE__ */ jsx(Eye, { size: 14 })
-    }
-  );
-};
-var viewsourcebutton_default = ViewSourceButton;
 
 // src/common/cellorigin.ts
 var ORIGIN_CLASSES = {
@@ -2717,22 +2710,21 @@ function AssetTable({
                             onDragEnd: reorderable ? drag.handleDragEnd : void 0,
                             selectable,
                             onToggleSelect: selectable ? () => toggleSelect(row.id) : void 0,
-                            onDelete: () => requestDelete(row.id)
+                            onDelete: () => requestDelete(row.id),
+                            sourceFileId: row.sourceFileId,
+                            onViewSource
                           }
                         ),
-                        /* @__PURE__ */ jsxs("div", { className: "flex items-center gap-0.5 min-w-0", children: [
-                          /* @__PURE__ */ jsx(
-                            "input",
-                            {
-                              type: "text",
-                              value: row[col.key] || "",
-                              onChange: (e) => updateField(row.id, col.key, e.target.value),
-                              className: `flex-1 min-w-0 ${T.inputLabel} !p-0 ${getCellOriginClass?.(row.id, col.key) || ""}`,
-                              placeholder: col.placeholder || col.label
-                            }
-                          ),
-                          /* @__PURE__ */ jsx(viewsourcebutton_default, { sourceFileId: row.sourceFileId, onViewSource, isVisible: hovered })
-                        ] })
+                        /* @__PURE__ */ jsx("div", { className: "flex items-center gap-0.5 min-w-0", children: /* @__PURE__ */ jsx(
+                          "input",
+                          {
+                            type: "text",
+                            value: row[col.key] || "",
+                            onChange: (e) => updateField(row.id, col.key, e.target.value),
+                            className: `flex-1 min-w-0 ${T.inputLabel} !p-0 ${getCellOriginClass?.(row.id, col.key) || ""}`,
+                            placeholder: col.placeholder || col.label
+                          }
+                        ) })
                       ] }, col.key);
                     }
                     if (col.type === "text") {

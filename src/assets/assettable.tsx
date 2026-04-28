@@ -15,7 +15,6 @@ import { useDragReorder } from '../common/usedragreorder'
 import DeleteDialog from '../common/deletedialog'
 import RecycleBin from '../common/recyclebin'
 import ClickableHeader from '../common/clickableheader'
-import ViewSourceButton from '../common/viewsourcebutton'
 import { ORIGIN_CLASSES } from '../common/cellorigin'
 import type { AssetRow, AssetTableProps, ColumnDef } from './types'
 
@@ -345,6 +344,8 @@ function AssetTable<T extends AssetRow>({
                                                 selectable={selectable}
                                                 onToggleSelect={selectable ? () => toggleSelect(row.id) : undefined}
                                                 onDelete={() => requestDelete(row.id)}
+                                                sourceFileId={(row as Record<string, unknown>).sourceFileId as string | undefined}
+                                                onViewSource={onViewSource}
                                             />
                                             <div className="flex items-center gap-0.5 min-w-0">
                                                 <input
@@ -354,7 +355,6 @@ function AssetTable<T extends AssetRow>({
                                                     className={`flex-1 min-w-0 ${T.inputLabel} !p-0 ${getCellOriginClass?.(row.id, col.key) || ''}`}
                                                     placeholder={col.placeholder || col.label}
                                                 />
-                                                <ViewSourceButton sourceFileId={(row as Record<string, unknown>).sourceFileId as string | undefined} onViewSource={onViewSource} isVisible={hovered} />
                                             </div>
                                         </td>
                                     )

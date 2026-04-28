@@ -1,4 +1,4 @@
-import { GripVertical, X } from 'lucide-react'
+import { Eye, GripVertical, X } from 'lucide-react'
 import type { DragEvent } from 'react'
 
 /**
@@ -30,6 +30,9 @@ interface RowToolbarProps {
     onToggleSelect?: () => void
     /** Show delete button */
     onDelete?: () => void
+    /** Show source-file Eye button (when row has a sourceFileId) */
+    sourceFileId?: string
+    onViewSource?: (fileIds: string[]) => void
 }
 
 const RowToolbar = ({
@@ -42,6 +45,8 @@ const RowToolbar = ({
     selectable = false,
     onToggleSelect,
     onDelete,
+    sourceFileId,
+    onViewSource,
 }: RowToolbarProps) => {
     // Toolbar slides in on hover (or when sibling input is focused via group-focus-within).
     // Selection mode keeps the toolbar visible too — analysts need to see + extend the selection.
@@ -87,6 +92,16 @@ const RowToolbar = ({
                     disabled={anySelected}
                 >
                     <X size={14} />
+                </button>
+            )}
+            {sourceFileId && onViewSource && (
+                <button
+                    type="button"
+                    onClick={() => onViewSource([sourceFileId])}
+                    className="p-0.5 rounded text-ink-tertiary hover:text-ink-primary hover:bg-surface-2"
+                    title="Ver documento fuente"
+                >
+                    <Eye size={14} />
                 </button>
             )}
         </div>
