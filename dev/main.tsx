@@ -1,13 +1,8 @@
 import React, { useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import MonthlyTable from '../src/index'
-import { DebtsTable, BoletasTable, TributarioTable } from '../src/index'
-import type { RowData, Month, DebtEntry, BoletaMonth, TributarioEntry } from '../src'
+import RentaTable, { BoletasTable, CrudTable, DeclaracionTable } from '../src'
+import type { RowData, Month, BoletaMonth, ColumnDef, AssetRow, DeclaracionColumn, DeclaracionRow } from '../src'
 import './tailwind.css'
-
-// ============================================================================
-// 12-month data for horizontal scroll testing
-// ============================================================================
 
 const MONTHS_12: Month[] = [
     { id: '2025-01', label: 'ENE' },
@@ -30,277 +25,148 @@ const MONTHS_3: Month[] = [
     { id: '2026-03', label: 'MAR' },
 ]
 
-// Helper: random value between min and max
-const rv = (min: number, max: number) => Math.round(min + Math.random() * (max - min))
+const valueSeries = (months: Month[], base: number) =>
+    Object.fromEntries(months.map((m, i) => [m.id, base + i * 25_000]))
 
-// Generate values for all months
-const allMonthValues = (min: number, max: number, sparse = false) => {
-    const values: Record<string, number | null> = {}
-    for (const m of MONTHS_12) {
-        values[m.id] = sparse && Math.random() < 0.2 ? null : rv(min, max)
-    }
-    return values
-}
-
-// ============================================================================
-// MonthlyTable data — 12 months, many rows
-// ============================================================================
-
-const INCOME_ROWS_12: RowData[] = [
-    { id: 'r1', label: 'Sueldo Base', type: 'income', values: allMonthValues(1_400_000, 1_600_000) },
-    { id: 'r2', label: 'Gratificación Legal', type: 'income', values: allMonthValues(200_000, 260_000) },
-    { id: 'r3', label: 'Bono Producción', type: 'income', isVariable: true, values: allMonthValues(80_000, 200_000, true) },
-    { id: 'r4', label: 'Horas Extra', type: 'income', isVariable: true, values: allMonthValues(50_000, 150_000, true) },
-    { id: 'r5', label: 'Comisiones', type: 'income', isVariable: true, values: allMonthValues(100_000, 350_000, true) },
-    { id: 'r6', label: 'Asignación Colación', type: 'income', values: allMonthValues(55_000, 65_000) },
-    { id: 'r7', label: 'Asignación Movilización', type: 'income', values: allMonthValues(40_000, 50_000) },
-    { id: 'r8', label: 'Bono Incentivo (asistencia)', type: 'income', values: allMonthValues(30_000, 45_000) },
-    { id: 'r9', label: 'Viático', type: 'income', values: allMonthValues(20_000, 80_000, true) },
-    { id: 'r10', label: 'Asignación Familiar', type: 'income', values: allMonthValues(10_000, 15_000) },
-    { id: 'r11', label: 'AFP Cotización Obligatoria', type: 'deduction', values: allMonthValues(150_000, 210_000) },
-    { id: 'r12', label: 'Salud (Isapre/Fonasa)', type: 'deduction', values: allMonthValues(90_000, 130_000) },
-    { id: 'r13', label: 'Impuesto Único', type: 'deduction', values: allMonthValues(35_000, 55_000) },
-    { id: 'r14', label: 'Seguro Cesantía', type: 'deduction', values: allMonthValues(7_000, 12_000) },
-    { id: 'r15', label: 'Anticipo', type: 'deduction', values: allMonthValues(0, 200_000, true) },
-    { id: 'r16', label: 'Préstamo Empresa', type: 'deduction', values: allMonthValues(40_000, 60_000) },
-    { id: 'r17', label: 'Descuento Adm.', type: 'deduction', values: allMonthValues(5_000, 15_000) },
-    { id: 'r18', label: 'Cuota Sindical', type: 'deduction', values: allMonthValues(8_000, 12_000) },
+const RENTA_ROWS_12: RowData[] = [
+    { id: 'r1', label: 'Sueldo Base', type: 'income', values: valueSeries(MONTHS_12, 1_500_000) },
+    { id: 'r2', label: 'Gratificacion Legal', type: 'income', values: valueSeries(MONTHS_12, 250_000) },
+    { id: 'r3', label: 'Bono Produccion', type: 'income', isVariable: true, values: valueSeries(MONTHS_12, 120_000) },
+    { id: 'r4', label: 'Horas Extra', type: 'income', isVariable: true, values: valueSeries(MONTHS_12, 85_000) },
+    { id: 'r5', label: 'AFP Cotizacion Obligatoria', type: 'deduction', values: valueSeries(MONTHS_12, 185_000) },
+    { id: 'r6', label: 'Salud', type: 'deduction', values: valueSeries(MONTHS_12, 105_000) },
+    { id: 'r7', label: 'Impuesto Unico', type: 'deduction', values: valueSeries(MONTHS_12, 45_000) },
 ]
 
-// ============================================================================
-// BoletasTable data — 12 months
-// ============================================================================
+const RENTA_ROWS_3: RowData[] = RENTA_ROWS_12.slice(0, 5).map(row => ({
+    ...row,
+    values: valueSeries(MONTHS_3, row.type === 'income' ? 800_000 : 100_000),
+}))
 
-const BOLETA_MONTHS: BoletaMonth[] = MONTHS_12.map(m => ({
+const BOLETA_MONTHS: BoletaMonth[] = MONTHS_12.map((m, i) => ({
     periodo: m.id,
-    mes: ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][parseInt(m.id.split('-')[1]) - 1],
-    hasData: Math.random() > 0.1,
-    boletas: rv(2, 8),
-    bruto: rv(800_000, 2_500_000),
-    retencion: rv(80_000, 300_000),
-    liquido: rv(600_000, 2_200_000),
+    mes: ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'][i],
+    hasData: true,
+    boletas: 3 + i,
+    bruto: 1_000_000 + i * 100_000,
+    retencion: 100_000 + i * 10_000,
+    liquido: 900_000 + i * 90_000,
 }))
 
-// ============================================================================
-// DebtsTable data — many entries with late payments
-// ============================================================================
+type DebtRow = AssetRow & {
+    entidad: string
+    tipo: string
+    deuda_total: number | null
+    vigente: number | null
+    atraso: number | null
+}
 
-const DEBT_ENTRIES: DebtEntry[] = [
-    { id: 'd1', entidad: 'Banco Estado', tipo: 'Hipotecario', deuda_total: 85_000_000, vigente: 83_500_000, atraso_30_59: 1_200_000, atraso_60_89: 300_000 },
-    { id: 'd2', entidad: 'Banco Chile', tipo: 'Consumo', deuda_total: 4_500_000, vigente: 4_200_000, atraso_30_59: 200_000, atraso_90_mas: 100_000 },
-    { id: 'd3', entidad: 'Banco Santander', tipo: 'Automotriz', deuda_total: 12_000_000, vigente: 11_800_000 },
-    { id: 'd4', entidad: 'Scotiabank', tipo: 'Consumo', deuda_total: 2_300_000, vigente: 2_100_000, atraso_30_59: 200_000 },
-    { id: 'd5', entidad: 'Banco BCI', tipo: 'Comercial', deuda_total: 15_000_000, vigente: 14_500_000, atraso_60_89: 500_000 },
-    { id: 'd6', entidad: 'Banco Falabella', tipo: 'Consumo', deuda_total: 1_800_000, vigente: 1_800_000 },
-    { id: 'd7', entidad: 'Banco BICE', tipo: 'Leasing', deuda_total: 8_000_000, vigente: 7_500_000, atraso_90_mas: 500_000 },
-    { id: 'd8', entidad: 'Cooperativa de Ahorro', tipo: 'Consumo', deuda_total: 900_000, vigente: 900_000 },
-    { id: 'd9', entidad: 'Banco Security', tipo: 'Hipotecario', deuda_total: 45_000_000, vigente: 44_000_000 },
-    { id: 'd10', entidad: 'Banco Itaú', tipo: 'Consumo', deuda_total: 3_200_000, vigente: 3_000_000, atraso_30_59: 200_000 },
+const DEBT_COLUMNS: ColumnDef[] = [
+    { key: 'entidad', label: 'Entidad', type: 'text', width: '34%', isLabel: true },
+    { key: 'tipo', label: 'Tipo', type: 'text', width: '22%' },
+    { key: 'deuda_total', label: 'Deuda total', type: 'currency', width: '22%' },
+    { key: 'vigente', label: 'Vigente', type: 'currency', width: '22%' },
+    { key: 'atraso', label: 'Atraso', type: 'currency', width: '18%' },
 ]
 
-// ============================================================================
-// TributarioTable data — many entries
-// ============================================================================
-
-const TRIBUTARIO_ENTRIES: TributarioEntry[] = [
-    { id: 't1', source: 'balance-anual', label: 'Balance 2024', empresa: 'Constructora Los Andes SpA', year: '2024', ingresos: 450_000_000, egresos: 380_000_000 },
-    { id: 't2', source: 'balance-anual', label: 'Balance 2023', empresa: 'Constructora Los Andes SpA', year: '2023', ingresos: 380_000_000, egresos: 320_000_000 },
-    { id: 't3', source: 'balance-anual', label: 'Balance 2024', empresa: 'Inversiones Montaña Ltda.', year: '2024', ingresos: 120_000_000, egresos: 95_000_000 },
-    { id: 't4', source: 'carpeta-tributaria', label: 'Carpeta Tributaria', rut: '12.345.678-9', nombre: 'Juan Pérez', actividades: ['Construcción general', 'Venta al por mayor', 'Arriendo inmuebles'] },
-    { id: 't5', source: 'carpeta-tributaria', label: 'Carpeta Tributaria', rut: '98.765.432-1', nombre: 'María González', actividades: ['Consultoría profesional'] },
+const DEBT_ROWS: DebtRow[] = [
+    { id: 'd1', entidad: 'Banco Estado', tipo: 'Hipotecario', deuda_total: 85_000_000, vigente: 83_500_000, atraso: 1_200_000 },
+    { id: 'd2', entidad: 'Banco Chile', tipo: 'Consumo', deuda_total: 4_500_000, vigente: 4_200_000, atraso: null },
+    { id: 'd3', entidad: 'Banco Santander', tipo: 'Automotriz', deuda_total: 12_000_000, vigente: 11_800_000, atraso: null },
+    { id: 'd4', entidad: 'Banco BCI', tipo: 'Comercial', deuda_total: 15_000_000, vigente: 14_500_000, atraso: 500_000 },
 ]
 
-// ============================================================================
-// Boletas as MonthlyTable (how Situacion renders them) — 12 months
-// ============================================================================
-
-const BOLETA_MONTHLY_ROWS: RowData[] = [
-    { id: 'b1', label: 'Honorario Bruto', type: 'income', values: allMonthValues(800_000, 2_500_000) },
-    { id: 'b2', label: 'Otros Ingresos', type: 'income', values: allMonthValues(100_000, 500_000, true) },
-    { id: 'b3', label: 'Retención (10.75%)', type: 'deduction', values: allMonthValues(80_000, 300_000) },
-    { id: 'b4', label: 'Cotización Previsional', type: 'deduction', values: allMonthValues(60_000, 200_000) },
+const DECLARACION_COLUMNS: DeclaracionColumn[] = [
+    { key: '2024', label: '2024' },
+    { key: '2023', label: '2023' },
 ]
 
-const INCOME_3MONTH_ROWS: RowData[] = INCOME_ROWS_12.slice(0, 6).map(r => ({
-    ...r,
-    values: Object.fromEntries(MONTHS_3.map(m => [m.id, rv(100_000, 2_000_000)])),
-}))
+const DECLARACION_ROWS: DeclaracionRow[] = [
+    { key: 'ingresos', label: 'Ingresos', code: '628', summed: true },
+    { key: 'egresos', label: 'Egresos', code: '629', summed: true },
+    { key: 'resultado', label: 'Resultado', code: '643' },
+]
 
-// ============================================================================
-// Scenarios
-// ============================================================================
+const DECLARACION_DATA = {
+    ingresos: { '2024': 450_000_000, '2023': 380_000_000 },
+    egresos: { '2024': 120_000_000, '2023': 95_000_000 },
+    resultado: { '2024': 330_000_000, '2023': 285_000_000 },
+}
 
-function Scenario({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
+function Scenario({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
     return (
-        <div className="mb-8">
-            <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">{title}</h2>
-            {description
-                ? <p className="text-xs text-gray-400 mb-3">{description}</p>
-                : <div className="mb-3" />}
+        <section className="mb-8">
+            <h2 className="text-sm font-semibold text-ink-secondary uppercase mb-1">{title}</h2>
+            <p className="text-xs text-ink-tertiary mb-3">{description}</p>
             {children}
-        </div>
+        </section>
     )
 }
 
-// ── MonthlyTable scenarios ──
-
-function IncomeTable12Months() {
-    const [rows, setRows] = useState<RowData[]>(INCOME_ROWS_12)
+function RentaScenario({ compact = false }: { compact?: boolean }) {
+    const [rows, setRows] = useState<RowData[]>(compact ? RENTA_ROWS_3 : RENTA_ROWS_12)
     return (
-        <MonthlyTable
-            title="Renta Líquida Titular"
-            months={MONTHS_12}
+        <RentaTable
+            title={compact ? 'Renta 3 meses' : 'Renta Liquida Titular'}
+            months={compact ? MONTHS_3 : MONTHS_12}
             rows={rows}
             onRowsChange={setRows}
             sections={[
                 { type: 'income', placeholder: 'Agregar ingreso...' },
                 { type: 'deduction', placeholder: 'Agregar descuento...' },
             ]}
-            headerBg="bg-emerald-50"
-            headerText="text-emerald-700"
-            showVariableColumn
+            showVariableColumn={!compact}
         />
     )
 }
 
-function IncomeTable3Months() {
-    const [rows, setRows] = useState<RowData[]>(INCOME_3MONTH_ROWS)
+function CrudScenario() {
+    const [rows, setRows] = useState<DebtRow[]>(DEBT_ROWS)
     return (
-        <MonthlyTable
-            title="Renta (3 meses — no debería necesitar scroll)"
-            months={MONTHS_3}
-            rows={rows}
-            onRowsChange={setRows}
-            sections={[
-                { type: 'income', placeholder: 'Agregar ingreso...' },
-                { type: 'deduction', placeholder: 'Agregar descuento...' },
-            ]}
-            headerBg="bg-blue-50"
-            headerText="text-blue-700"
-        />
-    )
-}
-
-function BoletasMonthly12() {
-    const [rows, setRows] = useState<RowData[]>(BOLETA_MONTHLY_ROWS)
-    return (
-        <MonthlyTable
-            title="Boletas 2025"
-            months={MONTHS_12}
-            rows={rows}
-            onRowsChange={setRows}
-            sections={[
-                { type: 'income', placeholder: 'Agregar ingreso...' },
-                { type: 'deduction', placeholder: 'Agregar descuento...' },
-            ]}
-            headerBg="bg-orange-50"
-            headerText="text-orange-700"
-        />
-    )
-}
-
-function FlushMonthly12() {
-    const [rows, setRows] = useState<RowData[]>(INCOME_ROWS_12.slice(0, 8))
-    return (
-        <div className="border border-gray-200 rounded-xl overflow-hidden">
-            <MonthlyTable
-                title="Flush mode (inside accordion)"
-                months={MONTHS_12}
-                rows={rows}
-                onRowsChange={setRows}
-                sections={[
-                    { type: 'income', placeholder: 'Agregar ingreso...' },
-                    { type: 'deduction', placeholder: 'Agregar descuento...' },
-                ]}
-                headerBg="bg-purple-50"
-                headerText="text-purple-700"
-                flush
-                showVariableColumn
-            />
-        </div>
-    )
-}
-
-// ── BoletasTable scenario ──
-
-function BoletasTableScenario() {
-    return (
-        <BoletasTable
-            title="Boletas de Honorarios 2025"
-            months={BOLETA_MONTHS}
-            headerBg="bg-orange-50"
-            headerText="text-orange-700"
-        />
-    )
-}
-
-// ── DebtsTable scenario ──
-
-function DebtsTableScenario() {
-    const [entries, setEntries] = useState<DebtEntry[]>(DEBT_ENTRIES)
-    return (
-        <DebtsTable
+        <CrudTable<DebtRow>
             title="Deudas Financieras"
-            entries={entries}
-            onEntriesChange={setEntries}
-            headerBg="bg-rose-50"
-            headerText="text-rose-700"
+            columns={DEBT_COLUMNS}
+            rows={rows}
+            onRowsChange={setRows}
+            idPrefix="debt"
+            addPlaceholder="Agregar deuda..."
+            selectable
+            reorderable
         />
     )
 }
-
-// ── TributarioTable scenario ──
-
-function TributarioTableScenario() {
-    return (
-        <TributarioTable
-            title="Información Tributaria"
-            entries={TRIBUTARIO_ENTRIES}
-            headerBg="bg-amber-50"
-            headerText="text-amber-700"
-        />
-    )
-}
-
-// ============================================================================
-// App
-// ============================================================================
 
 function App() {
     return (
-        <div className="max-w-4xl mx-auto px-4 py-8">
-            <h1 className="text-xl font-bold text-gray-800 mb-2">MonthlyTable — Scroll & Alignment Tests</h1>
-            <p className="text-sm text-gray-500 mb-8">
-                Verify that header columns (month totals) scroll in sync with body columns.
-                Scroll right on 12-month tables — headers and data must stay aligned.
+        <div className="max-w-5xl mx-auto px-4 py-8 text-ink-primary">
+            <h1 className="text-xl font-bold mb-2">@jogi/tables preview</h1>
+            <p className="text-sm text-ink-tertiary mb-8">
+                Current package surfaces rendered with local fixtures.
             </p>
 
-            <Scenario title="1. MonthlyTable — 12 months (scroll test)" description="18 rows across 12 months. Header should scroll with body. Try scrolling right.">
-                <IncomeTable12Months />
+            <Scenario title="1. RentaTable - 12 months" description="Editable monthly spreadsheet with grouping, variable rows, and section subtotals.">
+                <RentaScenario />
             </Scenario>
 
-            <Scenario title="2. MonthlyTable — 3 months (no scroll needed)" description="Baseline: no horizontal scroll needed. Should render normally.">
-                <IncomeTable3Months />
+            <Scenario title="2. RentaTable - compact" description="Same engine with a shorter month range.">
+                <RentaScenario compact />
             </Scenario>
 
-            <Scenario title="3. Boletas as MonthlyTable — 12 months" description="Boletas section in Situacion uses MonthlyTable. 4 rows across 12 months.">
-                <BoletasMonthly12 />
+            <Scenario title="3. CrudTable" description="Declarative column-driven table used by asset and debt-style reports.">
+                <CrudScenario />
             </Scenario>
 
-            <Scenario title="4. MonthlyTable flush mode — 12 months" description="flush=true, inside a parent container (like DocSections accordion). Same scroll test.">
-                <FlushMonthly12 />
+            <Scenario title="4. BoletasTable" description="Read-only monthly boletas metrics.">
+                <BoletasTable title="Boletas de Honorarios 2025" months={BOLETA_MONTHS} />
             </Scenario>
 
-            <Scenario title="5. BoletasTable — 12 months vertical" description="BoletasTable has vertical layout (months as rows). Header is a simple bar, no column alignment issue.">
-                <BoletasTableScenario />
-            </Scenario>
-
-            <Scenario title="6. DebtsTable — many entries with late payments" description="10 debt entries with atraso columns. Header columns should align with body.">
-                <DebtsTableScenario />
-            </Scenario>
-
-            <Scenario title="7. TributarioTable — mixed entries" description="Balance anual + carpeta tributaria entries. Header columns should align with body.">
-                <TributarioTableScenario />
+            <Scenario title="5. DeclaracionTable" description="Read-only tax declaration matrix with code and year columns.">
+                <DeclaracionTable
+                    columns={DECLARACION_COLUMNS}
+                    rows={DECLARACION_ROWS}
+                    data={DECLARACION_DATA}
+                    formatCurrency={(value) => `$ ${value.toLocaleString('es-CL')}`}
+                />
             </Scenario>
         </div>
     )

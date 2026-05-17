@@ -1,6 +1,6 @@
-# FinanceTables
+# @jogi/tables
 
-Financial table components extracted from [jogi](../jogi). Includes MonthlyTable (editable monthly spreadsheet with CRUD, grouping, drag-reorder, keyboard nav), DebtsTable, BoletasTable, TributarioTable, and AssetTable.
+Financial table components extracted from [jogi](../jogi). Includes RentaTable (default export), CrudTable, BoletasTable, DeclaracionTable, BalanceTable, SummaryTable, ActivosSummary, and FinalResultsCompact.
 
 ## Quick Reference
 
@@ -31,7 +31,6 @@ src/
 │   ├── styles.ts          # T object — Tailwind class tokens (incl. rowBorder, rowHover)
 │   ├── utils.ts           # displayCurrency, displayCurrencyCompact, generateId, formatDeletedDate, MONTH_LABELS
 │   ├── editablecell.tsx   # Inline-editable table cell
-│   ├── currencytoggle.tsx # UF/$ toggle button
 │   ├── recyclebin.tsx     # Recycle bin footer (table-based, optional renderCells)
 │   ├── usegridkeyboard.ts # Grid keyboard navigation hook (arrow keys, Tab, Enter, Escape)
 │   ├── userowhover.ts    # Row hover state hook
@@ -51,8 +50,11 @@ src/
 │   └── types.ts           # ColumnDef, AssetTableProps, AssetRow, TablePreset, SideEffect
 ├── boletas/               # BoletasTable — see boletas/README.md
 │   └── index.tsx
-├── tributario/            # TributarioTable — see tributario/README.md
-│   └── index.tsx
+├── declaracion/           # DeclaracionTable
+├── balance/               # BalanceTable
+├── summary/               # SummaryTable
+├── activossummary/        # ActivosSummary
+└── finalresults/          # FinalResultsCompact
 
 dev/
 ├── index.html             # Visual test page entry point
@@ -60,7 +62,7 @@ dev/
 └── tailwind.css           # Tailwind base styles for dev page
 
 tests/
-├── helpers.test.ts        # Unit tests for monthly/helpers
+├── helpers.test.ts        # Unit tests for renta/helpers
 └── utils.test.ts          # Unit tests for common/utils
 ```
 
@@ -89,7 +91,7 @@ All user-facing text uses informal **tú**, never **usted**:
 3. **No `@/` imports** — all imports are relative within `src/`
 4. **Icons** — use direct lucide-react imports (`import { Eye } from 'lucide-react'`), not a wrapper component
 5. **Tailwind classes** — the package ships class strings but does NOT bundle CSS. Consumers add the dist path to their `tailwind.config.ts` content array
-6. **API stability** — the exported props interface (`MonthlyTableProps`) must stay backward-compatible with jogi's call sites. Breaking changes require updating jogi's `lib/reports/monthlytable.tsx` re-export
+6. **API stability** — exported props and named exports must stay backward-compatible with jogi's `@jogi/tables` call sites. Breaking changes require updating the host app in the same handoff
 7. **Optimistic updates** — always update UI immediately, then fire callbacks. Don't block UI on async responses
 8. **After modifying a feature**, update this CLAUDE.md if any key behavior changed
 9. **README.md maintenance** — every modification to a component folder must update its `README.md` to reflect changes. Verify that new upgrades don't cause regressions in existing functionality before marking work as complete
@@ -100,10 +102,10 @@ All user-facing text uses informal **tú**, never **usted**:
 
 ```ts
 // Default export
-MonthlyTable
+RentaTable
 
 // Named type exports
-Month, RowData, RowType, MonthlyTableProps
+Month, RowData, RowType, RentaTableProps
 
 // Named function exports
 generateLastNMonths

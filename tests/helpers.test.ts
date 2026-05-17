@@ -12,8 +12,8 @@ import {
     createGroup,
     ungroupRows,
     autoUngroup,
-} from '../src/monthly/helpers'
-import type { RowData, Month } from '../src/monthly/types'
+} from '../src/renta/helpers'
+import type { RowData, Month } from '../src/renta/types'
 
 // ============================================================================
 // Row type helpers
@@ -80,10 +80,10 @@ describe('generateLastNMonths', () => {
         const months = generateLastNMonths(1)
         expect(months[0].id).toMatch(/^\d{4}-\d{2}$/)
     })
-    it('months have uppercase 3-letter labels', () => {
+    it('months have title-case 3-letter labels', () => {
         const months = generateLastNMonths(12)
         for (const m of months) {
-            expect(m.label).toMatch(/^[A-Z]{3}$/)
+            expect(m.label).toMatch(/^[A-Z][a-z]{2}$/)
         }
     })
     it('months are ordered oldest first', () => {

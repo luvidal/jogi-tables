@@ -1,13 +1,11 @@
 import { describe, it, expect, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { render, screen, fireEvent } from '@testing-library/react'
-import React from 'react'
 import { useRowHover } from '../src/common/userowhover'
 import { useFieldUpdate } from '../src/common/usefieldupdate'
 import { useGridKeyboard } from '../src/common/usegridkeyboard'
 import DeleteRowButton from '../src/common/deletebutton'
 import ViewSourceButton from '../src/common/viewsourcebutton'
-import EmptyStateRow from '../src/common/emptystaterow'
 
 // ============================================================================
 // useGridKeyboard
@@ -262,36 +260,5 @@ describe('ViewSourceButton', () => {
         )
         fireEvent.click(screen.getByTitle('Ver documento fuente'))
         expect(onViewSource).toHaveBeenCalledWith(['f1'])
-    })
-})
-
-// ============================================================================
-// EmptyStateRow
-// ============================================================================
-
-describe('EmptyStateRow', () => {
-    const renderInTable = (ui: React.ReactNode) =>
-        render(<table><tbody>{ui}</tbody></table>)
-
-    it('renders nothing when show=false', () => {
-        const { container } = renderInTable(
-            <EmptyStateRow show={false} colSpan={5} message="Empty" />
-        )
-        expect(container.querySelectorAll('tr')).toHaveLength(0)
-    })
-
-    it('renders message when show=true', () => {
-        renderInTable(
-            <EmptyStateRow show={true} colSpan={5} message="Sin datos" />
-        )
-        expect(screen.getByText('Sin datos')).toBeDefined()
-    })
-
-    it('sets correct colSpan', () => {
-        const { container } = renderInTable(
-            <EmptyStateRow show={true} colSpan={7} message="Empty" />
-        )
-        const td = container.querySelector('td')
-        expect(td?.getAttribute('colspan')).toBe('7')
     })
 })
